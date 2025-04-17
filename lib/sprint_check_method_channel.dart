@@ -32,6 +32,7 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
   /// use [checkout] and you want this plugin to initialize the transaction for you.
   /// Please check [checkout] for more information
   ///
+  @override
   initialize({required String publicKey, required String secretKey}) async {
     assert(() {
       if (publicKey.isEmpty) {
@@ -90,6 +91,7 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     }
   }
 
+  @override
   Future<CheckoutResponse> checkout(
     BuildContext context,
     CheckoutMethod checkoutmethod,

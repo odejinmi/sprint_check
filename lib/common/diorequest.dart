@@ -70,8 +70,6 @@ class diorequest {
   Future<dynamic> post(String endpoint, Object data) async {
     String url = '$baseurl$endpoint';
     print(url);
-    // String keystring = dotenv.env['API_KEY'] ?? 'API_KEY not found';
-    String keystring = 'pos_hash_wv9b8dqovdpmz6r9v47gjtjy';
     var header = {
       'Content-Type': Headers.jsonContentType,
       'Authorization': controller.publicKey,

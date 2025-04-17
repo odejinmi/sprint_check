@@ -36,13 +36,13 @@ class Cameraliveness extends GetxController {
     var split = await faceSdk.splitComparedFaces(response.results, 0.75);
     var match = split.matchedFaces;
     if (match.isNotEmpty) {
-      var similarityStatus =
-          (match[0].similarity * 100).toStringAsFixed(2) + "%";
-      if ((match[0].similarity * 100) > 70) {
-        return (match[0].similarity * 100);
-      } else {
-        return (match[0].similarity * 100);
-      }
+      // var similarityStatus =
+      //     (match[0].similarity * 100).toStringAsFixed(2) + "%";
+      // if ((match[0].similarity * 100) > 70) {
+      //   return (match[0].similarity * 100);
+      // } else {
+      return (match[0].similarity * 100);
+      // }
     } else {
       return 0;
     }

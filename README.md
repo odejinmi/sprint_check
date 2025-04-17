@@ -62,6 +62,13 @@ Just send the payment details to  `plugin.chargeCard`
       );
 ```
 
+### checkoutresponse
+```dart
+print("response for the sdk: ${response}");
+
+result:
+response for the sdk: CheckoutResponse{message: Verification Completed,reference: 99ed1c4d-362f-4a98-ac32-2f471e12aefb, status: true, method: CheckoutMethod.bvn, name: ***************, verify: true, bvn: ***********,  nin: null, verify: 98.1496810913086, }
+```
 ## Getting Started
 you can contact me on [odejinmisamuel@gmail.com] or [odejinmiabraham@gmail.com] for more enquiry and both api and encryption key
 
