@@ -1,0 +1,124 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:sprint_check/sprint_check.dart';
+import 'package:sprint_check/sprint_check_method_channel.dart';
+
+class Mypage extends StatefulWidget {
+  const Mypage({Key? key}) : super(key: key);
+
+  @override
+  State<Mypage> createState() => _MypageState();
+}
+
+class _MypageState extends State<Mypage> {
+  String _platformVersion = 'Unknown';
+  final _sprintCheckPlugin = SprintCheck();
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    String platformVersion;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    // We also handle the message potentially returning null.
+    try {
+      platformVersion =
+          await _sprintCheckPlugin.getPlatformVersion() ??
+          'Unknown platform version';
+      _sprintCheckPlugin.initialize(
+        api_key: "***********************",
+        encryption_key: "**********************",
+      );
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Plugin example app')),
+      body: Center(
+        child: Column(
+          children: [
+            Text('Running on: $_platformVersion\n'),
+            // SizedBox(height: 10),
+            // InkWell(
+            //   onTap: () {
+            //     _sprintCheckPlugin.initialize(
+            //       publicKey: "scb1edcd88-64f7485186d9781ca624a903",
+            //       secretKey: "enc67fe4978b16fc1744718200",
+            //     );
+            //   },
+            //   child: Text("initiate transaction"),
+            // ),
+            SizedBox(height: 20),
+            InkWell(
+              onTap: () async {
+                var response = await _sprintCheckPlugin.checkout(
+                  context,
+                  CheckoutMethod.bvn,
+                );
+                showresult("response for the sdk: ${response}");
+                print("response for the sdk: ${response}");
+              },
+              child: Text("Start BVN verification"),
+            ),
+            SizedBox(height: 20),
+            InkWell(
+              onTap: () async {
+                var response = await _sprintCheckPlugin.checkout(
+                  context,
+                  CheckoutMethod.nin,
+                );
+                showresult("response for the sdk: ${response}");
+                print("response for the sdk: ${response}");
+              },
+              child: Text("Start NIN verification"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  showresult(message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            // color: Colors.white,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Sdk result"),
+                SizedBox(height: 20),
+                Text(message),
+              ],
+            ),
+          ),
+          surfaceTintColor: Colors.white,
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        );
+      },
+    );
+  }
+}

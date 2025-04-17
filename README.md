@@ -1,0 +1,76 @@
+# A Sprint_check Plugin for Flutter Apps
+
+Flutter plugin for BVN and NIN Verification with Picture. Fully
+supports Android && Ios platform.
+
+## Features
+Current
+- BVN
+- NIN
+
+
+## Installation
+To use this plugin, add `sprint_check` as a [dependency in your pubspec.yaml file](https://flutter.dev/platform-plugins/).
+
+Then initialize the plugin preferably in the `initState` of your widget.
+
+
+``` dart
+import 'package:flutterduplo/flutterduplo.dart';
+
+class _ExamplePayementPageState extends State<ExamplePayementPage> {
+  var api_key = 'Add your SprintCheck api_key Key Here';
+  var encryption_key = 'Add your SprintCheck Secret Key Here';
+  final plugin = SprintCheck();
+
+  @override
+  void initState() {
+    plugin.initialize(api_key: api_key,encryption_key:encryption_key);
+  }
+}
+```
+
+## Making Verification
+There are two ways of making Varificatio with the plugin.
+1.  **BVN**: This is the easy way; as the plugin handles all the
+    processes involved in making a BVN verification.
+2.  **NIN**: This is the easy way; as the plugin handles all the
+    processes involved in making a NIN verification.
+
+### 1. BVN 
+
+ ```dart
+     CheckoutResponse response = await plugin.checkout(
+       context context,
+       method: CheckoutMethod.bvn, // Defaults to CheckoutMethod.selectable
+     );
+ ```
+
+`plugin.checkout()` returns the state and details of the
+payment in an instance of `CheckoutResponse` .
+
+
+
+### 2. NIN
+You can choose to initialize the payment locally or via your backend.
+
+Just send the payment details to  `plugin.chargeCard`
+```dart
+      CheckoutResponse response = await plugin.checkout(
+        context context,
+        method: CheckoutMethod.nin, // Defaults to CheckoutMethod.selectable
+      );
+```
+
+## Getting Started
+you can contact me on [odejinmisamuel@gmail.com] or [odejinmiabraham@gmail.com] for more enquiry and both api and encryption key
+
+This project is a starting point for a Flutter
+[plug-in package](https://flutter.dev/to/develop-plugins),
+a specialized package that includes platform-specific implementation code for
+Android and/or iOS.
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
+
