@@ -1,7 +1,7 @@
 name: sprint_check
 description: "A new Flutter project."
 version: 0.0.1
-homepage:
+homepage: https://www.5starcompany.com.ng/
 
 environment:
   sdk: ^3.7.2
