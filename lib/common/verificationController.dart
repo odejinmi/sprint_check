@@ -26,6 +26,10 @@ class VerificationController extends GetxController {
   set secretKey(value) => _secretKey.value = value;
   get secretKey => _secretKey.value;
 
+  final _identifier = "".obs;
+  set identifier(value) => _identifier.value = value;
+  get identifier => _identifier.value;
+
   final _sdkInitialized = false.obs;
   set sdkInitialized(value) => _sdkInitialized.value = value;
   get sdkInitialized => _sdkInitialized.value;
@@ -116,6 +120,7 @@ class VerificationController extends GetxController {
     var result = await diorequest().put(checmethod.toLowerCase(), {
       'number': bvnController.text,
       'reference': reference,
+      'identifier': identifier,
       'confidence': score.toInt(),
       'image': captureimage,
     });

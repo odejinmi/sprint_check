@@ -95,6 +95,7 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
   Future<CheckoutResponse> checkout(
     BuildContext context,
     CheckoutMethod checkoutmethod,
+    String identifier,
   ) async {
     // assert(() {
     //   _validateChargeAndKey(charge);
@@ -102,6 +103,7 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     // }());
     _performChecks();
     controller.checkoutmethod = checkoutmethod;
+    controller.identifier = identifier;
     CheckoutResponse? response = await showDialog(
       barrierDismissible: false,
       context: context,

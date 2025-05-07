@@ -19,7 +19,12 @@ class SprintCheck {
   Future<CheckoutResponse> checkout(
     BuildContext context,
     CheckoutMethod checkoutmethod,
+    String identifier,
   ) async {
-    return SprintCheckPlatform.instance.checkout(context, checkoutmethod);
+    return SprintCheckPlatform.instance.checkout(
+      context,
+      checkoutmethod,
+      identifier,
+    );
   }
 }

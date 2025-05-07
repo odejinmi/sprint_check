@@ -31,7 +31,7 @@ class _ExamplePayementPageState extends State<ExamplePayementPage> {
 ```
 
 ## Making Verification
-There are two ways of making Varificatio with the plugin.
+There are two ways of making Varification with the plugin.
 1.  **BVN**: This is the easy way; as the plugin handles all the
     processes involved in making a BVN verification.
 2.  **NIN**: This is the easy way; as the plugin handles all the
@@ -43,22 +43,22 @@ There are two ways of making Varificatio with the plugin.
      CheckoutResponse response = await plugin.checkout(
        context context,
        method: CheckoutMethod.bvn, // Defaults to CheckoutMethod.selectable
+        identifier: "odejinmiabraham@gmail.com", // means to identify who did the transaction
      );
  ```
 
 `plugin.checkout()` returns the state and details of the
-payment in an instance of `CheckoutResponse` .
+verification in an instance of `CheckoutResponse` .
 
 
 
 ### 2. NIN
-You can choose to initialize the payment locally or via your backend.
 
-Just send the payment details to  `plugin.chargeCard`
 ```dart
       CheckoutResponse response = await plugin.checkout(
         context context,
         method: CheckoutMethod.nin, // Defaults to CheckoutMethod.selectable
+        identifier: "odejinmiabraham@gmail.com" // means to identify who did the transaction
       );
 ```
 
@@ -67,7 +67,7 @@ Just send the payment details to  `plugin.chargeCard`
 print("response for the sdk: ${response}");
 
 result:
-response for the sdk: CheckoutResponse{message: Verification Completed,reference: 99ed1c4d-362f-4a98-ac32-2f471e12aefb, status: true, method: CheckoutMethod.bvn, name: ***************, verify: true, bvn: ***********,  nin: null, verify: 98.1496810913086, }
+response for the sdk: CheckoutResponse{message: Verification Completed,reference: 99ed1c4d-362f-4a98-ac32-2f471e12aefb, status: true, method: CheckoutMethod.bvn, name: ***************, verify: true, bvn: ***********,  nin: null, verify: 98, }
 ```
 ## Getting Started
 you can contact me on [odejinmisamuel@gmail.com] or [odejinmiabraham@gmail.com] for more enquiry and both api and encryption key

@@ -1,7 +1,7 @@
 name: sprint_check
 description: "Flutter plugin for BVN and NIN Verification with Picture. Fully supports Android && Ios platform."
-version: 0.0.2
-homepage: https://www.5starcompany.com.ng/
+version: 0.0.3
+homepage: https://sprintcheck.megasprintlimited.com.ng/
 
 environment:
   sdk: ^3.7.2
@@ -19,7 +19,7 @@ dependencies:
   flutter_face_core_basic: ^6.4.242
   get: ^4.7.2
   intl: ^0.20.2
-  syncfusion_flutter_gauges: ^29.1.38
+  syncfusion_flutter_gauges: ^29.1.41
   dio: ^5.8.0+1
   crypto: ^3.0.6
 

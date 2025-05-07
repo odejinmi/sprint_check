@@ -74,6 +74,7 @@ class _MypageState extends State<Mypage> {
                 var response = await _sprintCheckPlugin.checkout(
                   context,
                   CheckoutMethod.bvn,
+                  "odejinmiabraham@gmail.com",
                 );
                 showresult("response for the sdk: ${response}");
                 print("response for the sdk: ${response}");
@@ -86,6 +87,7 @@ class _MypageState extends State<Mypage> {
                 var response = await _sprintCheckPlugin.checkout(
                   context,
                   CheckoutMethod.nin,
+                  "odejinmiabraham@gmail.com",
                 );
                 showresult("response for the sdk: ${response}");
                 print("response for the sdk: ${response}");
