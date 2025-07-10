@@ -44,7 +44,7 @@ class _MypageState extends State<Mypage> {
           'Unknown platform version';
       _sprintCheckPlugin.initialize(
         api_key: "************************",
-        encryption_key: "***************************",
+        encryption_key: "*************************",
       );
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';

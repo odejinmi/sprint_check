@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: async
-      sha256: d2872f9c19731c2e5f10444b14686eb7cc85c76274bd6c16e1816bff9a3bab63
+      sha256: "758e6d74e971c3e5aceb4110bfd6698efc7f501675bcfe0c775459a8140750eb"
       url: "https://pub.dev"
     source: hosted
-    version: "2.12.0"
+    version: "2.13.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -77,10 +77,10 @@ packages:
     dependency: transitive
     description:
       name: fake_async
-      sha256: "6a95e56b2449df2273fd8c45a662d6947ce1ebb7aafe80e550a3f68297f3cacc"
+      sha256: "5368f224a74523e8d2e7399ea1638b37aecfca824a3cc4dfdf77bf1fa905ac44"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.2"
+    version: "1.3.3"
   file:
     dependency: transitive
     description:
@@ -103,18 +103,18 @@ packages:
     dependency: transitive
     description:
       name: flutter_face_api
-      sha256: "8922044a3eaf4fe85933e720ff87618d3db14b6ad47ee87fbde1d002119f60fd"
+      sha256: "894812cd98bb32227ddf97c5dbdee57dae9f3f29e3dfea991df786240272de51"
       url: "https://pub.dev"
     source: hosted
-    version: "6.5.100-nightly"
+    version: "7.1.298"
   flutter_face_core_basic:
     dependency: transitive
     description:
       name: flutter_face_core_basic
-      sha256: ed75e0907b02aa6c062f8f9c798a5e3ed36f4bf78cfbb10e5d03872755ec49f1
+      sha256: d45e937fd897d7c020076e78fae29fd20e57c5b414e3825fc04cdb6b4e76aa87
       url: "https://pub.dev"
     source: hosted
-    version: "6.4.242"
+    version: "7.1.168"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -171,10 +171,10 @@ packages:
     dependency: transitive
     description:
       name: leak_tracker
-      sha256: c35baad643ba394b40aac41080300150a4f08fd0fd6a10378f8f7c6bc161acec
+      sha256: "6bb818ecbdffe216e81182c2f0714a2e62b593f4a4f13098713ff1685dfb6ab0"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.8"
+    version: "10.0.9"
   leak_tracker_flutter_testing:
     dependency: transitive
     description:
@@ -274,7 +274,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.4"
   stack_trace:
     dependency: transitive
     description:
@@ -311,18 +311,18 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: "98580db6186b46aae965d3f480f7830b0ee6f58c4e1bbbb3fb3de6a121f61836"
+      sha256: df52b3d5c9c593c2954a7e776f6c7a8776a583819832ee32fb16697bb1bfbc27
       url: "https://pub.dev"
     source: hosted
-    version: "29.1.38"
+    version: "30.1.39"
   syncfusion_flutter_gauges:
     dependency: transitive
     description:
       name: syncfusion_flutter_gauges
-      sha256: e76f14f3ea511c89b943c05d5fffa7142b0c19fed247c2f57d7efdfbaa4d1b6c
+      sha256: "575543d5c608c68d1fc660f260904bd2a3bf6c5fdd16936b9433a4db086c9f1d"
       url: "https://pub.dev"
     source: hosted
-    version: "29.1.38"
+    version: "30.1.39"
   term_glyph:
     dependency: transitive
     description:
@@ -359,10 +359,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: "0968250880a6c5fe7edc067ed0a13d4bae1577fe2771dcf3010d52c4a9d3ca14"
+      sha256: ddfa8d30d89985b96407efce8acbdd124701f96741f2d981ca860662f1c0dc02
       url: "https://pub.dev"
     source: hosted
-    version: "14.3.1"
+    version: "15.0.0"
   web:
     dependency: transitive
     description:
@@ -375,10 +375,10 @@ packages:
     dependency: transitive
     description:
       name: webdriver
-      sha256: "3d773670966f02a646319410766d3b5e1037efb7f07cc68f844d5e06cd4d61c8"
+      sha256: "2f3a14ca026957870cfd9c635b83507e0e51d8091568e90129fbf805aba7cade"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.4"
+    version: "3.1.0"
 sdks:
   dart: ">=3.7.2 <4.0.0"
   flutter: ">=3.18.0-18.0.pre.54"

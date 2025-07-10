@@ -43,7 +43,7 @@ There are two ways of making Varification with the plugin.
      CheckoutResponse response = await plugin.checkout(
        context context,
        method: CheckoutMethod.bvn, // Defaults to CheckoutMethod.selectable
-        identifier: "odejinmiabraham@gmail.com", // means to identify who did the transaction
+        identifier: "odejinmiabraham@gmail.com", // means to identify who did the verification
      );
  ```
 
@@ -58,7 +58,7 @@ verification in an instance of `CheckoutResponse` .
       CheckoutResponse response = await plugin.checkout(
         context context,
         method: CheckoutMethod.nin, // Defaults to CheckoutMethod.selectable
-        identifier: "odejinmiabraham@gmail.com" // means to identify who did the transaction
+        identifier: "odejinmiabraham@gmail.com" // means to identify who did the verification
       );
 ```
 

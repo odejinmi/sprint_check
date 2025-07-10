@@ -9,7 +9,7 @@ import 'verificationController.dart';
 
 class diorequest {
   final dio = Dio();
-  final baseurl = "https://sprintcheck.megasprintlimited.com.ng/api/sdk/";
+  final baseurl = "https://api.sprintcheck.megasprintlimited.com.ng/api/sdk/";
 
   VerificationController controller = Get.Get.put(VerificationController());
   //final baseurl = "https://abs.paylony.com/api/v1/";

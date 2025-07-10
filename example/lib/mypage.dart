@@ -30,8 +30,8 @@ class _MypageState extends State<Mypage> {
           await _sprintCheckPlugin.getPlatformVersion() ??
           'Unknown platform version';
       _sprintCheckPlugin.initialize(
-        api_key: "scb1edcd88-64f7485186d9781ca624a903",
-        encryption_key: "enc67fe4978b16fc1744718200",
+        api_key: "***********************************",
+        encryption_key: "*********************",
       );
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
