@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:sprint_check/sprint_check_method_channel.dart';
 
 import '../models/checkout_response.dart';
@@ -36,15 +39,26 @@ class VerificationController extends GetxController {
   final _checked = false.obs;
   set checked(value) => _checked.value = value;
   get checked => _checked.value;
-  var _checkoutmethod = CheckoutMethod.selectable.obs;
-  set checkoutmethod(value) => _checkoutmethod.value = value;
+  final _checkoutmethod = CheckoutMethod.selectable.obs;
+  set checkoutmethod(value) {
+    if (value == CheckoutMethod.facial) {
+      stage = 1;
+      facetitle = "Face Verification";
+    } else {
+      stage = 0;
+    }
+    _checkoutmethod.value = value;
+  }
+
   get checkoutmethod => _checkoutmethod.value;
 
   final _score = 0.0.obs;
   set score(value) => _score.value = value;
   get score => _score.value;
 
-  TextEditingController bvnController = TextEditingController();
+  TextEditingController bvnController = TextEditingController(
+    text: "00000000000000",
+  );
 
   final _stage = 0.obs;
   set stage(value) => _stage.value = value;
@@ -57,6 +71,10 @@ class VerificationController extends GetxController {
   final _bvnimage = "".obs;
   set bvnimage(value) => _bvnimage.value = value;
   get bvnimage => _bvnimage.value;
+
+  final _facetitle = "Face Recognition".obs;
+  set facetitle(value) => _facetitle.value = value;
+  get facetitle => _facetitle.value;
 
   final _captureimage = "".obs;
   set captureimage(value) => _captureimage.value = value;
@@ -75,10 +93,17 @@ class VerificationController extends GetxController {
     // loader(context, "Loading");
     var result = await diorequest().post(checmethod.toLowerCase(), {
       'number': bvnController.text,
+      'identifier': identifier,
     });
     // Navigator.pop(context);
     if (result["success"] == 1) {
-      bvnimage = result['data']['image'];
+      var image = result['data']['image'];
+      if (isUrl(image)) {
+        bvnimage = await urlToBase64(image);
+      } else {
+        // Assume it's already base64
+        bvnimage = image;
+      }
       reference = result['data']["reference"];
       if (captureimage.toString().isNotEmpty) {
         compareimage(context);
@@ -90,11 +115,30 @@ class VerificationController extends GetxController {
     }
   }
 
+  // Returns true if the string is a URL
+  bool isUrl(String str) {
+    final urlPattern = r'^(http|https):\/\/';
+    return RegExp(urlPattern, caseSensitive: false).hasMatch(str);
+  }
+
+  // Converts image URL to base64 string
+  Future<String> urlToBase64(String url) async {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      print(response.bodyBytes);
+      Uint8List bytes = response.bodyBytes;
+      return base64Encode(bytes);
+    } else {
+      throw Exception('Failed to load image');
+    }
+  }
+
   final _width = 60.0.obs;
   set width(value) => _width.value = value;
   get width => _width.value;
   Timer? timer;
-  compareimage(BuildContext context) async {
+
+  loading(BuildContext context) {
     if (timer != null) {
       timer!.cancel();
     }
@@ -109,6 +153,9 @@ class VerificationController extends GetxController {
         return Loading();
       },
     );
+  }
+
+  compareimage(BuildContext context) async {
     var result = await faceapi.comparefaceKyc(captureimage, bvnimage);
     print("image compare result $result");
     score = result;
@@ -147,6 +194,8 @@ class VerificationController extends GetxController {
         return "BVN";
       case CheckoutMethod.nin:
         return "NIN";
+      case CheckoutMethod.facial:
+        return "FACIAL";
       default:
         return "Selectable";
     }

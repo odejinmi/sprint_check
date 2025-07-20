@@ -43,8 +43,8 @@ class _MypageState extends State<Mypage> {
           await _sprintCheckPlugin.getPlatformVersion() ??
           'Unknown platform version';
       _sprintCheckPlugin.initialize(
-        api_key: "************************",
-        encryption_key: "*************************",
+        api_key: "scb1edcd88-64f7485186d9781ca624a903",
+        encryption_key: "enc67fe4978b16fc1744718200",
       );
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
@@ -93,6 +93,19 @@ class _MypageState extends State<Mypage> {
                 print("response for the sdk: ${response}");
               },
               child: Text("Start NIN verification"),
+            ),
+            SizedBox(height: 20),
+            InkWell(
+              onTap: () async {
+                var response = await _sprintCheckPlugin.checkout(
+                  context,
+                  CheckoutMethod.facial,
+                  "odejinmiabraham@gmail.com",
+                );
+                showresult("response for the sdk: ${response}");
+                print("response for the sdk: ${response}");
+              },
+              child: Text("Start Face verification"),
             ),
           ],
         ),

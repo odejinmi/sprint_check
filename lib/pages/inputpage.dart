@@ -7,6 +7,7 @@ import '../common/verificationController.dart';
 class Inputpage extends GetView<VerificationController> {
   @override
   Widget build(BuildContext context) {
+    controller.bvnController.clear();
     return SingleChildScrollView(
       child: Obx(() {
         return Column(

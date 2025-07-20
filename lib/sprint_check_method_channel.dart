@@ -113,6 +113,6 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
   }
 }
 
-enum CheckoutMethod { bvn, nin, selectable }
+enum CheckoutMethod { bvn, nin, facial, selectable }
 
 typedef OnResponse<CheckoutResponse> = void Function(CheckoutResponse response);
