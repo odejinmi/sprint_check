@@ -27,6 +27,9 @@ class _MypageState extends State<Mypage> {
   String _platformVersion = 'Unknown';
   final _sprintCheckPlugin = SprintCheck();
 
+  TextEditingController bvnController = TextEditingController(
+    text: "odejinmiabraham@gmail.com",
+  );
   @override
   void initState() {
     super.initState();
@@ -65,49 +68,82 @@ class _MypageState extends State<Mypage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Plugin example app')),
       body: Center(
-        child: Column(
-          children: [
-            Text('Running on: $_platformVersion\n'),
-            SizedBox(height: 20),
-            InkWell(
-              onTap: () async {
-                var response = await _sprintCheckPlugin.checkout(
-                  context,
-                  CheckoutMethod.bvn,
-                  "odejinmiabraham@gmail.com",
-                );
-                showresult("response for the sdk: ${response}");
-                print("response for the sdk: ${response}");
-              },
-              child: Text("Start BVN verification"),
-            ),
-            SizedBox(height: 20),
-            InkWell(
-              onTap: () async {
-                var response = await _sprintCheckPlugin.checkout(
-                  context,
-                  CheckoutMethod.nin,
-                  "odejinmiabraham@gmail.com",
-                );
-                showresult("response for the sdk: ${response}");
-                print("response for the sdk: ${response}");
-              },
-              child: Text("Start NIN verification"),
-            ),
-            SizedBox(height: 20),
-            InkWell(
-              onTap: () async {
-                var response = await _sprintCheckPlugin.checkout(
-                  context,
-                  CheckoutMethod.facial,
-                  "odejinmiabraham@gmail.com",
-                );
-                showresult("response for the sdk: ${response}");
-                print("response for the sdk: ${response}");
-              },
-              child: Text("Start Face verification"),
-            ),
-          ],
+        child: Container(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              Text('Running on: $_platformVersion\n'),
+              SizedBox(height: 20),
+              TextFormField(
+                autofillHints: [AutofillHints.telephoneNumber],
+                decoration: InputDecoration(
+                  hintText: "asfdgsd@gmail.com",
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    borderSide: BorderSide(color: Color(0xFF6A6C6A)),
+                  ),
+                  errorBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    borderSide: BorderSide(color: Colors.red),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    borderSide: BorderSide(color: Color(0xFF6A6C6A)),
+                  ),
+                ),
+                keyboardType: TextInputType.phone,
+                inputFormatters: [],
+                controller: bvnController,
+                onChanged: (value) {},
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "Kindly input your identifier";
+                  }
+
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
+              InkWell(
+                onTap: () async {
+                  var response = await _sprintCheckPlugin.checkout(
+                    context,
+                    CheckoutMethod.bvn,
+                    bvnController.text,
+                  );
+                  showresult("response for the sdk: ${response}");
+                  print("response for the sdk: ${response}");
+                },
+                child: Text("Start BVN verification"),
+              ),
+              SizedBox(height: 20),
+              InkWell(
+                onTap: () async {
+                  var response = await _sprintCheckPlugin.checkout(
+                    context,
+                    CheckoutMethod.nin,
+                    "odejinmiabraham@gmail.com",
+                  );
+                  showresult("response for the sdk: ${response}");
+                  print("response for the sdk: ${response}");
+                },
+                child: Text("Start NIN verification"),
+              ),
+              SizedBox(height: 20),
+              InkWell(
+                onTap: () async {
+                  var response = await _sprintCheckPlugin.checkout(
+                    context,
+                    CheckoutMethod.facial,
+                    "odejinmiabraham@gmail.com",
+                  );
+                  showresult("response for the sdk: ${response}");
+                  print("response for the sdk: ${response}");
+                },
+                child: Text("Start Face verification"),
+              ),
+            ],
+          ),
         ),
       ),
     );
