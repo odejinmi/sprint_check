@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sprint_check/pages/capture_i_d_card_page.dart';
 import 'package:sprint_check/pages/inputpage.dart';
 import 'package:sprint_check/pages/verificationscore.dart';
 import 'package:sprint_check/sprint_check_method_channel.dart';
 
 import '../common/verificationController.dart';
-import 'capture_i_d_card_page.dart';
 import 'facepage.dart';
 
 class CheckoutWidget extends GetView<VerificationController> {
