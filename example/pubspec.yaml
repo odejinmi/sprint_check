@@ -34,9 +34,7 @@ dependencies:
   path_provider: ^2.1.5
   path: ^1.9.1
   cryptography: ^2.7.0
-  sprint_check:
-    git:
-      url: https://github.com/olamide/sprint_check.git
+
 
 dev_dependencies:
   integration_test:
