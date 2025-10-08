@@ -36,8 +36,10 @@ abstract class SprintCheckPlatform extends PlatformInterface {
   Future<CheckoutResponse> checkout(
     BuildContext context,
     CheckoutMethod checkoutmethod,
-    String identifier,
-  ) async {
+    String identifier, {
+    String? bvn,
+    String? nin,
+  }) async {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 }

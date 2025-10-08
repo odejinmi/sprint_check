@@ -95,8 +95,10 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
   Future<CheckoutResponse> checkout(
     BuildContext context,
     CheckoutMethod checkoutmethod,
-    String identifier,
-  ) async {
+    String identifier, {
+    String? bvn,
+    String? nin,
+  }) async {
     // assert(() {
     //   _validateChargeAndKey(charge);
     //   return true;
@@ -104,15 +106,26 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     _performChecks();
     controller.checkoutmethod = checkoutmethod;
     controller.identifier = identifier;
+    if (bvn != null && bvn.isNotEmpty) {
+      controller.directcheckout = true;
+      controller.bvnController.text = bvn;
+      controller.stage = 1;
+    }
+    if (nin != null && nin.isNotEmpty) {
+      controller.directcheckout = true;
+      controller.bvnController.text = nin;
+      controller.stage = 1;
+    }
     CheckoutResponse? response = await showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) => CheckoutWidget(),
     );
+    controller.directcheckout = false;
     return response!;
   }
 }
 
-enum CheckoutMethod { bvn, nin, facial, selectable }
+enum CheckoutMethod { bvn, nin, facial, idcard, selectable }
 
 typedef OnResponse<CheckoutResponse> = void Function(CheckoutResponse response);

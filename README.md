@@ -42,8 +42,9 @@ There are two ways of making Varification with the plugin.
  ```dart
      CheckoutResponse response = await plugin.checkout(
        context context,
-       method: CheckoutMethod.bvn, // Defaults to CheckoutMethod.selectable
-        identifier: "odejinmiabraham@gmail.com", // means to identify who did the verification
+       CheckoutMethod.bvn, // Defaults to CheckoutMethod.selectable
+        "odejinmiabraham@gmail.com", // means to identify who did the verification
+        bvn:"1234567890"                                           // direct checkout if you don't want to use our input text
      );
  ```
 
@@ -57,8 +58,9 @@ verification in an instance of `CheckoutResponse` .
 ```dart
       CheckoutResponse response = await plugin.checkout(
         context context,
-        method: CheckoutMethod.nin, // Defaults to CheckoutMethod.selectable
-        identifier: "odejinmiabraham@gmail.com" // means to identify who did the verification
+        CheckoutMethod.nin, // Defaults to CheckoutMethod.selectable
+        "odejinmiabraham@gmail.com", // means to identify who did the verification
+        nin:"1234567890"
       );
 ```
 

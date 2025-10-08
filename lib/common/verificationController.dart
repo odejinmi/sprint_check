@@ -2,11 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:sprint_check/sprint_check_method_channel.dart';
 
+import '../models/IDCardInfo.dart';
 import '../models/checkout_response.dart';
 import '../pages/loading.dart';
 import 'cameraliveness.dart';
@@ -44,6 +48,9 @@ class VerificationController extends GetxController {
     if (value == CheckoutMethod.facial) {
       stage = 1;
       facetitle = "Face Verification";
+    } else if (value == CheckoutMethod.idcard) {
+      stage = 3;
+      initializeCamera();
     } else {
       stage = 0;
     }
@@ -52,12 +59,22 @@ class VerificationController extends GetxController {
 
   get checkoutmethod => _checkoutmethod.value;
 
+  final _directcheckout = false.obs;
+  set directcheckout(value) => _directcheckout.value = value;
+  get directcheckout => _directcheckout.value;
+
   final _score = 0.0.obs;
   set score(value) => _score.value = value;
   get score => _score.value;
 
   TextEditingController bvnController = TextEditingController(
     text: "00000000000000",
+  );
+
+  TextEditingController idnameController = TextEditingController(text: "00");
+  TextEditingController idnumberController = TextEditingController(text: "00");
+  TextEditingController dobController = TextEditingController(
+    text: "00/00/0000",
   );
 
   final _stage = 0.obs;
@@ -266,5 +283,67 @@ class VerificationController extends GetxController {
     bvnController.clear();
     captureimage = "";
     bvnimage = "";
+  }
+
+  final _cameracontroller = Rx<CameraController?>(null);
+  set cameracontroller(value) => _cameracontroller.value = value;
+  CameraController? get cameracontroller => _cameracontroller.value;
+
+  final _cameras = <CameraDescription>[].obs;
+  set cameras(value) => _cameras.value = value;
+  get cameras => _cameras;
+  final _result = ''.obs;
+  set result(value) => _result.value = value;
+  get result => _result.value;
+
+  Future<void> captureAndExtract() async {
+    if (cameracontroller == null || !cameracontroller!.value.isInitialized)
+      return;
+    final image = await cameracontroller!.takePicture();
+    final inputImage = InputImage.fromFilePath(image.path);
+    final info = await IDCardParser.extractInfoFromImage(inputImage);
+    idnameController.text = "${info.firstName} ${info.lastName}";
+    idnumberController.text = "${info.idNumber}";
+    dobController.text = "${info.dateOfBirth}";
+    print('First Name: ${info.firstName}');
+    print('Last Name: ${info.lastName}');
+    print('DOB: ${info.dateOfBirth}');
+    print('ID Number: ${info.idNumber}');
+    result =
+        'First Name: ${info.firstName}\nLast Name: ${info.lastName}\nDOB: ${info.dateOfBirth}\nID Number: ${info.idNumber}';
+    stage = 3;
+  }
+
+  Future<void> pickAndExtractIDCardInfo() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      final inputImage = InputImage.fromFilePath(pickedFile.path);
+      final info = await IDCardParser.extractInfoFromImage(inputImage);
+
+      print('First Name: ${info.firstName}');
+      print('Last Name: ${info.lastName}');
+      print('DOB: ${info.dateOfBirth}');
+      print('ID Number: ${info.idNumber}');
+      // Show these in your UI as needed
+      result =
+          'First Name: ${info.firstName}\nLast Name: ${info.lastName}\nDOB: ${info.dateOfBirth}\nID Number: ${info.idNumber}';
+    }
+  }
+
+  initializeCamera() {
+    availableCameras().then((camera) {
+      cameras = camera;
+      if (cameras.isNotEmpty) {
+        cameracontroller = CameraController(
+          cameras[0],
+          ResolutionPreset.medium,
+        );
+        cameracontroller!.initialize().then((_) {
+          name = "Paste";
+          update();
+        });
+      }
+    });
   }
 }

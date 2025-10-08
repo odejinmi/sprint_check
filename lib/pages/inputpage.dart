@@ -204,6 +204,16 @@ class Inputpage extends GetView<VerificationController> {
             ),
             SizedBox(height: 20),
             Divider(),
+            // SizedBox(height: 10),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => const LiveDetectionPage()),
+            //     );
+            //   },
+            //   child: const Text('Live Face Detection'),
+            // ),
             SizedBox(height: 10),
             InkWell(
               onTap: () {

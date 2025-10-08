@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sprint_check/pages/facepage.dart';
 import 'package:sprint_check/pages/inputpage.dart';
 import 'package:sprint_check/pages/verificationscore.dart';
+import 'package:sprint_check/sprint_check_method_channel.dart';
 
 import '../common/verificationController.dart';
+import 'capture_i_d_card_page.dart';
+import 'facepage.dart';
 
 class CheckoutWidget extends GetView<VerificationController> {
   const CheckoutWidget({super.key});
@@ -36,7 +38,24 @@ class CheckoutWidget extends GetView<VerificationController> {
                     IconButton(
                       onPressed: () {
                         if (controller.stage != 0) {
-                          controller.stage--;
+                          if (controller.stage == 3) {
+                            controller.closedialog(
+                              context,
+                              "user cancel the process",
+                            );
+                          } else if (controller.checkoutmethod ==
+                              CheckoutMethod.idcard) {
+                            controller.stage = 3;
+                          } else if (controller.checkoutmethod ==
+                                  CheckoutMethod.facial ||
+                              controller.directcheckout) {
+                            controller.closedialog(
+                              context,
+                              "user cancel the process",
+                            );
+                          } else {
+                            controller.stage--;
+                          }
                         } else {
                           controller.closedialog(
                             context,
@@ -54,6 +73,8 @@ class CheckoutWidget extends GetView<VerificationController> {
                           ? Inputpage()
                           : controller.stage == 1
                           ? Facepage()
+                          : controller.stage == 3
+                          ? CaptureIDCardPage()
                           : Verificationscore(),
                 ),
                 SizedBox(height: 20),
