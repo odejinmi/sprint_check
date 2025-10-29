@@ -106,6 +106,8 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     _performChecks();
     controller.checkoutmethod = checkoutmethod;
     controller.identifier = identifier;
+    controller.bvnNumber = bvn;
+    controller.ninNumber = nin;
     if (bvn != null && bvn.isNotEmpty) {
       controller.directcheckout = true;
       controller.bvnController.text = bvn;

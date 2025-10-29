@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 import '../common/verificationController.dart';
+import '../models/checkout_response.dart';
 
 class Verificationscore extends GetView<VerificationController> {
   @override
@@ -146,8 +147,11 @@ class Verificationscore extends GetView<VerificationController> {
               if (controller.verificationstatus == 2) {
                 controller.closedialog(context, "Verification Completed");
               } else if (controller.verificationstatus == 0) {
-
-                controller.stage = 0;
+                if (controller.bvnNumber != null || controller.ninNumber != null) {
+                  controller.closedialog(context, "Verification Cancelled");
+                } else {
+                  controller.stage = 0;
+                }
               } else {
                 controller.stage = 1;
               }
@@ -184,7 +188,11 @@ class Verificationscore extends GetView<VerificationController> {
           if (controller.verificationstatus == 1)
             InkWell(
               onTap: () {
-                controller.stage = 0;
+                 if (controller.bvnNumber != null || controller.ninNumber != null) {
+                  controller.closedialog(context, "Verification Cancelled");
+                } else {
+                  controller.stage = 0;
+                }
               },
               child: Center(
                 child: Text(

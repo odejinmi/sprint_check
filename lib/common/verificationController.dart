@@ -33,6 +33,14 @@ class VerificationController extends GetxController {
   set secretKey(value) => _secretKey.value = value;
   get secretKey => _secretKey.value;
 
+  final _bvnNumber = Rx<String?>(null);
+  set bvnNumber(value) => _bvnNumber.value = value;
+  String? get bvnNumber => _bvnNumber.value;
+
+  final _ninNumber = Rx<String?>(null);
+  set ninNumber(value) => _ninNumber.value = value;
+  String? get ninNumber => _ninNumber.value;
+
   final _identifier = "".obs;
   set identifier(value) => _identifier.value = value;
   get identifier => _identifier.value;
