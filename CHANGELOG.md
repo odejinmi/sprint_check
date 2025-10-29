@@ -18,3 +18,8 @@ added facial
 ##0.0.6
 direct checkout added
 you now pass your nin and bvn to the checkout method and it is optional
+
+##0.0.7
+
+##0.0.8
+add loaded on getting to faceverification

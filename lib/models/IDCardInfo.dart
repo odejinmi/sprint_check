@@ -60,7 +60,7 @@ class IDCardParser {
 
     // // Debug: Print all OCR lines for troubleshooting
     // for (var l in lines) {
-    //   print('[OCR LINE] ' + l + "  ${lines.length}");
+    //   dev.log('[OCR LINE] ' + l + "  ${lines.length}");
     // }
 
     // --- CARD TYPE DETECTION ---
@@ -106,7 +106,7 @@ class IDCardParser {
       cardType = 'nimc';
     }
 
-    print('[CARD TYPE] $cardType');
+    // dev.log('[CARD TYPE] $cardType');
 
     void extractVoter() {
       // VOTER'S CARD LOGIC
@@ -384,9 +384,9 @@ class IDCardParser {
         else if (upper.contains('PASSPART NO.') ||
             upper.contains('N PASSEPORT') ||
             upper.contains('PASSPART NO./N PASSEPORT')) {
-          print('PASSPORT NO');
-          print(lines[i]);
-          print(lines[i + 1]);
+          // dev.log('PASSPORT NO');
+          // dev.log(lines[i]);
+          // dev.log(lines[i + 1]);
           if (i + 1 < lines.length) tempIdNumber = lines[i + 1].trim();
         }
       }
@@ -577,9 +577,9 @@ class IDCardParser {
         }
         // Passport No.
         else if (upper.contains('NGA')) {
-          print('PASSPORT NO');
-          print(lines[i]);
-          print(lines[i + 1]);
+          // dev.log('PASSPORT NO');
+          // dev.log(lines[i]);
+          // dev.log(lines[i + 1]);
           if (i + 1 < lines.length) tempIdNumber = lines[i + 1].trim();
         }
       }

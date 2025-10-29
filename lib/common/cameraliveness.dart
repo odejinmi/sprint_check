@@ -57,7 +57,7 @@ class Cameraliveness extends GetxController {
     var result = await faceSdk.startLiveness(
       config: LivenessConfig(skipStep: [LivenessSkipStep.ONBOARDING_STEP]),
       notificationCompletion: (notification) {
-        print(notification.status);
+        // dev.log(notification.status);
       },
     );
     return result;
@@ -89,7 +89,7 @@ class Cameraliveness extends GetxController {
     var (success, error) = await faceSdk.initialize(config: config);
     if (!success) {
       // status = error!.message;
-      print("${error!.code}: ${error.message}");
+      // dev.log("${error!.code}: ${error.message}");
     }
     return success;
   }

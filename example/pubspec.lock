@@ -21,18 +21,18 @@ packages:
     dependency: "direct main"
     description:
       name: camera
-      sha256: d6ec2cbdbe2fa8f5e0d07d8c06368fe4effa985a4a5ddade9cc58a8cd849557d
+      sha256: eefad89f262a873f38d21e5eec853461737ea074d7c9ede39f3ceb135d201cab
       url: "https://pub.dev"
     source: hosted
-    version: "0.11.2"
+    version: "0.11.3"
   camera_android_camerax:
     dependency: transitive
     description:
       name: camera_android_camerax
-      sha256: "4b6c1bef4270c39df96402c4d62f2348c3bb2bbaefd0883b9dbd58f426306ad0"
+      sha256: b68b638e5e0ede21155e670493ac568981a8f56c5f636d720935a916a1c5a0ef
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.19"
+    version: "0.6.24"
   camera_avfoundation:
     dependency: transitive
     description:
@@ -45,10 +45,10 @@ packages:
     dependency: transitive
     description:
       name: camera_platform_interface
-      sha256: "2f757024a48696ff4814a789b0bd90f5660c0fb25f393ab4564fb483327930e2"
+      sha256: ea1ef6ba79cdbed93df2d3eeef11542a90dec24dbcd9cde574926b86d7a09a10
       url: "https://pub.dev"
     source: hosted
-    version: "2.10.0"
+    version: "2.11.0"
   camera_web:
     dependency: transitive
     description:
@@ -199,10 +199,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_face_api
-      sha256: "04605012bcff2039d5c2726e3c7eb8de448402a058c0e94cfdf6b8fa2706cdba"
+      sha256: f12840152b72e14b23a011d991ffcd8ed9b0c4200283ca9255802763ca0936e9
       url: "https://pub.dev"
     source: hosted
-    version: "7.2.391"
+    version: "7.2.407"
   flutter_face_core_basic:
     dependency: transitive
     description:
@@ -586,7 +586,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.6"
+    version: "0.0.8"
   stack_trace:
     dependency: transitive
     description:
@@ -631,18 +631,18 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: e8e351522b7c3442609e04f1613f29b7917147bb3de41dbd3c1ec4169cf1888d
+      sha256: a24e9ec04e03c2c14b7b41b1afe60e455adef09b244ab4c425ce6c5b8f58c9ce
       url: "https://pub.dev"
     source: hosted
-    version: "31.1.20"
+    version: "31.2.4"
   syncfusion_flutter_gauges:
     dependency: transitive
     description:
       name: syncfusion_flutter_gauges
-      sha256: "463afa8cb0eedd000d9dc4dbf951ce39671efacc72d4dac46cdd8f2b357eaf60"
+      sha256: "46a5e89a21e44d72d062b437f74f8c227782b32edc28aee0fd39fb559d207437"
       url: "https://pub.dev"
     source: hosted
-    version: "31.1.20"
+    version: "31.2.4"
   term_glyph:
     dependency: transitive
     description:
@@ -708,5 +708,5 @@ packages:
     source: hosted
     version: "1.1.0"
 sdks:
-  dart: ">=3.8.0 <4.0.0"
+  dart: ">=3.9.0 <4.0.0"
   flutter: ">=3.35.1"

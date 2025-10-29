@@ -9,10 +9,6 @@ class CaptureIDCardPage extends GetView<VerificationController> {
   Widget build(BuildContext context) {
     return Obx(() {
       controller.name;
-      print("controller.cameracontroller");
-      print(controller.cameracontroller == null);
-      print(!controller.cameracontroller!.value.isInitialized);
-      print(controller.cameracontroller!.value);
       if (controller.cameracontroller == null ||
           !controller.cameracontroller!.value.isInitialized) {
         return Center(child: CircularProgressIndicator());

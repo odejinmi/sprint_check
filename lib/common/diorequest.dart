@@ -69,7 +69,7 @@ class diorequest {
 
   Future<dynamic> post(String endpoint, Object data) async {
     String url = '$baseurl$endpoint';
-    print(url);
+    // dev.log(url);
     var header = {
       'Content-Type': Headers.jsonContentType,
       'Authorization': controller.publicKey,
@@ -120,7 +120,7 @@ class diorequest {
 
   Future<dynamic> put(String endpoint, Object data) async {
     String url = '$baseurl$endpoint';
-    print(url);
+    // dev.log(url);
     var header = {
       'Content-Type': Headers.jsonContentType,
       'Authorization': controller.publicKey,

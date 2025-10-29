@@ -107,12 +107,14 @@ class VerificationController extends GetxController {
 
   Cameraliveness faceapi = Get.put(Cameraliveness());
   fetchdetails(BuildContext context) async {
-    // loader(context, "Loading");
+    Future.delayed(const Duration(milliseconds: 50), () {
+      loading(context);
+    });
     var result = await diorequest().post(checmethod.toLowerCase(), {
       'number': bvnController.text,
       'identifier': identifier,
     });
-    // Navigator.pop(context);
+    Navigator.pop(context);
     if (result["success"] == 1) {
       var image = result['data']['image'];
       if (isUrl(image)) {
@@ -142,7 +144,7 @@ class VerificationController extends GetxController {
   Future<String> urlToBase64(String url) async {
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
-      print(response.bodyBytes);
+      // dev.log(response.bodyBytes);
       Uint8List bytes = response.bodyBytes;
       return base64Encode(bytes);
     } else {
@@ -174,7 +176,7 @@ class VerificationController extends GetxController {
 
   compareimage(BuildContext context) async {
     var result = await faceapi.comparefaceKyc(captureimage, bvnimage);
-    print("image compare result $result");
+    // dev.log("image compare result $result");
     score = result;
     postdetails(context);
   }
@@ -305,10 +307,10 @@ class VerificationController extends GetxController {
     idnameController.text = "${info.firstName} ${info.lastName}";
     idnumberController.text = "${info.idNumber}";
     dobController.text = "${info.dateOfBirth}";
-    print('First Name: ${info.firstName}');
-    print('Last Name: ${info.lastName}');
-    print('DOB: ${info.dateOfBirth}');
-    print('ID Number: ${info.idNumber}');
+    // dev.log('First Name: ${info.firstName}');
+    // dev.log('Last Name: ${info.lastName}');
+    // dev.log('DOB: ${info.dateOfBirth}');
+    // dev.log('ID Number: ${info.idNumber}');
     result =
         'First Name: ${info.firstName}\nLast Name: ${info.lastName}\nDOB: ${info.dateOfBirth}\nID Number: ${info.idNumber}';
     stage = 3;
@@ -321,10 +323,10 @@ class VerificationController extends GetxController {
       final inputImage = InputImage.fromFilePath(pickedFile.path);
       final info = await IDCardParser.extractInfoFromImage(inputImage);
 
-      print('First Name: ${info.firstName}');
-      print('Last Name: ${info.lastName}');
-      print('DOB: ${info.dateOfBirth}');
-      print('ID Number: ${info.idNumber}');
+      // dev.log('First Name: ${info.firstName}');
+      // dev.log('Last Name: ${info.lastName}');
+      // dev.log('DOB: ${info.dateOfBirth}');
+      // dev.log('ID Number: ${info.idNumber}');
       // Show these in your UI as needed
       result =
           'First Name: ${info.firstName}\nLast Name: ${info.lastName}\nDOB: ${info.dateOfBirth}\nID Number: ${info.idNumber}';

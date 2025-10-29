@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:sprint_check/sprint_check.dart';
 import 'package:sprint_check/sprint_check_method_channel.dart';
 
+import 'mypage.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // final cameras = await availableCameras();
@@ -20,7 +22,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: Mypage());
+    return MaterialApp(home: Mypage1());
     // return MaterialApp(home: LivenessCheckScreen(cameras: cameras));
   }
 }
@@ -56,8 +58,8 @@ class _MypageState extends State<Mypage> {
           await _sprintCheckPlugin.getPlatformVersion() ??
           'Unknown platform version';
       _sprintCheckPlugin.initialize(
-        api_key: "scb1edcd88-64f7485186d9781ca624a903",
-        encryption_key: "enc67fe4978b16fc1744718200",
+        api_key: "scb*************************************",
+        encryption_key: "enc*************************",
       );
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';

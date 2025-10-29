@@ -146,6 +146,7 @@ class Verificationscore extends GetView<VerificationController> {
               if (controller.verificationstatus == 2) {
                 controller.closedialog(context, "Verification Completed");
               } else if (controller.verificationstatus == 0) {
+
                 controller.stage = 0;
               } else {
                 controller.stage = 1;
