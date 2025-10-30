@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:sprint_check/common/verificationController.dart';
-import 'package:sprint_check/pages/checkout_widget.dart';
+import 'package:sprint_check/ui/checkout/checkout_widget.dart';
+// import 'package:sprint_check/pages/checkout_widget.dart';
 
 import 'common/exceptions.dart';
 import 'common/utils.dart';
+import 'models/charge.dart';
 import 'models/checkout_response.dart';
 import 'sprint_check_platform_interface.dart';
 
@@ -104,6 +106,9 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     //   return true;
     // }());
     _performChecks();
+    Charge _charge = Charge(identifier);
+    _charge.bvn = bvn;
+    _charge.nin = nin;
     controller.checkoutmethod = checkoutmethod;
     controller.identifier = identifier;
     controller.bvnNumber = bvn;
@@ -121,7 +126,7 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     CheckoutResponse? response = await showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (BuildContext context) => CheckoutWidget(),
+      builder: (BuildContext context) => CheckoutWidget(charge: _charge, publicKey: controller.publicKey , secretKey: controller.secretKey,),
     );
     controller.directcheckout = false;
     return response!;
