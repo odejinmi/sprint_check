@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:sprint_check/pages/capture_i_d_card_page.dart';
 
+import '../models/IDCardInfo.dart';
 import 'newcaptureidcard.dart';
 
 class Idcardpage extends StatefulWidget {
@@ -44,8 +45,8 @@ class _IdcardpageState extends State<Idcardpage> {
             ),
           ),
           Container(
-            width: double.infinity,
-            height: 183,
+            width:double.infinity,
+            height: _image != null ? null : 183,
             // padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
@@ -160,11 +161,11 @@ class _IdcardpageState extends State<Idcardpage> {
           ),
           Spacer(),
           InkWell(
-            onTap: () {
+            onTap: () async {
               // widget.onResponse(widget.idcard);
               if (_image != null) {
                 final inputImage = InputImage.fromFilePath(_image!);
-                // final info = await IDCardParser.extractInfoFromImage(inputImage);
+                final info = await IDCardParser.extractInfoFromImage(inputImage);
                 // idnameController.text = "${info.firstName} ${info.lastName}";
                 // idnumberController.text = "${info.idNumber}";
                 // dobController.text = "${info.dateOfBirth}";

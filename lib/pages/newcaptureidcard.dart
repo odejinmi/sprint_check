@@ -17,6 +17,9 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
   CameraController? cameracontroller;
   List<CameraDescription> cameras = [];
   final GlobalKey frameKey = GlobalKey();
+  final GlobalKey previewKey = GlobalKey();
+
+  String? _croppedImagePath;
 
   @override
   void initState() {
@@ -24,13 +27,19 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
     initializeCamera();
   }
 
+  @override
+  void dispose() {
+    cameracontroller?.dispose();
+    super.dispose();
+  }
+
   initializeCamera() {
     availableCameras().then((camera) {
       cameras = camera;
-      if (cameras.isNotEmpty && cameracontroller == null) {
+      if (cameras.isNotEmpty) {
         cameracontroller = CameraController(
           cameras[0],
-          ResolutionPreset.high, // Use high resolution for better quality
+          ResolutionPreset.high,
         );
         cameracontroller!.initialize().then((_) {
           if (mounted) {
@@ -42,48 +51,36 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
   }
 
   Future<void> _captureAndCrop() async {
-    if (cameracontroller == null || !cameracontroller!.value.isInitialized) {
+    if (cameracontroller == null ||
+        !cameracontroller!.value.isInitialized ||
+        frameKey.currentContext == null ||
+        previewKey.currentContext == null) {
       return;
     }
 
-    // 1. Take the picture
     final pictureFile = await cameracontroller!.takePicture();
-
-    // 2. Find the location and size of the frame on the screen
-    final RenderBox frameBox = frameKey.currentContext!.findRenderObject() as RenderBox;
-    final frameSize = frameBox.size;
-    final framePosition = frameBox.localToGlobal(Offset.zero);
-
-    // 3. Get screen and image dimensions
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height - 60;
-
     final imageBytes = await pictureFile.readAsBytes();
     final originalImage = img.decodeImage(imageBytes)!;
 
-    // 4. Calculate the scale and offset to map screen coordinates to image coordinates.
-    // This logic accounts for the CameraPreview's `BoxFit.cover` behavior.
-    final previewRatio = cameracontroller!.value.aspectRatio;
-    final screenRatio = screenWidth / screenHeight;
-    
-    double scale;
-    double xOffset = 0, yOffset = 0;
+    final previewBox = previewKey.currentContext!.findRenderObject() as RenderBox;
+    final frameBox = frameKey.currentContext!.findRenderObject() as RenderBox;
 
-    if (previewRatio > screenRatio) { // Preview is wider than the screen
-      scale = screenHeight / originalImage.height;
-      xOffset = (originalImage.width - screenWidth / scale) / 2;
-    } else { // Preview is taller than or same ratio as the screen
-      scale = screenWidth / originalImage.width;
-      yOffset = (originalImage.height - screenHeight / scale) / 2;
-    }
-    
-    // 5. Calculate the crop rectangle in image pixels.
-    final cropLeft = (framePosition.dx / scale) + xOffset;
-    final cropTop = (framePosition.dy / scale) + yOffset;
-    final cropWidth = frameSize.width / scale;
-    final cropHeight = frameSize.height / scale;
+    // Get the render object of the preview and frame
+    final previewSize = previewBox.size;
+    // Get the position of the frame within the preview
+    final framePosition = frameBox.localToGlobal(Offset.zero, ancestor: previewBox);
+    final frameSize = frameBox.size;
 
-    // 6. Crop the image
+    // Calculate the scale factor
+    final scaleY = originalImage.height / previewSize.height;
+    final scaleX = originalImage.width / previewSize.width;
+
+    // Calculate the crop rectangle in image pixels
+    final cropLeft = framePosition.dx * scaleX;
+    final cropTop = framePosition.dy * scaleY;
+    final cropWidth = frameSize.width * scaleX;
+    final cropHeight = frameSize.height * scaleY;
+
     final croppedImage = img.copyCrop(
       originalImage,
       x: cropLeft.toInt(),
@@ -92,7 +89,6 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
       height: cropHeight.toInt(),
     );
 
-    // 7. Save the cropped image to a temporary file
     final tempDir = await getTemporaryDirectory();
     final croppedFile = File('${tempDir.path}/cropped_id.jpg');
     await croppedFile.writeAsBytes(img.encodeJpg(croppedImage));
@@ -102,25 +98,18 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
   }
 
   @override
-  void dispose() {
-    cameracontroller?.dispose();
-    super.dispose();
-  }
-
- @override
   Widget build(BuildContext context) {
     if (cameracontroller == null ||
         !cameracontroller!.value.isInitialized) {
       return const Center(child: CircularProgressIndicator());
     }
-    return Container(
-      color: const Color(0xFF4F4F4F),
-      child: Stack(
+    return Scaffold(
+      backgroundColor: const Color(0xFF4F4F4F),
+      body: Stack(
         children: [
           Positioned.fill(
-            child: AspectRatio(
-              aspectRatio: cameracontroller!.value.aspectRatio,
-              child: CameraPreview(cameracontroller!),
+            child: Center(
+              child: CameraPreview(cameracontroller!, key: previewKey),
             ),
           ),
           Column(
