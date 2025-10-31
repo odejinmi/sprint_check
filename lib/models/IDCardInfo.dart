@@ -281,8 +281,7 @@ class IDCardParser {
     // ID Number
     for (final line in lines) {
       final upperLine = line.toUpperCase().trim();
-      // Look for a specific pattern for Nigerian DL. e.g., FKJ83882AB20
-      final match = RegExp(r'(?:L/NO|LNO\.?)s*([A-Z]{3}\d+[A-Z]+\d*)').firstMatch(upperLine);
+      final match = RegExp(r'(?:L/NO|LNO\.?)\s*([A-Z]{3}\d+[A-Z]+\d*)').firstMatch(upperLine);
       if (match != null) {
         idNumber = match.group(1)?.replaceAll(RegExp(r'\s'), '');
         break;
@@ -304,60 +303,53 @@ class IDCardParser {
     }
 
 
-    // Name
-    for (final line in lines) {
-      final upper = line.toUpperCase();
-      // Look for "LASTNAME, FIRSTNAME MIDDLE..."
-      if (RegExp(r'^[A-Z, ]+$').hasMatch(upper) && upper.contains(',')) {
-        final parts = upper.split(',');
-        if (parts.length > 1) {
-          lastName = parts[0].trim();
-          final nameParts = parts[1].trim().split(RegExp(r'\s+'));
-          if (nameParts.isNotEmpty) {
-            firstName = nameParts[0];
-            if (nameParts.length > 1) {
-              middleName = nameParts.sublist(1).join(' ');
-            }
-          }
-          // Once name is found, we can break
-          if(lastName.isNotEmpty && firstName != null && firstName.isNotEmpty) break;
-        }
-      }
-    }
 
-    // DOB
+    // DOB & Name Extraction
     for (int i = 0; i < lines.length; i++) {
       final upper = lines[i].toUpperCase();
-      // Look for DOB label
       if (upper.contains('D OF B') || upper.contains('DOB') || upper.contains('D OF 8')) {
-        // Search this line for a date first
-        var dateMatch = RegExp(r'(\d{2})[-/ ](\d{2})[-/ ](\d{4})').firstMatch(lines[i]);
-
-        // If not on this line, check the next one
-        if (dateMatch == null && i + 1 < lines.length) {
-          dateMatch = RegExp(r'(\d{2})[-/ ](\d{2})[-/ ](\d{4})').firstMatch(lines[i+1]);
+        // Combine the current line and the next to ensure the date is found
+        String searchArea = lines[i];
+        if (i + 1 < lines.length) {
+          searchArea += ' ' + lines[i + 1];
         }
+
+        // Use a more forgiving regex to find the date
+        final dateRegex = RegExp(r'(\d{2})[\s\-/]+(\d{2})[\s\-/]+(\d{4})');
+        final dateMatch = dateRegex.firstMatch(searchArea);
 
         if (dateMatch != null) {
           dob = '${dateMatch.group(1)}-${dateMatch.group(2)}-${dateMatch.group(3)}';
-          break;
-        }
-      }
-    }
 
-    // Fallback for Name if not found with comma, often it's 3 words below DOB
-    if (lastName == null) {
-      int dobLineIndex = lines.indexWhere((l) => l.toUpperCase().contains('D OF B'));
-      if (dobLineIndex != -1 && dobLineIndex + 1 < lines.length) {
-        final nameLine = lines[dobLineIndex + 1].trim();
-        final nameParts = nameLine.split(RegExp(r'\s+'));
-        // Check if it looks like a name (e.g., 2 or 3 parts)
-        if (nameParts.length >= 2 && RegExp(r'^[A-Z, ]+$').hasMatch(nameLine.toUpperCase())) {
-          lastName = nameParts[0];
-          firstName = nameParts[1];
-          if (nameParts.length > 2) {
-            middleName = nameParts.sublist(2).join(' ');
+          // The name is often on the line directly following the DOB.
+          if (i + 1 < lines.length) {
+            final nameLine = lines[i + 1].trim();
+            if (RegExp(r'^[A-Z, ]+$').hasMatch(nameLine.toUpperCase())) {
+              if (nameLine.contains(',')) {
+                final parts = nameLine.split(',');
+                if (parts.length > 1) {
+                  lastName = parts[0].trim();
+                  final nameParts = parts[1].trim().split(RegExp(r'\s+'));
+                  if (nameParts.isNotEmpty) {
+                    firstName = nameParts[0];
+                    if (nameParts.length > 1) {
+                      middleName = nameParts.sublist(1).join(' ');
+                    }
+                  }
+                }
+              } else {
+                final nameParts = nameLine.split(RegExp(r'\s+'));
+                if (nameParts.length >= 2) {
+                  lastName = nameParts[0];
+                  firstName = nameParts[1];
+                  if (nameParts.length > 2) {
+                    middleName = nameParts.sublist(2).join(' ');
+                  }
+                }
+              }
+            }
           }
+          break; // Exit the loop once DOB and Name are likely found
         }
       }
     }
