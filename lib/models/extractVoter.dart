@@ -1,4 +1,3 @@
-
 import 'IDCardInfo.dart';
 
 class ExtractVoter {
@@ -12,7 +11,6 @@ class ExtractVoter {
     String? extractedDetails;
 
     // VOTER'S CARD LOGIC
-
     for (final line in lines) {
       if (extractedDetails == null){
         extractedDetails = line;
@@ -53,16 +51,16 @@ class ExtractVoter {
         break;
       }
     }
+
     // DOB
     for (final line in lines) {
       if (line.toUpperCase().contains('DATE OF BIRTH')) {
-        // Try to find date on this line or next line
         String dobLine = line;
         int idx = lines.indexOf(line);
         if (!RegExp(r'\d').hasMatch(dobLine) && idx + 1 < lines.length) {
           dobLine = lines[idx + 1];
         }
-        // Match dd MMM yyyy, dd-mm-yyyy, dd/mm/yyyy, dd-mm-yy, etc.
+        
         final dobRegex = RegExp(
           r'(\d{2})[ /-]([A-Z]{3}|\d{2})[ /-](\d{2,4})',
           caseSensitive: false,
@@ -72,20 +70,9 @@ class ExtractVoter {
           String day = match.group(1)!;
           String month = match.group(2)!;
           String year = match.group(3)!;
-          // Convert month name to number if needed
           final months = {
-            'JAN': '01',
-            'FEB': '02',
-            'MAR': '03',
-            'APR': '04',
-            'MAY': '05',
-            'JUN': '06',
-            'JUL': '07',
-            'AUG': '08',
-            'SEP': '09',
-            'OCT': '10',
-            'NOV': '11',
-            'DEC': '12',
+            'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'MAY': '05', 'JUN': '06',
+            'JUL': '07', 'AUG': '08', 'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12',
           };
           if (months.containsKey(month)) {
             month = months[month]!;
@@ -94,13 +81,12 @@ class ExtractVoter {
           break;
         }
       } else if (RegExp(r'\d{2}[-/]\d{2}[-/]\d{4}').hasMatch(line.trim())) {
-        // If the line itself is a date
-        dob = RegExp(
-          r'\d{2}[-/]\d{2}[-/]\d{4}',
-        ).firstMatch(line.trim())!.group(0);
+        dob = RegExp(r'\d{2}[-/]\d{2}[-/]\d{4}').firstMatch(line.trim())!.group(0);
         break;
       }
     }
+
+    // Return the final data - with the constructor fixed
     return IDCardInfo(
       firstName: firstName,
       lastName: lastName,
@@ -110,5 +96,4 @@ class ExtractVoter {
       extracteddetails: extractedDetails,
     );
   }
-
 }
