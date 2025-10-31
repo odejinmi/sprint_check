@@ -9,106 +9,123 @@ class ExtractNational {
     String? lastName;
     String? middleName;
     String? dob;
-    String? nin; // Added for NIN
+    String? nin;
     String? extractedDetails;
 
-    Map<String, String> extractedData = {};
-
-    for (int i = 0; i < lines.length; i++) {
+    // --- Primary Extraction from Machine-Readable Zone (MRZ) ---
+    String? mrzLine1, mrzLine2;
+    for (final line in lines) {
       if(extractedDetails == null){
-        extractedDetails = lines[i];
+        extractedDetails = line;
       }else{
-        extractedDetails += " ***videx*** " + lines[i];
+        extractedDetails += " ***videx*** $line";
       }
-      final upper = lines[i].toUpperCase().trim();
+      final normalizedLine = line.replaceAll(' ', '');
+      if (normalizedLine.startsWith('P<NGA')) {
+        mrzLine1 = line; 
+      } else if (RegExp(r'^[A-Z0-9<]{9,}[0-9]NGA').hasMatch(normalizedLine)) {
+        mrzLine2 = normalizedLine;
+      }
+    }
 
-      // Passport No. (Corrected Typo and Logic)
-      if (upper.contains('PASSPORT NO')) {
-        String searchArea = lines[i];
-        if (i + 1 < lines.length) {
-          searchArea += " " + lines[i + 1];
-        }
-        final match = RegExp(r'([A-Z]\d{8,})').firstMatch(searchArea.replaceAll(' ', ''));
-        if (match != null) {
-          extractedData['idNumber'] = match.group(1)!;
-        }
-      }
-      // Surname
-      else if (upper.contains('SURNAME / NOM')) {
-        if (i + 1 < lines.length) {
-          extractedData['lastName'] = lines[i + 1].trim();
-        }
-      }
-      // Given Names
-      else if (upper.contains('GIVEN NAMES / PRÉNOMS')) {
-        if (i + 1 < lines.length) {
-          var names = lines[i + 1].trim().split(RegExp(r'\s+'));
-          if (names.isNotEmpty) extractedData['firstName'] = names[0];
-          if (names.length > 1) {
-            extractedData['middleName'] = names.sublist(1).join(' ');
+    // 1. Full Name from MRZ (Highest Confidence)
+    if (mrzLine1 != null) {
+      try {
+        String mrzNamePart = mrzLine1.substring(5); // Skip 'P<NGA'
+        List<String> nameParts = mrzNamePart.split('<<');
+        if (nameParts.length > 1) {
+          lastName = nameParts[0].replaceAll('<', ' ').trim();
+          String givenNames = nameParts[1].replaceAll('<', ' ').trim();
+          List<String> givenNameParts = givenNames.split(RegExp(r'\s+'));
+          if (givenNameParts.isNotEmpty) {
+            firstName = givenNameParts[0];
+          }
+          if (givenNameParts.length > 1) {
+            middleName = givenNameParts.sublist(1).join(' ');
           }
         }
+      } catch (e) {
+        dev.log("Error parsing MRZ name line: $e");
       }
-      // Date of Birth
-      else if (upper.contains('DATE OF BIRTH / DATE DE NAISSANCE')) {
-        if (i + 1 < lines.length) {
-          extractedData['dobRaw'] = lines[i + 1].trim();
-        }
+    }
+
+    // 2. ID Number from MRZ (Highest Confidence)
+    if (mrzLine2 != null) {
+      try {
+        idNumber = mrzLine2.substring(0, 9).replaceAll('<', '');
+      } catch (e) {
+        dev.log("Error parsing MRZ ID line: $e");
       }
-      // NIN (New addition)
-      else if (upper.contains('NIN')) {
-        final match = RegExp(r'(\d{11})').firstMatch(upper.replaceAll(' ', ''));
+    }
+
+    // --- Secondary/Fallback Extraction ---
+
+    // Fallback for ID Number
+    if (idNumber == null || idNumber.isEmpty) {
+      for (final line in lines) {
+        final match = RegExp(r'^[A-Z][0-9]{8}$').firstMatch(line.trim());
         if (match != null) {
-          extractedData['nin'] = match.group(1)!;
-        } else if (i + 1 < lines.length) {
-          final nextLineMatch = RegExp(r'(\d{11})').firstMatch(lines[i + 1].replaceAll(' ', ''));
-          if (nextLineMatch != null) {
-            extractedData['nin'] = nextLineMatch.group(1)!;
-          }
+          idNumber = match.group(0);
+          break;
         }
       }
     }
 
-    lastName = extractedData['lastName'];
-    firstName = extractedData['firstName'];
-    middleName = extractedData['middleName'];
-    idNumber = extractedData['idNumber'];
-    nin = extractedData['nin'];
-
-    if (extractedData.containsKey('dobRaw')) {
-      String dobRaw = extractedData['dobRaw']!
-          .toUpperCase()
-          .replaceAll('É', 'E')
-          .replaceAll('/', ' ')
-          .replaceAll(RegExp(r'\s+'), ' ')
-          .trim();
-
-      final months = {
-        'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'MAY': '05', 'JUN': '06',
-        'JUL': '07', 'AUG': '08', 'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12',
-      };
-
-      final dobRegex = RegExp(r'(\d{1,2})\s+([A-Z]{3})\s+(\d{2,4})');
-      final match = dobRegex.firstMatch(dobRaw);
-
-      if (match != null) {
-        String day = match.group(1)!.padLeft(2, '0');
-        String monthStr = match.group(2)!;
-        String year = match.group(3)!;
-        String? month = months[monthStr];
-
-        if (month != null) {
-          if (year.length == 2) {
-            int yr = int.parse(year);
-            year = (yr > (DateTime.now().year % 100)) ? '19' + year : '20' + year;
-          }
-          dob = '$day-$month-$year';
+    // Fallback for Name
+    if (firstName == null || lastName == null) {
+        for (final line in lines) {
+            final upper = line.toUpperCase().trim();
+            final parts = upper.split(RegExp(r'\s+'));
+            if (parts.length >= 2 && parts.length <= 4 && parts.every((p) => RegExp(r'^[A-Z]+$').hasMatch(p)) && !upper.contains('FEDERAL') && !upper.contains('REPUBLIC')) {
+                lastName = parts[0];
+                firstName = parts[1];
+                if (parts.length > 2) {
+                    middleName = parts.sublist(2).join(' ');
+                }
+                break;
+            }
         }
-      } else {
-        dob = extractedData['dobRaw'];
-      }
     }
     
+    // Label-based extraction for DOB and NIN (can be run regardless)
+     for (int i = 0; i < lines.length; i++) {
+      final upper = lines[i].toUpperCase().trim();
+      if (upper.contains('DATE OF BIRTH')) {
+          if (i + 1 < lines.length) {
+            final dobLine = lines[i+1];
+             final dobRegex = RegExp(r'(\d{1,2})\s+([A-Z]{3})\s+(\d{2,4})');
+             final match = dobRegex.firstMatch(dobLine.toUpperCase());
+              if (match != null) {
+                String day = match.group(1)!.padLeft(2, '0');
+                String monthStr = match.group(2)!;
+                String year = match.group(3)!;
+                final months = {
+                  'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'MAY': '05', 'JUN': '06',
+                  'JUL': '07', 'AUG': '08', 'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12',
+                };
+                 String? month = months[monthStr];
+                 if (month != null) {
+                    if (year.length == 2) {
+                      int yr = int.parse(year);
+                      year = (yr > (DateTime.now().year % 100)) ? '19$year' : '20$year';
+                    }
+                    dob = '$day-$month-$year';
+                 }
+              }
+          }
+      } else if (upper.contains('NIN')) {
+         final match = RegExp(r'(\d{11})').firstMatch(upper.replaceAll(' ', ''));
+         if (match != null) {
+           nin = match.group(1)!;
+         } else if (i + 1 < lines.length) {
+           final nextLineMatch = RegExp(r'(\d{11})').firstMatch(lines[i + 1].replaceAll(' ', ''));
+           if (nextLineMatch != null) {
+             nin = nextLineMatch.group(1)!;
+           }
+         }
+      }
+    }
+
     return IDCardInfo(
       firstName: firstName,
       lastName: lastName,
