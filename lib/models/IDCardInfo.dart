@@ -272,75 +272,96 @@ class IDCardParser {
   }
 
   static Future<IDCardInfo> extractDriverLicense(List<String> lines) async {
-    var idNumber;
-    var firstName;
-    var lastName;
-    var middleName;
-    var dob;
-    var fullName;
+    String? idNumber;
+    String? firstName;
+    String? lastName;
+    String? middleName;
+    String? dob;
 
-    // DRIVER'S LICENSE LOGIC
     // ID Number
     for (final line in lines) {
-      final text = line.toUpperCase();
-      if (text.contains('L/NO') || text.startsWith('LNO')) {
-        final match = RegExp(r'[A-Z0-9]{6,}').firstMatch(line);
-        if (match != null) {
-          idNumber = match.group(0);
+      final upperLine = line.toUpperCase().trim();
+      // Look for a specific pattern for Nigerian DL. e.g., FKJ83882AB20
+      final match = RegExp(r'(?:L/NO|LNO\.?)s*([A-Z]{3}\d+[A-Z]+\d*)').firstMatch(upperLine);
+      if (match != null) {
+        idNumber = match.group(1)?.replaceAll(RegExp(r'\s'), '');
+        break;
+      }
+    }
+    // Fallback for ID number
+    if (idNumber == null) {
+      for (final line in lines) {
+        final text = line.toUpperCase();
+        if (text.contains('L/NO') || text.startsWith('LNO')) {
+          // Extract alphanumeric string of at least 10 chars
+          final match = RegExp(r'([A-Z0-9]{10,})').firstMatch(line.replaceAll(' ',''));
+          if (match != null) {
+            idNumber = match.group(0);
+            break;
+          }
+        }
+      }
+    }
+
+
+    // Name
+    for (final line in lines) {
+      final upper = line.toUpperCase();
+      // Look for "LASTNAME, FIRSTNAME MIDDLE..."
+      if (RegExp(r'^[A-Z, ]+$').hasMatch(upper) && upper.contains(',')) {
+        final parts = upper.split(',');
+        if (parts.length > 1) {
+          lastName = parts[0].trim();
+          final nameParts = parts[1].trim().split(RegExp(r'\s+'));
+          if (nameParts.isNotEmpty) {
+            firstName = nameParts[0];
+            if (nameParts.length > 1) {
+              middleName = nameParts.sublist(1).join(' ');
+            }
+          }
+          // Once name is found, we can break
+          if(lastName.isNotEmpty && firstName != null && firstName.isNotEmpty) break;
+        }
+      }
+    }
+
+    // DOB
+    for (int i = 0; i < lines.length; i++) {
+      final upper = lines[i].toUpperCase();
+      // Look for DOB label
+      if (upper.contains('D OF B') || upper.contains('DOB') || upper.contains('D OF 8')) {
+        // Search this line for a date first
+        var dateMatch = RegExp(r'(\d{2})[-/ ](\d{2})[-/ ](\d{4})').firstMatch(lines[i]);
+
+        // If not on this line, check the next one
+        if (dateMatch == null && i + 1 < lines.length) {
+          dateMatch = RegExp(r'(\d{2})[-/ ](\d{2})[-/ ](\d{4})').firstMatch(lines[i+1]);
+        }
+
+        if (dateMatch != null) {
+          dob = '${dateMatch.group(1)}-${dateMatch.group(2)}-${dateMatch.group(3)}';
           break;
         }
       }
     }
-    // Name (try comma line or labeled fields)
-    for (final line in lines) {
-      final upper = line.toUpperCase();
-      if (RegExp(r'^[A-Z ,]+$').hasMatch(upper) && upper.contains(',')) {
-        final parts = upper.split(',');
-        if (parts.length > 1) {
-          lastName = parts[0].trim();
-          final firstNames = parts[1].trim().split(' ');
-          if (firstNames.isNotEmpty) {
-            firstName = firstNames[0].trim();
-          }
-          if (firstNames.length > 1) {
-            middleName = firstNames[1].trim();
-          }
-        }
-      } else if (upper.startsWith('SURNAME')) {
-        lastName = line.split(' ').last.trim();
-      } else if (upper.startsWith('FIRST NAME')) {
-        firstName = line.split(' ').last.trim();
-      } else if (upper.startsWith('MIDDLE NAME')) {
-        middleName = line.split(' ').last.trim();
-      }
-    }
-    // DOB
-    for (int i = 0; i < lines.length; i++) {
-      final upper = lines[i].toUpperCase();
-      if (upper.contains('DOB') ||
-          upper.contains('D OF B') ||
-          upper.contains('D OF 8')) {
-        // Search this line and the next two lines for a date
-        for (int j = 0; j <= 2 && i + j < lines.length; j++) {
-          final dateMatch = RegExp(
-            r'(\d{2})[-/](\d{2})[-/](\d{2,4})',
-          ).firstMatch(lines[i + j]);
-          if (dateMatch != null) {
-            dob = dateMatch.group(0);
-            break;
+
+    // Fallback for Name if not found with comma, often it's 3 words below DOB
+    if (lastName == null) {
+      int dobLineIndex = lines.indexWhere((l) => l.toUpperCase().contains('D OF B'));
+      if (dobLineIndex != -1 && dobLineIndex + 1 < lines.length) {
+        final nameLine = lines[dobLineIndex + 1].trim();
+        final nameParts = nameLine.split(RegExp(r'\s+'));
+        // Check if it looks like a name (e.g., 2 or 3 parts)
+        if (nameParts.length >= 2 && RegExp(r'^[A-Z, ]+$').hasMatch(nameLine.toUpperCase())) {
+          lastName = nameParts[0];
+          firstName = nameParts[1];
+          if (nameParts.length > 2) {
+            middleName = nameParts.sublist(2).join(' ');
           }
         }
-        if (dob != null) break;
-      }
-      // Also, if a line itself is just a date, pick it up
-      final directDateMatch = RegExp(
-        r'^\d{2}[-/]\d{2}[-/]\d{2,4}$',
-      ).firstMatch(lines[i].trim());
-      if (directDateMatch != null) {
-        dob = directDateMatch.group(0);
-        break;
       }
     }
+
     return IDCardInfo(
       firstName: firstName,
       lastName: lastName,
