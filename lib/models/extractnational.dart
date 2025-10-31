@@ -10,10 +10,16 @@ class ExtractNational {
     String? middleName;
     String? dob;
     String? nin; // Added for NIN
+    String? extractedDetails;
 
     Map<String, String> extractedData = {};
 
     for (int i = 0; i < lines.length; i++) {
+      if(extractedDetails == null){
+        extractedDetails = lines[i];
+      }else{
+        extractedDetails += " ***videx*** " + lines[i];
+      }
       final upper = lines[i].toUpperCase().trim();
 
       // Passport No. (Corrected Typo and Logic)
@@ -109,6 +115,7 @@ class ExtractNational {
       middleName: middleName,
       dateOfBirth: dob,
       idNumber: idNumber,
+      extracteddetails: extractedDetails,
     );
   }
 }
