@@ -8,6 +8,7 @@ class ExtractDriverLicense {
      String? lastName;
      String? middleName;
      String? dob;
+     String? extracteddetails;
 
      // 1. ID Number Extraction
      for (final line in lines) {
@@ -33,6 +34,11 @@ class ExtractDriverLicense {
 
      // 2. Name Extraction (Independent Step)
      for (final line in lines) {
+       if(extracteddetails == null){
+         extracteddetails = line;
+       }else{
+         extracteddetails += " ***videx*** " + line;
+       }
        final upper = line.toUpperCase();
        // Look for "LASTNAME, FIRSTNAME MIDDLE..."
        if (RegExp(r'^[A-Z, ]+$').hasMatch(upper) && upper.contains(',')) {
