@@ -311,7 +311,7 @@ class VerificationController extends GetxController {
       return;
     final image = await cameracontroller!.takePicture();
     final inputImage = InputImage.fromFilePath(image.path);
-    final info = await IDCardParser.extractInfoFromImage(inputImage);
+    final info = await IDCardParser.extractInfoFromImage(inputImage,"NIN");
     idnameController.text = "${info.firstName} ${info.lastName}";
     idnumberController.text = "${info.idNumber}";
     dobController.text = "${info.dateOfBirth}";
@@ -329,7 +329,7 @@ class VerificationController extends GetxController {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       final inputImage = InputImage.fromFilePath(pickedFile.path);
-      final info = await IDCardParser.extractInfoFromImage(inputImage);
+      final info = await IDCardParser.extractInfoFromImage(inputImage,"NIN");
 
       // dev.log('First Name: ${info.firstName}');
       // dev.log('Last Name: ${info.lastName}');

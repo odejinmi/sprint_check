@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -165,14 +166,14 @@ class _IdcardpageState extends State<Idcardpage> {
               // widget.onResponse(widget.idcard);
               if (_image != null) {
                 final inputImage = InputImage.fromFilePath(_image!);
-                final info = await IDCardParser.extractInfoFromImage(inputImage);
+                final info = await IDCardParser.extractInfoFromImage(inputImage,widget.idcard['name']);
                 // idnameController.text = "${info.firstName} ${info.lastName}";
                 // idnumberController.text = "${info.idNumber}";
                 // dobController.text = "${info.dateOfBirth}";
-                // // dev.log('First Name: ${info.firstName}');
-                // // dev.log('Last Name: ${info.lastName}');
-                // // dev.log('DOB: ${info.dateOfBirth}');
-                // // dev.log('ID Number: ${info.idNumber}');
+                dev.log('First Name: ${info.firstName}');
+                dev.log('Last Name: ${info.lastName}');
+                dev.log('DOB: ${info.dateOfBirth}');
+                dev.log('ID Number: ${info.idNumber}');
                 // result =
                 // 'First Name: ${info.firstName}\nLast Name: ${info.lastName}\nDOB: ${info.dateOfBirth}\nID Number: ${info.idNumber}';
               }

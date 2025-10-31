@@ -23,33 +23,7 @@ class IDCardParser {
       image,
     );
 
-    String? firstName, lastName, dob, idNumber, middleName;
-    String? fullName;
     final lines = <String>[];
-
-    // List of lines to skip if encountered as candidates
-    List<String> skipWords = [
-      "federal republic of nigeria",
-      "national identity management system",
-      "national identification number slip",
-      "national identification number (nins)",
-      "surname",
-      "first name",
-      "middle name",
-      "gender",
-      "address",
-      "nin",
-    ];
-
-    bool isValidSurname(String candidate) {
-      if (candidate.isEmpty) return false;
-      String c = candidate.toLowerCase();
-      if (skipWords.contains(c)) return false;
-      // Nigerian surnames are often all uppercase and one word
-      if (!RegExp(r'^[A-Z]+[0-9]*$').hasMatch(candidate)) return false;
-      if (candidate.length < 2) return false;
-      return true;
-    }
 
     // Flatten all lines for easier next-line lookup
     for (var block in recognizedText.blocks) {
@@ -58,46 +32,39 @@ class IDCardParser {
       }
     }
 
+    IDCardInfo idCardInfo = IDCardInfo();
 
     // --- CARD-SPECIFIC EXTRACTION ---
     switch (cardType) {
-      case 'voter':
-        extractVoter(lines);
+      case "Voter's Card":
+        idCardInfo = await extractVoter(lines);
         break;
-      case 'national':
-        extractnational(lines);
+      case 'Internation Passport':
+        idCardInfo = await extractnational(lines);
         break;
-      case 'nin':
-        extractNIN(lines);
+      case 'National identity card':
+        idCardInfo = await extractNIN(lines);
         break;
-      case 'driver':
-        extractDriverLicense(lines);
+      case "Driver's License":
+        idCardInfo = await extractDriverLicense(lines);
         break;
       case 'nimc':
-        extractnimc(lines);
+        idCardInfo = await extractnimc(lines);
         break;
       case 'ninslip':
-        extractNINslip(lines);
+        idCardInfo = await extractNINslip(lines);
         break;
       case 'digitalninslip':
-        extractDigitalNINslip(lines);
+        idCardInfo = await extractDigitalNINslip(lines);
         break;
       default:
-        extractunknown(lines);
+        idCardInfo = await extractunknown(lines);
         break;
     }
-    return IDCardInfo(
-      firstName: firstName,
-      lastName: lastName,
-      middleName: middleName,
-      dateOfBirth: dob,
-      idNumber: idNumber,
-    );
+    return idCardInfo;
   }
 
-
-
-   static IDCardInfo extractVoter(List<String> lines) {
+  static Future<IDCardInfo> extractVoter(List<String> lines) async {
     var idNumber;
     var firstName;
     var lastName;
@@ -195,7 +162,7 @@ class IDCardParser {
     );
   }
 
-  static IDCardInfo extractNIN(List<String> lines) {
+  static Future<IDCardInfo> extractNIN(List<String> lines) async {
     var idNumber;
     var firstName;
     var lastName;
@@ -304,7 +271,7 @@ class IDCardParser {
     );
   }
 
-  static IDCardInfo extractDriverLicense(List<String> lines) {
+  static Future<IDCardInfo> extractDriverLicense(List<String> lines) async {
     var idNumber;
     var firstName;
     var lastName;
@@ -383,7 +350,7 @@ class IDCardParser {
     );
   }
 
-  static IDCardInfo extractnational(List<String> lines) {
+  static Future<IDCardInfo> extractnational(List<String> lines) async {
     var idNumber;
     var firstName;
     var lastName;
@@ -489,7 +456,7 @@ class IDCardParser {
     );
   }
 
-  static IDCardInfo extractnimc(List<String> lines) {
+  static Future<IDCardInfo> extractnimc(List<String> lines) async {
     var idNumber;
     var firstName;
     var lastName;
@@ -578,7 +545,7 @@ class IDCardParser {
     );
   }
 
-  static IDCardInfo extractNINslip(List<String> lines) {
+  static Future<IDCardInfo> extractNINslip(List<String> lines) async {
     var idNumber;
     var firstName;
     var lastName;
@@ -662,7 +629,7 @@ class IDCardParser {
     );
   }
 
-  static IDCardInfo extractDigitalNINslip(List<String> lines) {
+  static Future<IDCardInfo> extractDigitalNINslip(List<String> lines) async {
     var idNumber;
     var firstName;
     var lastName;
@@ -743,7 +710,7 @@ class IDCardParser {
     );
   }
 
-  static IDCardInfo extractunknown(List<String> lines) {
+  static Future<IDCardInfo> extractunknown(List<String> lines) async {
     var idNumber;
     var firstName;
     var lastName;
