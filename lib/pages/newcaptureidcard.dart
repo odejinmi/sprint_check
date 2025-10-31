@@ -90,9 +90,10 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
     );
 
     final tempDir = await getTemporaryDirectory();
-    final croppedFile = File('${tempDir.path}/cropped_id.jpg');
+    final croppedFile = File('${tempDir.path}/cropped_id${DateTime.now().millisecondsSinceEpoch}.jpg');
     await croppedFile.writeAsBytes(img.encodeJpg(croppedImage));
 
+    cameracontroller?.dispose();
     // 8. Return the path of the cropped image
     widget.onResponse({'image': croppedFile.path});
   }

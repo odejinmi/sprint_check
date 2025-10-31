@@ -1,4 +1,3 @@
-import 'dart:developer' as dev;
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 class IDCardInfo {
@@ -16,22 +15,6 @@ class IDCardInfo {
     this.idNumber,
   });
   
-  toJson() => {
-    'firstName': firstName,
-    'lastName': lastName,
-    'middleName': middleName,
-    'dateOfBirth': dateOfBirth,
-    'idNumber': idNumber,
-  };
-  
-  fromJson(Map<String, dynamic> json) => IDCardInfo(
-    firstName: json['firstName'],
-    lastName: json['lastName'],
-    middleName: json['middleName'],
-    dateOfBirth: json['dateOfBirth'],
-    idNumber: json['idNumber'],
-  );
-  
   @override
   toString() => 'IDCardInfo(firstName: $firstName, lastName: $lastName, middleName: $middleName, dateOfBirth: $dateOfBirth, idNumber: $idNumber)';
 }
@@ -45,7 +28,6 @@ class IDCardParser {
 
     final lines = <String>[];
 
-    // Flatten all lines for easier next-line lookup
     for (var block in recognizedText.blocks) {
       for (var line in block.lines) {
         lines.add(line.text.trim());
@@ -54,7 +36,6 @@ class IDCardParser {
 
     IDCardInfo idCardInfo = IDCardInfo();
 
-    // --- CARD-SPECIFIC EXTRACTION ---
     switch (cardType) {
       case "Voter's Card":
         idCardInfo = await extractVoter(lines);
@@ -298,7 +279,7 @@ class IDCardParser {
     String? middleName;
     String? dob;
 
-    // ID Number
+    // 1. ID Number Extraction
     for (final line in lines) {
       final upperLine = line.toUpperCase().trim();
       final match = RegExp(r'(?:L/NO|LNO\.?)\s*([A-Z]{3}\d+[A-Z]+\d*)').firstMatch(upperLine);
@@ -307,12 +288,10 @@ class IDCardParser {
         break;
       }
     }
-    // Fallback for ID number
     if (idNumber == null) {
       for (final line in lines) {
         final text = line.toUpperCase();
         if (text.contains('L/NO') || text.startsWith('LNO')) {
-          // Extract alphanumeric string of at least 10 chars
           final match = RegExp(r'([A-Z0-9]{10,})').firstMatch(line.replaceAll(' ',''));
           if (match != null) {
             idNumber = match.group(0);
@@ -322,7 +301,7 @@ class IDCardParser {
       }
     }
 
-    // Name
+    // 2. Name Extraction (Independent Step)
     for (final line in lines) {
       final upper = line.toUpperCase();
       // Look for "LASTNAME, FIRSTNAME MIDDLE..."
@@ -343,26 +322,24 @@ class IDCardParser {
       }
     }
 
+    // 3. DOB Extraction (Independent Step)
+    final dobLabelRegex = RegExp(r'(D\s*OF\s*[B8]|DOB|DOR|DOTB|O\s*OF|OOF|D\s*O\s*B|Dor|Dof|Oor|or\s*8|D\s*of\s*8)', caseSensitive: false);
+    final dateRegex = RegExp(r'(\d{2})[\s\-/]+(\d{2})[\s\-/]+(\d{4})');
 
-    // DOB
     for (int i = 0; i < lines.length; i++) {
-      final upper = lines[i].toUpperCase();
-      dev.log('Line: $upper');
-      if (upper.contains('D OF B') || upper.contains('DOB') || upper.contains('D OF 8')) {
         String searchArea = lines[i];
-        dev.log('Search Area: $searchArea');
+        
         if (i + 1 < lines.length) {
-          searchArea += ' ' + lines[i + 1];
+          searchArea += " " + lines[i+1];
         }
 
-        final dateRegex = RegExp(r'(\d{2})[\s\-/]+(\d{2})[\s\-/]+(\d{4})');
-        final dateMatch = dateRegex.firstMatch(searchArea);
-
-        if (dateMatch != null) {
-          dob = '${dateMatch.group(1)}-${dateMatch.group(2)}-${dateMatch.group(3)}';
-          break; 
+        if (dobLabelRegex.hasMatch(searchArea)) {
+            final dateMatch = dateRegex.firstMatch(searchArea);
+            if (dateMatch != null) {
+                dob = '${dateMatch.group(1)}-${dateMatch.group(2)}-${dateMatch.group(3)}';
+                break;
+            }
         }
-      }
     }
 
     return IDCardInfo(
@@ -373,6 +350,7 @@ class IDCardParser {
       idNumber: idNumber,
     );
   }
+
 
   static Future<IDCardInfo> extractnational(List<String> lines) async {
     var idNumber;
