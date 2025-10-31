@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../common/DigitsOnlyFormatter.dart';
 import '../common/verificationController.dart';
 
 class Inputpage extends GetView<VerificationController> {
@@ -251,20 +252,6 @@ class Inputpage extends GetView<VerificationController> {
           ],
         );
       }),
-    );
-  }
-}
-
-class DigitsOnlyFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final digitsOnly = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    return TextEditingValue(
-      text: digitsOnly,
-      selection: TextSelection.collapsed(offset: digitsOnly.length),
     );
   }
 }

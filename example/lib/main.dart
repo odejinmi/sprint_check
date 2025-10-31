@@ -22,7 +22,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: Mypage1());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+        home: Mypage1());
     // return MaterialApp(home: LivenessCheckScreen(cameras: cameras));
   }
 }

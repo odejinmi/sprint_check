@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
 
+import '../models/charge.dart';
+import '../models/checkout_response.dart';
+import '../sprint_check_method_channel.dart';
+
 class Initializepage extends StatelessWidget {
-  const Initializepage({Key? key}) : super(key: key);
+  final OnResponse<CheckoutResponse> onResponse;
+  final Charge charge;
+  final CheckoutMethod checkoutmethod;
+  const Initializepage({Key? key, required this.onResponse, required this.charge, required this.checkoutmethod}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
           Image.asset(
-              "assets/logo.jpg",
-              width: 163,
-              package: "sprint_check",
-            ),
-          Text(
+            "assets/logo.png",
+            width: 163,
+            package: "sprint_check",
+          ),
+          const SizedBox(height: 20),
+          const Text(
             'This application uses SprintCheck to verifiy your identity',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: const Color(0xFF1B1B1B),
+              color: Color(0xFF1B1B1B),
               fontSize: 15,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w600,
@@ -25,73 +34,74 @@ class Initializepage extends StatelessWidget {
               letterSpacing: -0.41,
             ),
           ),
+          const SizedBox(height: 25),
           Column(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 25,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
+              const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 7,
                 children: [
-                  Container(width: 20, height: 20, child: Stack()),
-                  Text(
-                    'All personal and login information is confidential. Our system uses end-to-end encryption to ensure secure verification.',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: -0.41,
+                  Icon(Icons.done, size: 20, color: Colors.black),
+                  SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      'All personal and login information is confidential. Our system uses end-to-end encryption to ensure secure verification.',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 13,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: -0.41,
+                      ),
                     ),
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
+              const SizedBox(height: 25),
+              const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 7,
                 children: [
-                  Container(width: 20, height: 20, child: Stack()),
-                  Text(
-                    'This verification step helps us confirm it’s really you. Do not share your code or authentication details with anyone, even if they claim to be from our team.',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: -0.41,
+                  Icon(Icons.done, size: 20, color: Colors.black),
+                  SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      'This verification step helps us confirm it’s really you. Do not share your code or authentication details with anyone, even if they claim to be from our team.',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 13,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: -0.41,
+                      ),
                     ),
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
+              const SizedBox(height: 25),
+              const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 7,
                 children: [
-                  Container(width: 20, height: 20, child: Stack()),
-                  Text(
-                    'Your personal and account information is handled under strict security protocols',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
-                      letterSpacing: -0.41,
+                  Icon(Icons.done, size: 20, color: Colors.black),
+                  SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      'Your personal and account information is handled under strict security protocols',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 13,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: -0.41,
+                      ),
                     ),
                   ),
                 ],
               ),
             ],
           ),
-          SizedBox(height: 150),
-          Text.rich(
+          const Spacer(),
+          const Text.rich(
             TextSpan(
               children: [
                 TextSpan(
@@ -119,30 +129,39 @@ class Initializepage extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 20),
-          Container(
-            width: double.infinity,
-            height: 47,
-            decoration: ShapeDecoration(
-              color: Colors.black,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 10,
-              children: [
-                Text(
-                  'Continue',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.w500,
-                  ),
+          const SizedBox(height: 20),
+          InkWell(
+            onTap: () {
+
+              var response = CheckoutResponse(
+                  message: "i agreed ",
+                  reference: "",
+                  status: false,
+                  method: checkoutmethod,
+                  verify: false,
+                  name: '',
+                  confidence_level: null,
+                  bvn: charge.bvn,
+                  nin: charge.nin);
+              onResponse(response);
+            },
+            child: Container(
+              width: double.infinity,
+              height: 47,
+              alignment: Alignment.center,
+              decoration: ShapeDecoration(
+                color: Colors.black,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              ),
+              child: const Text(
+                'Continue',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.w500,
                 ),
-              ],
+              ),
             ),
           ),
         ],

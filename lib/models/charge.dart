@@ -27,13 +27,13 @@ class Charge {
   /// ISO 4217 payment currency code (e.g USD). Defaults to [Strings.ngn].
   ///
   /// If you're setting this value, also set [locale] for better formatting.
-  String? currency;
-  int? transactionCharge;
-
-  /// Who bears budpay charges? [Bearer.account] or [Bearer.subAccount]
-  Bearer? bearer;
-
-  String? subAccount;
+  // String? currency;
+  // int? transactionCharge;
+  //
+  // /// Who bears budpay charges? [Bearer.account] or [Bearer.subAccount]
+  // Bearer? bearer;
+  //
+  // String? subAccount;
 
   Charge(this.identifier) {
     // _metadata = {};

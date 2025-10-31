@@ -12,6 +12,7 @@ class CustomAlertDialog extends StatelessWidget {
     this.onCancelPress,
     this.contentPadding = const EdgeInsets.symmetric(vertical: 10.0),
     this.expanded = false,
+    this.showlogo = false,
     required this.content,
   }) : super(key: key);
 
@@ -21,6 +22,7 @@ class CustomAlertDialog extends StatelessWidget {
   final EdgeInsetsGeometry contentPadding;
   final VoidCallback? onCancelPress;
   final bool expanded;
+  final bool showlogo;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,8 @@ class CustomAlertDialog extends StatelessWidget {
 
   Widget buildContent(context, List<Widget> children) {
     Widget widget = Material(
-      color: Theme.of(context).scaffoldBackgroundColor,
+      color: Colors.white,
+      // color: Theme.of(context).scaffoldBackgroundColor,
       // ? Colors.white
       // : Colors.grey,
       child: Container(
@@ -68,23 +71,32 @@ class CustomAlertDialog extends StatelessWidget {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          color: Colors.grey,
+                    Row(
+                      children: [
+                        Spacer(flex: 2,),
+                        if(showlogo)
+                        Image.asset(
+                          "assets/logo.png",
+                          height: 34,
+                          package: "sprint_check",
                         ),
-                        onPressed: onCancelPress,
-                        color: Colors.black54,
-                        padding: const EdgeInsets.all(15.0),
-                        iconSize: 30.0,
-                      ),
+                        Spacer(),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.close,
+                            color: Colors.grey,
+                          ),
+                          onPressed: onCancelPress,
+                          color: Colors.black54,
+                          // padding: const EdgeInsets.all(15.0),
+                          iconSize: 30.0,
+                        ),
+                      ],
                     ),
                     Expanded(
                         child: Column(
                       children: children,
-                    ))
+                    )),
                   ],
                 )),
     );

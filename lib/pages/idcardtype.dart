@@ -1,34 +1,51 @@
 import 'package:flutter/material.dart';
 
-class Idcardtype extends StatelessWidget {
-  const Idcardtype({Key? key}) : super(key: key);
+class Idcardtype extends StatefulWidget {
+  final Function(Map<String, dynamic>) onResponse;
+
+  const Idcardtype({Key? key, required this.onResponse}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    // List of ID card types
-    final List<Map<String, String>> idCardTypes = [
-      {'name': "Voter's Card", 'image': 'assets/images/voters_card.png'},
-      {'name': 'National Passport', 'image': 'assets/images/passport.png'},
-      {'name': 'NIN Slip', 'image': 'assets/images/nin_slip.png'},
-      {'name': 'Digital NIN Slip', 'image': 'assets/images/digital_nin_slip.png'},
-      {'name': 'NIMC', 'image': 'assets/images/nimc.png'},
-      {'name': "Driver's License", 'image': 'assets/images/drivers_license.png'},
-    ];
+  State<Idcardtype> createState() => _IdcardtypeState();
+}
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select ID Card Type'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+class _IdcardtypeState extends State<Idcardtype> {
+
+  // List of ID card types
+  final List<Map<String, String>> idCardTypes = [
+    {'name': "Internation Passport",},
+    {'name': "Voter's Card"},
+    {'name': "Driver's License"},
+    {'name': 'National identity card'},
+    {'name': 'Plate Number Verification'},
+  ];
+
+   Map<String, dynamic> idCardType = {};
+  @override
+  Widget build(BuildContext context) {
+
+    return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Please select the type of ID you want to verify',
+            Text(
+              'ID Verification',
               style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+                color: const Color(0xFF181619),
+                fontSize: 18,
+                fontFamily: 'Plus Jakarta Sans',
+                fontWeight: FontWeight.w600,
+                height: 1.78,
+              ),
+            ),
+            if (idCardType.isEmpty)
+            Text(
+              'Please choose a verification method to begin.',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 13,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
+                letterSpacing: -0.41,
               ),
             ),
             const SizedBox(height: 20),
@@ -36,42 +53,83 @@ class Idcardtype extends StatelessWidget {
               child: ListView.builder(
                 itemCount: idCardTypes.length,
                 itemBuilder: (context, index) {
-                  return Card(
-                    elevation: 2,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      leading: Image.asset(
-                        idCardTypes[index]['image']!,
-                        width: 50,
-                        height: 50,
-                        // Add error builder to handle missing assets
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.credit_card, size: 40);
-                        },
+                  return InkWell(
+                    onTap: () {
+                      idCardType = idCardTypes[index];
+                      setState(() {});
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      width: double.infinity,
+                      height: 56,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            width: 1,
+                            color: idCardType == idCardTypes[index] ? const Color(0xFF181619) : const Color(0xFFE1E1E1),
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                      title: Text(idCardTypes[index]['name']!),
-                      onTap: () {
-                        // Handle the selection of the ID card type
-                        print('Selected: ${idCardTypes[index]['name']}');
-                      },
+                      child: Text(
+                        idCardTypes[index]['name']!,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w500,
+                          height: 1.60,
+                        ),
+                      ),
                     ),
                   );
                 },
               ),
             ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle the continue action
-                },
-                child: const Text('Continue'),
+            InkWell(
+              onTap: () {
+                if (idCardType.isEmpty) return;
+                widget.onResponse(idCardType);
+              },
+              child: Opacity(
+                opacity: idCardType.isEmpty ? 0.05 : 1,
+                child: Container(
+                  width: double.infinity,
+                  height: 47,
+                  alignment: Alignment.center,
+                  decoration: ShapeDecoration(
+                    color: const Color(0xFF181619),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Continue',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontWeight: FontWeight.w600,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
               ),
             ),
+            SizedBox(height: 20),
+            Center(
+              child: Text(
+                'Powered by SprintCheck',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 13,
+                  fontFamily: 'Manrope',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            )
           ],
-        ),
-      ),
-    );
+        );
   }
 }

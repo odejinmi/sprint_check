@@ -12,5 +12,5 @@ import sprint_check
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
-  SprintCheckPlugin.register(with: registry.registrar(forPlugin: "SprintCheckPlugin"))
+  SprintCheckPluginCApi.register(with: registry.registrar(forPlugin: "SprintCheckPluginCApi"))
 }

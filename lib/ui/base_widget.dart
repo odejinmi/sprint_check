@@ -37,70 +37,106 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
       return false;
     }
 
-    var text = Text(confirmationMessage);
-
-    var dialog = kIsWeb
-        ? AlertDialog(
-            content: text,
-            actions: <Widget>[
-              TextButton(
-                  child: const Text('NO'),
-                  onPressed: () {
-                    Navigator.of(context).pop(
-                        false); // Pops the confirmation dialog but not the page.
-                  }),
-              TextButton(
-                  child: const Text('YES'),
-                  onPressed: () {
-                    Navigator.of(context).pop(
-                        true); // Returning true to _onWillPop will pop again.
-                  })
-            ],
-          )
-        : Platform.isIOS
-            ? CupertinoAlertDialog(
-                content: text,
-                actions: <Widget>[
-                  CupertinoDialogAction(
-                    isDestructiveAction: true,
-                    onPressed: () {
-                      Navigator.pop(context, true); // Returning true to
-                      // _onWillPop will pop again.
-                    },
-                    child: const Text('Yes'),
+    bool exit = await showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return SafeArea(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              width: 390,
+              height: 312,
+              decoration: ShapeDecoration(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
                   ),
-                  CupertinoDialogAction(
-                    isDefaultAction: true,
-                    onPressed: () {
-                      Navigator.pop(context,
-                          false); // Pops the confirmation dialog but not the page.
+                ),
+                shadows: [
+                  BoxShadow(
+                    color: Color(0x26000000),
+                    blurRadius: 17.90,
+                    offset: Offset(0, 0),
+                    spreadRadius: 0,
+                  )
+                ],
+              ),
+              child: Column(
+                spacing: 20,
+                children: [
+                  Text(
+                    'Are you sure you want to cancel',
+                    style: TextStyle(
+                      color: const Color(0xFF1B1B1B),
+                      fontSize: 16,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      height: 1.38,
+                      letterSpacing: -0.41,
+                    ),
+                  ),
+                  Text(
+                    'Cancelling will end verification and erase your details. Ignore this message if it was a mistake.',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 13,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500,
+                      height: 1.69,
+                      letterSpacing: -0.41,
+                    ),
+                  ),
+                  SizedBox(height: 20,),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context, false);
                     },
-                    child: const Text('No'),
+                    child: Container(
+                      height: 47,
+                      decoration: ShapeDecoration(
+                        color: Colors.black,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 10,
+                        children: [
+                          Text(
+                            'Ignore',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'Manrope',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context, true);
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: const Color(0xFFFF5257),
+                        fontSize: 16,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w500,
+                        height: 1.38,
+                        letterSpacing: -0.41,
+                      ),
+                    ),
                   ),
                 ],
-              )
-            : AlertDialog(
-                content: text,
-                actions: <Widget>[
-                  TextButton(
-                      child: const Text('NO'),
-                      onPressed: () {
-                        Navigator.of(context).pop(
-                            false); // Pops the confirmation dialog but not the page.
-                      }),
-                  TextButton(
-                      child: const Text('YES'),
-                      onPressed: () {
-                        Navigator.of(context).pop(
-                            true); // Returning true to _onWillPop will pop again.
-                      })
-                ],
-              );
-
-    bool exit = await showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) => dialog,
-        ) ??
+              ),
+            ),
+          );
+        }) ??
         false;
 
     if (exit) {

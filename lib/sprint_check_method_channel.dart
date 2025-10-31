@@ -17,7 +17,11 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('sprint_check');
 
-  VerificationController controller = Get.put(VerificationController());
+
+  bool _sdkInitialized = false;
+  String _publicKey = "";
+  String _secretKey = "";
+
   @override
   Future<String?> getPlatformVersion() async {
     final version = await methodChannel.invokeMethod<String>(
@@ -50,23 +54,21 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
       }
     }());
 
-    if (controller.sdkInitialized) return;
-
-    publicKey = publicKey;
+    if (_sdkInitialized) return;
 
     // Using cascade notation to build the platform specific info
     try {
       // platformInfo = (await PlatformInfo.getinfo())!;
-      controller.publicKey = publicKey;
-      controller.secretKey = secretKey;
-      controller.sdkInitialized = true;
+      _publicKey = publicKey;
+      _secretKey = secretKey;
+      _sdkInitialized = true;
     } on PlatformException {
       rethrow;
     }
   }
 
   _validateSdkInitialized() {
-    if (!controller.sdkInitialized) {
+    if (!_sdkInitialized) {
       throw SprintCheckSdkNotInitializedException(
         'SprintCheck SDK has not been initialized. The SDK has'
         ' to be initialized before use',
@@ -78,14 +80,12 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     //validate that sdk has been initialized
     _validateSdkInitialized();
     //check for null value, and length and starts with pk_
-    if (controller
-        .publicKey
+    if (_publicKey
         .isEmpty //||
     // !controller.publicKey.startsWith("pk_")
     ) {
       throw AuthenticationException(Utils.getKeyErrorMsg('public'));
-    } else if (controller
-        .secretKey
+    } else if (_secretKey
         .isEmpty //||
     //  !controller.secretKey.startsWith("sk_")
     ) {
@@ -109,26 +109,11 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     Charge _charge = Charge(identifier);
     _charge.bvn = bvn;
     _charge.nin = nin;
-    controller.checkoutmethod = checkoutmethod;
-    controller.identifier = identifier;
-    controller.bvnNumber = bvn;
-    controller.ninNumber = nin;
-    if (bvn != null && bvn.isNotEmpty) {
-      controller.directcheckout = true;
-      controller.bvnController.text = bvn;
-      controller.stage = 1;
-    }
-    if (nin != null && nin.isNotEmpty) {
-      controller.directcheckout = true;
-      controller.bvnController.text = nin;
-      controller.stage = 1;
-    }
     CheckoutResponse? response = await showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (BuildContext context) => CheckoutWidget(charge: _charge, publicKey: controller.publicKey , secretKey: controller.secretKey,),
+      builder: (BuildContext context) => CheckoutWidget(charge: _charge, publicKey: _publicKey , secretKey: _secretKey, method: checkoutmethod,),
     );
-    controller.directcheckout = false;
     return response!;
   }
 }
