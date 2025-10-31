@@ -12,13 +12,17 @@ class ExtractVoter {
     String? extractedDetails;
 
     // VOTER'S CARD LOGIC
-    // ID Number (VIN)
+
     for (final line in lines) {
       if (extractedDetails == null){
         extractedDetails = line;
       }else{
         extractedDetails += " ***videx*** $line";
       }
+    }
+
+    // ID Number (VIN)
+    for (final line in lines) {
       final upper = line.toUpperCase();
       if (upper.contains('VIN')) {
         final vinMatch = RegExp(r'VIN\s*([A-Z0-9 ]+)').firstMatch(upper);
