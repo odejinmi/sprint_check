@@ -90,40 +90,39 @@ class ExtractNational {
     // Label-based extraction for DOB and NIN (can be run regardless)
      for (int i = 0; i < lines.length; i++) {
       final upper = lines[i].toUpperCase().trim();
-      if (upper.contains('DATE OF BIRTH')) {
-          if (i + 1 < lines.length) {
-            final dobLine = lines[i+1];
-             final dobRegex = RegExp(r'(\d{1,2})\s+([A-Z]{3})\s+(\d{2,4})');
-             final match = dobRegex.firstMatch(dobLine.toUpperCase());
-              if (match != null) {
-                String day = match.group(1)!.padLeft(2, '0');
-                String monthStr = match.group(2)!;
-                String year = match.group(3)!;
-                final months = {
-                  'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'MAY': '05', 'JUN': '06',
-                  'JUL': '07', 'AUG': '08', 'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12',
-                };
-                 String? month = months[monthStr];
-                 if (month != null) {
-                    if (year.length == 2) {
-                      int yr = int.parse(year);
-                      year = (yr > (DateTime.now().year % 100)) ? '19$year' : '20$year';
-                    }
-                    dob = '$day-$month-$year';
-                 }
-              }
+      final dobRegex = RegExp(r'(\d{1,2})\s+([A-Z]{3})(?:\s*[/]?\s*[A-Z]{3})?\s+(\d{2,4})');
+      final match = dobRegex.firstMatch(upper.toUpperCase());
+      if (match != null) {
+        String day = match.group(1)!.padLeft(2, '0');
+        String monthStr = match.group(2)!;
+        String year = match.group(3)!;
+        final months = {
+          'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'MAY': '05', 'JUN': '06',
+          'JUL': '07', 'AUG': '08', 'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12',
+        };
+        String? month = months[monthStr];
+        if (month != null) {
+          if (year.length == 2) {
+            int yr = int.parse(year);
+            year = (yr > (DateTime.now().year % 100)) ? '19$year' : '20$year';
           }
-      } else if (upper.contains('NIN')) {
-         final match = RegExp(r'(\d{11})').firstMatch(upper.replaceAll(' ', ''));
-         if (match != null) {
-           nin = match.group(1)!;
-         } else if (i + 1 < lines.length) {
-           final nextLineMatch = RegExp(r'(\d{11})').firstMatch(lines[i + 1].replaceAll(' ', ''));
-           if (nextLineMatch != null) {
-             nin = nextLineMatch.group(1)!;
-           }
-         }
+          dob = '$day-$month-$year';
+        }
       }
+
+      // NIN Extraction
+      // if (upper.contains('NIN')) {
+         final match1 = RegExp(r'(\d{11})').firstMatch(upper.replaceAll(' ', ''));
+         if (match1 != null) {
+           nin = match1.group(1)!;
+         // } else if (i + 1 < lines.length) {
+         //   final nextLineMatch = RegExp(r'(\d{11})').firstMatch(lines[i + 1].replaceAll(' ', ''));
+         //   if (nextLineMatch != null) {
+         //     nin = nextLineMatch.group(1)!;
+         //   }
+         }
+         dev.log("nin: $nin");
+      // }
     }
 
     return IDCardInfo(
