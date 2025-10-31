@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 class IDCardInfo {
@@ -14,6 +15,25 @@ class IDCardInfo {
     this.dateOfBirth,
     this.idNumber,
   });
+  
+  toJson() => {
+    'firstName': firstName,
+    'lastName': lastName,
+    'middleName': middleName,
+    'dateOfBirth': dateOfBirth,
+    'idNumber': idNumber,
+  };
+  
+  fromJson(Map<String, dynamic> json) => IDCardInfo(
+    firstName: json['firstName'],
+    lastName: json['lastName'],
+    middleName: json['middleName'],
+    dateOfBirth: json['dateOfBirth'],
+    idNumber: json['idNumber'],
+  );
+  
+  @override
+  toString() => 'IDCardInfo(firstName: $firstName, lastName: $lastName, middleName: $middleName, dateOfBirth: $dateOfBirth, idNumber: $idNumber)';
 }
 
 class IDCardParser {
@@ -65,12 +85,12 @@ class IDCardParser {
   }
 
   static Future<IDCardInfo> extractVoter(List<String> lines) async {
-    var idNumber;
-    var firstName;
-    var lastName;
-    var middleName;
-    var dob;
-    var fullName;
+    String? idNumber;
+    String? firstName;
+    String? lastName;
+    String? middleName;
+    String? dob;
+    String? fullName;
 
     // VOTER'S CARD LOGIC
     // ID Number (VIN)
@@ -302,54 +322,45 @@ class IDCardParser {
       }
     }
 
+    // Name
+    for (final line in lines) {
+      final upper = line.toUpperCase();
+      // Look for "LASTNAME, FIRSTNAME MIDDLE..."
+      if (RegExp(r'^[A-Z, ]+$').hasMatch(upper) && upper.contains(',')) {
+        final parts = upper.split(',');
+        if (parts.length > 1) {
+          lastName = parts[0].trim();
+          final nameParts = parts[1].trim().split(RegExp(r'\s+'));
+          if (nameParts.isNotEmpty) {
+            firstName = nameParts[0];
+            if (nameParts.length > 1) {
+              middleName = nameParts.sublist(1).join(' ');
+            }
+          }
+          // Once name is found, we can break
+          if(lastName.isNotEmpty && firstName != null && firstName.isNotEmpty) break;
+        }
+      }
+    }
 
 
-    // DOB & Name Extraction
+    // DOB
     for (int i = 0; i < lines.length; i++) {
       final upper = lines[i].toUpperCase();
+      dev.log('Line: $upper');
       if (upper.contains('D OF B') || upper.contains('DOB') || upper.contains('D OF 8')) {
-        // Combine the current line and the next to ensure the date is found
         String searchArea = lines[i];
+        dev.log('Search Area: $searchArea');
         if (i + 1 < lines.length) {
           searchArea += ' ' + lines[i + 1];
         }
 
-        // Use a more forgiving regex to find the date
         final dateRegex = RegExp(r'(\d{2})[\s\-/]+(\d{2})[\s\-/]+(\d{4})');
         final dateMatch = dateRegex.firstMatch(searchArea);
 
         if (dateMatch != null) {
           dob = '${dateMatch.group(1)}-${dateMatch.group(2)}-${dateMatch.group(3)}';
-
-          // The name is often on the line directly following the DOB.
-          if (i + 1 < lines.length) {
-            final nameLine = lines[i + 1].trim();
-            if (RegExp(r'^[A-Z, ]+$').hasMatch(nameLine.toUpperCase())) {
-              if (nameLine.contains(',')) {
-                final parts = nameLine.split(',');
-                if (parts.length > 1) {
-                  lastName = parts[0].trim();
-                  final nameParts = parts[1].trim().split(RegExp(r'\s+'));
-                  if (nameParts.isNotEmpty) {
-                    firstName = nameParts[0];
-                    if (nameParts.length > 1) {
-                      middleName = nameParts.sublist(1).join(' ');
-                    }
-                  }
-                }
-              } else {
-                final nameParts = nameLine.split(RegExp(r'\s+'));
-                if (nameParts.length >= 2) {
-                  lastName = nameParts[0];
-                  firstName = nameParts[1];
-                  if (nameParts.length > 2) {
-                    middleName = nameParts.sublist(2).join(' ');
-                  }
-                }
-              }
-            }
-          }
-          break; // Exit the loop once DOB and Name are likely found
+          break; 
         }
       }
     }
@@ -402,9 +413,6 @@ class IDCardParser {
       else if (upper.contains('PASSPART NO.') ||
           upper.contains('N PASSEPORT') ||
           upper.contains('PASSPART NO./N PASSEPORT')) {
-        // dev.log('PASSPORT NO');
-        // dev.log(lines[i]);
-        // dev.log(lines[i + 1]);
         if (i + 1 < lines.length) tempIdNumber = lines[i + 1].trim();
       }
     }

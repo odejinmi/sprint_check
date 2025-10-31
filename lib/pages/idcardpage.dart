@@ -170,10 +170,7 @@ class _IdcardpageState extends State<Idcardpage> {
                 // idnameController.text = "${info.firstName} ${info.lastName}";
                 // idnumberController.text = "${info.idNumber}";
                 // dobController.text = "${info.dateOfBirth}";
-                dev.log('First Name: ${info.firstName}');
-                dev.log('Last Name: ${info.lastName}');
-                dev.log('DOB: ${info.dateOfBirth}');
-                dev.log('ID Number: ${info.idNumber}');
+                dev.log('Card details: ${info.toString()}');
                 // result =
                 // 'First Name: ${info.firstName}\nLast Name: ${info.lastName}\nDOB: ${info.dateOfBirth}\nID Number: ${info.idNumber}';
               }
