@@ -11,9 +11,9 @@ class SprintCheckException implements Exception {
 }
 
 class SprintCheckSdkNotInitializedException extends SprintCheckException {
-  SprintCheckSdkNotInitializedException(String message) : super(message);
+  SprintCheckSdkNotInitializedException(String super.message);
 }
 
 class AuthenticationException extends SprintCheckException {
-  AuthenticationException(String message) : super(message);
+  AuthenticationException(String super.message);
 }

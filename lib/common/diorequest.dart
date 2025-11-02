@@ -3,19 +3,15 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart' as Get;
 
-import 'verificationController.dart';
-
-class diorequest {
+class Diorequest {
   final dio = Dio();
   final baseurl = "https://api.sprintcheck.megasprintlimited.com.ng/api/sdk/";
 
-  VerificationController controller = Get.Get.put(VerificationController());
   //final baseurl = "https://abs.paylony.com/api/v1/";
 
-  String generateHmacSha512(String message) {
-    var key = utf8.encode(controller.secretKey);
+  String generateHmacSha512(String message, String secretKey) {
+    var key = utf8.encode(secretKey);
     var bytes = utf8.encode(message);
 
     var hmacSha512 = Hmac(sha512, key); // HMAC-SHA512
@@ -24,11 +20,11 @@ class diorequest {
     return digest.toString();
   }
 
-  Future<dynamic> get(String endpoint) async {
+  Future<dynamic> get(String endpoint, String publicKey) async {
     try {
       var header = {
         'Content-Type': Headers.jsonContentType,
-        'Authorization': controller.publicKey,
+        'Authorization': publicKey,
         "signature": "",
       };
       final options = Options(headers: header);
@@ -67,20 +63,20 @@ class diorequest {
   // $join = $terminalId.'|'.$terminalSerial.'|'.$posType.'|'.$request->reference;
   // $keyPair = hash("sha512",$join);
 
-  Future<dynamic> post(String endpoint, Object data) async {
+  Future<dynamic> post(String endpoint, Object data,String publicKey,String secretKey) async {
     String url = '$baseurl$endpoint';
     // dev.log(url);
     var header = {
       'Content-Type': Headers.jsonContentType,
-      'Authorization': controller.publicKey,
-      "signature": generateHmacSha512(jsonEncode(data)),
+      'Authorization': publicKey,
+      "signature": generateHmacSha512(jsonEncode(data),secretKey),
     };
 
-    debugPrint(url);
-    debugPrint(jsonEncode(data));
-    debugPrint(generateHmacSha512(jsonEncode(data)));
-    debugPrint("headers: \n $header");
-    debugPrint("unencrypted payload \n ${data.toString()}");
+    // debugPrint(url);
+    // debugPrint(jsonEncode(data));
+    // debugPrint(generateHmacSha512(jsonEncode(data),secretKey));
+    // debugPrint("headers: \n $header");
+    // debugPrint("unencrypted payload \n ${data.toString()}");
 
     // final decrypted = encrypter.decrypt(encrypted, iv: iv);
     // debugPrint('Decrypted: $decrypted');
@@ -118,13 +114,13 @@ class diorequest {
     }
   }
 
-  Future<dynamic> put(String endpoint, Object data) async {
+  Future<dynamic> put(String endpoint, Object data, String publicKey, String secretKey) async {
     String url = '$baseurl$endpoint';
     // dev.log(url);
     var header = {
       'Content-Type': Headers.jsonContentType,
-      'Authorization': controller.publicKey,
-      "signature": generateHmacSha512(data.toString()),
+      'Authorization': publicKey,
+      "signature": generateHmacSha512(data.toString(),secretKey),
     };
 
     debugPrint(url);

@@ -4,20 +4,19 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:sprint_check/pages/newfacepage.dart';
 
-import '../common/DigitsOnlyFormatter.dart';
+import '../common/digits_only_formatter.dart';
 import '../common/diorequest.dart';
 import '../models/charge.dart';
-import '../models/checkout_response.dart';
 import '../sprint_check_method_channel.dart';
-import '../ui/checkout/base_checkout.dart';
 
 class Newinputpage extends StatefulWidget {
+  final String publicKey;
+  final String secretKey;
   final Charge charge;
   final CheckoutMethod checkoutmethod;
   final Function(Map<String, dynamic>) onResponse;
-  const Newinputpage({Key? key, required this.charge, required this.checkoutmethod, required this.onResponse}) : super(key: key);
+  const Newinputpage({super.key, required this.charge, required this.checkoutmethod, required this.onResponse, required this.publicKey, required this.secretKey});
 
   @override
   State<Newinputpage> createState() => _NewinputpageState();
@@ -29,6 +28,8 @@ class _NewinputpageState extends State<Newinputpage> {
   TextEditingController bvnController = TextEditingController();
   Timer? timer;
   double width = 155.0;
+
+  bool success = false;
   void timercount(){
     if (timer != null) {
       timer!.cancel();
@@ -108,16 +109,16 @@ class _NewinputpageState extends State<Newinputpage> {
   var message = "";
   int procced = 1;
 //22314756491
-  fetchdetails() async {
+  Future<void> fetchdetails() async {
     timercount();
       stage = 1;
       setState(() {
 
       });
-    var result = await diorequest().post(checmethod.toLowerCase(), {
+    var result = await Diorequest().post(checmethod.toLowerCase(), {
       'number': bvnController.text,
       'identifier': widget.charge.identifier,
-    });
+    }, widget.publicKey, widget.secretKey);
     stage = 2;
     timer?.cancel();
     if (!mounted) {
@@ -130,6 +131,7 @@ class _NewinputpageState extends State<Newinputpage> {
     if (result["success"] == 1) {
       procced = 1;
       message = result["message"];
+      success = true;
       var image = result['data']['image'];
       if (isUrl(image)) {
          bvnimage = await urlToBase64(image);
@@ -141,6 +143,7 @@ class _NewinputpageState extends State<Newinputpage> {
     } else {
       message = result["message"];
       procced = 2;
+      success = false;
       // stage = 2;
       // displaymessage = "Invalid $checmethod provided";
       // verificationstatus = 0;
@@ -234,7 +237,7 @@ class _NewinputpageState extends State<Newinputpage> {
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return "Kindly input your ${checmethod}";
+                        return "Kindly input your $checmethod";
                       }
 
                       return null;
@@ -251,7 +254,7 @@ class _NewinputpageState extends State<Newinputpage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(width: 20, height: 20, child: Icon(Icons.done, size: 20, color: Colors.black)),
+                          SizedBox(width: 20, height: 20, child: Icon(Icons.done, size: 20, color: Colors.black)),
                           SizedBox(width: 7),
                           Expanded(
                             child: Text(
@@ -273,7 +276,7 @@ class _NewinputpageState extends State<Newinputpage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(width: 20, height: 20, child: Icon(Icons.done, size: 20, color: Colors.black)),
+                          SizedBox(width: 20, height: 20, child: Icon(Icons.done, size: 20, color: Colors.black)),
                           SizedBox(width: 7),
                           Expanded(
                             child: Text(
@@ -349,7 +352,7 @@ class _NewinputpageState extends State<Newinputpage> {
                     ),
                     SizedBox(height: 20,),
                     Text(
-                      'Validation Successful',
+                      'Validation ${success? "Successful" : "Failed"}',
                       style: TextStyle(
                         color: const Color(0xFF181619),
                         fontSize: 15,
@@ -374,16 +377,6 @@ class _NewinputpageState extends State<Newinputpage> {
                   }
                   fetchdetails();
                 } else if (stage == 2) {
-                  var response = CheckoutResponse(
-                      message: "i agreed ",
-                      reference: "",
-                      status: false,
-                      method: widget.checkoutmethod,
-                      verify: false,
-                      name: '',
-                      confidence_level: null,
-                      bvn: widget.charge.bvn,
-                      nin: widget.charge.nin);
                   widget.onResponse({
                     "bvnimage": bvnimage,
                     "reference": reference,

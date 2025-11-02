@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -5,18 +6,28 @@ import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
 import 'extractDriverLicense.dart';
-import 'extractVoter.dart';
 import 'extractnational.dart';
+import 'extractVoter.dart';
 
+
+
+/// Holds the extracted information from a recognized ID card.
 class IDCardInfo {
+  /// The first name of the card holder.
   final String? firstName;
+  /// The last name of the card holder.
   final String? lastName;
+  /// The middle name of the card holder.
   final String? middleName;
+  /// The date of birth of the card holder in `dd-MM-yyyy` format.
   final String? dateOfBirth;
+  /// The unique identification number from the card (e.g., VIN, Passport No).
   final String? idNumber;
+  /// The file path to a cropped image of the face detected on the card.
+  final String? faceImagePath;
   final String? extracteddetails;
-  final String? faceImagePath; // New field for the cropped face
 
+  /// Creates an instance of [IDCardInfo].
   IDCardInfo({
     this.firstName,
     this.lastName,
@@ -27,7 +38,8 @@ class IDCardInfo {
     this.extracteddetails,
   });
 
-  // copyWith method to easily add the face image path later
+  /// Creates a copy of this [IDCardInfo] but with the given fields replaced with
+  /// the new values.
   IDCardInfo copyWith({
     String? firstName,
     String? lastName,
@@ -53,7 +65,9 @@ class IDCardInfo {
       'IDCardInfo(firstName: $firstName, lastName: $lastName, middleName: $middleName, dateOfBirth: $dateOfBirth, idNumber: $idNumber, faceImagePath: $faceImagePath, extracteddetails: $extracteddetails)';
 }
 
+/// A utility class to extract information from an ID card image.
 class IDCardParser {
+  /// Extracts text and face information from the given [image] based on the [cardType].
   static Future<IDCardInfo> extractInfoFromImage(
       InputImage image, String cardType) async {
     // --- 1. TEXT RECOGNITION ---
@@ -75,23 +89,23 @@ class IDCardParser {
       case 'Internation Passport':
         idCardInfo = await ExtractNational.extractnational(lines);
         break;
-      case 'National identity card':
-        idCardInfo = await extractNIN(lines);
-        break;
       case "Driver's License":
         idCardInfo = await ExtractDriverLicense.extractDriverLicense(lines);
         break;
+      case 'National identity card':
+      // idCardInfo = await extractNIN(lines);
+        break;
       case 'nimc':
-        idCardInfo = await extractnimc(lines);
+        // idCardInfo = await extractnimc(lines);
         break;
       case 'ninslip':
-        idCardInfo = await extractNINslip(lines);
+        // idCardInfo = await extractNINslip(lines);
         break;
       case 'digitalninslip':
-        idCardInfo = await extractDigitalNINslip(lines);
+        // idCardInfo = await extractDigitalNINslip(lines);
         break;
       default:
-        idCardInfo = await extractunknown(lines);
+        // idCardInfo = await extractunknown(lines);
         break;
     }
 
@@ -119,456 +133,18 @@ class IDCardParser {
             final croppedFace = img.copyCrop(originalImage, x: x, y: y, width: w, height: h);
 
             final tempDir = await getTemporaryDirectory();
-            final file = await File('${tempDir.path}/face_crop${DateTime.now().millisecondsSinceEpoch}.jpg').create();
+            final file = await File('${tempDir.path}/face_crop.jpg').create();
             file.writeAsBytesSync(img.encodeJpg(croppedFace));
             croppedFacePath = file.path;
           }
         }
         await faceDetector.close();
       } catch (e) {
-        print('Error cropping face from ID card: $e');
+        dev.log('Error cropping face from ID card: $e');
       }
     }
 
     // --- 4. RETURN COMBINED INFO ---
     return idCardInfo.copyWith(faceImagePath: croppedFacePath);
-  }
-
-  static Future<IDCardInfo> extractNIN(List<String> lines) async {
-    var idNumber;
-    var firstName;
-    var lastName;
-    var middleName;
-    var dob;
-    var fullName;
-
-    // NIN SLIP LOGIC
-    // ID Number
-    for (final line in lines) {
-      final text = line.toUpperCase();
-      if (text.startsWith('NIN')) {
-        final parts = line.split(':');
-        String candidate =
-        (parts.length > 1) ? parts[1].replaceAll(RegExp(r'\D'), '') : '';
-        if (candidate.isEmpty) {
-          final nextIdx = lines.indexOf(line) + 1;
-          if (nextIdx < lines.length) {
-            candidate = lines[nextIdx].replaceAll(RegExp(r'\D'), '').trim();
-          }
-        }
-        if (candidate.isNotEmpty) {
-          idNumber = candidate;
-          break;
-        }
-      }
-    }
-    if (idNumber == null) {
-      for (int i = 0; i < lines.length - 1; i++) {
-        final line1Raw = lines[i];
-        var line2Raw = lines[i + 1];
-        if (line2Raw.length > 4) {
-          line2Raw = line2Raw.substring(4);
-        } else {
-          line2Raw = '';
-        }
-        if (RegExp(r'^[0-9 ]+$').hasMatch(line1Raw) &&
-            RegExp(r'^[0-9 ]+$').hasMatch(line2Raw)) {
-          final combined = (line1Raw + line2Raw).replaceAll(' ', '');
-          if (combined.length >= 16) {
-            idNumber = combined;
-            break;
-          }
-        }
-      }
-      String digitsOnly = lines.join(' ').replaceAll(RegExp(r'[^0-9]'), ' ');
-      final idCandidates =
-      digitsOnly.split(' ').where((s) => s.length >= 10).toList();
-      idCandidates.sort((a, b) => b.length.compareTo(a.length));
-      if (idCandidates.isNotEmpty) {
-        idNumber = idCandidates.first;
-      }
-    }
-    // Name
-    for (final line in lines) {
-      final upper = line.toUpperCase();
-      if (upper.startsWith('SURNAME')) {
-        lastName = line.split(' ').last.trim();
-      } else if (upper.startsWith('FIRST NAME')) {
-        firstName = line.split(' ').last.trim();
-      } else if (upper.startsWith('MIDDLE NAME')) {
-        middleName = line.split(' ').last.trim();
-      }
-    }
-    // DOB
-    final dobRegex = RegExp(
-      r'(\d{2})[ /-]([A-Z]{3})[ /-](\d{2,4})|(\d{2})[ /-](\d{2})[ /-](\d{2,4})',
-    );
-    for (final line in lines) {
-      final match = dobRegex.firstMatch(line.toUpperCase());
-      if (match != null) {
-        if (match.group(2) != null) {
-          final day = match.group(1);
-          final monStr = match.group(2);
-          final year = match.group(3);
-          final months = {
-            'JAN': '01',
-            'FEB': '02',
-            'MAR': '03',
-            'APR': '04',
-            'MAY': '05',
-            'JUN': '06',
-            'JUL': '07',
-            'AUG': '08',
-            'SEP': '09',
-            'OCT': '10',
-            'NOV': '11',
-            'DEC': '12',
-          };
-          final mon = months[monStr] ?? monStr;
-          dob = '$day-$mon-$year';
-        } else if (match.group(4) != null &&
-            match.group(5) != null &&
-            match.group(6) != null) {
-          dob = '${match.group(4)}-${match.group(5)}-${match.group(6)}';
-        }
-        break;
-      }
-    }
-    return IDCardInfo(
-      firstName: firstName,
-      lastName: lastName,
-      middleName: middleName,
-      dateOfBirth: dob,
-      idNumber: idNumber,
-    );
-  }
-
-
-  static Future<IDCardInfo> extractnimc(List<String> lines) async {
-    var idNumber;
-    var firstName;
-    var lastName;
-    var middleName;
-    var dob;
-    var fullName;
-
-    // NIMC card number extraction with duplicate group handling
-    List<String> digitLines =
-    lines
-        .where((l) => RegExp(r'^[0-9 ]{6,}$').hasMatch(l.trim()))
-        .toList();
-    if (digitLines.length >= 2) {
-      var firstLine = digitLines[0].replaceAll(' ', '');
-      var secondLine = digitLines[1].replaceAll(' ', '');
-      var firstGroups = digitLines[0].trim().split(' ');
-      var lastGroup = firstGroups.isNotEmpty ? firstGroups.last : '';
-      if (lastGroup.isNotEmpty &&
-          digitLines[1].trim().startsWith(lastGroup)) {
-        // Remove the duplicate group from the start of second line
-        var dedupedSecond =
-        digitLines[1].trim().substring(lastGroup.length).trim();
-        idNumber = (digitLines[0] + ' ' + dedupedSecond).replaceAll(' ', '');
-      } else {
-        idNumber = (digitLines[0] + digitLines[1]).replaceAll(' ', '');
-      }
-    }
-
-    // Name extraction for NIMC: always use the value after the label
-    String? tempSurname, tempFirstName, tempMiddleName;
-    for (int i = 0; i < lines.length; i++) {
-      final upper = lines[i].toUpperCase().trim();
-      if (upper == 'SURNAME' && i + 1 < lines.length) {
-        tempSurname = lines[i + 1].trim();
-      } else if (upper == 'FIRST NAME' && i + 1 < lines.length) {
-        tempFirstName = lines[i + 1].trim();
-      } else if (upper == 'MIDDLE NAME' && i + 1 < lines.length) {
-        tempMiddleName = lines[i + 1].trim();
-      }
-    }
-    if (tempSurname != null) lastName = tempSurname;
-    if (tempFirstName != null) firstName = tempFirstName;
-    if (tempMiddleName != null) middleName = tempMiddleName;
-
-    // DOB
-    final dobRegex = RegExp(
-      r'(\d{2})[ /-]([A-Z]{3})[ /-](\d{2,4})|(\d{2})[ /-](\d{2})[ /-](\d{2,4})',
-    );
-    for (final line in lines) {
-      final match = dobRegex.firstMatch(line.toUpperCase());
-      if (match != null) {
-        if (match.group(2) != null) {
-          final day = match.group(1);
-          final monStr = match.group(2);
-          final year = match.group(3);
-          final months = {
-            'JAN': '01',
-            'FEB': '02',
-            'MAR': '03',
-            'APR': '04',
-            'MAY': '05',
-            'JUN': '06',
-            'JUL': '07',
-            'AUG': '08',
-            'SEP': '09',
-            'OCT': '10',
-            'NOV': '11',
-            'DEC': '12',
-          };
-          final mon = months[monStr] ?? monStr;
-          dob = '$day-$mon-$year';
-        } else if (match.group(4) != null &&
-            match.group(5) != null &&
-            match.group(6) != null) {
-          dob = '${match.group(4)}-${match.group(5)}-${match.group(6)}';
-        }
-        break;
-      }
-    }
-    return IDCardInfo(
-      firstName: firstName,
-      lastName: lastName,
-      middleName: middleName,
-      dateOfBirth: dob,
-      idNumber: idNumber,
-    );
-  }
-
-  static Future<IDCardInfo> extractNINslip(List<String> lines) async {
-    var idNumber;
-    var firstName;
-    var lastName;
-    var middleName;
-    var dob;
-    var fullName;
-    String? tempSurname, tempFirstName, tempMiddleName, tempDob, tempIdNumber;
-
-    // DOB
-    final dobRegex = RegExp(
-      r'(\d{2})[ /-]([A-Z]{3})[ /-](\d{2,4})|(\d{2})[ /-](\d{2})[ /-](\d{2,4})',
-    );
-    for (int i = 0; i < lines.length; i++) {
-      final upper = lines[i].toUpperCase().trim();
-
-      final match = dobRegex.firstMatch(upper);
-
-      // Surname
-      if ((upper.contains('SURNAME') && !upper.contains('GIVEN')) ||
-          upper.contains('SURNAME / NOM')) {
-        if (i + 1 < lines.length) tempSurname = lines[i + 3].trim();
-      }
-      // Given Names
-      else if (upper.contains('GIVEN NAMES') ||
-          upper.contains('GIVEN NAMES / PRÉNOMS') ||
-          upper.contains('PRÉNOMS') ||
-          upper.contains('Glven Names/ Prénoms')) {
-        if (i + 1 < lines.length) {
-          var names = lines[i + 1].trim().split(RegExp(r'\s+'));
-          if (names.isNotEmpty) tempFirstName = names[0];
-          if (names.length > 1) tempMiddleName = names.sublist(1).join(' ');
-        }
-      }
-      // Date of Birth
-      else if (match != null) {
-        if (match.group(2) != null) {
-          final day = match.group(1);
-          final monStr = match.group(2);
-          final year = match.group(3);
-          final months = {
-            'JAN': '01',
-            'FEB': '02',
-            'MAR': '03',
-            'APR': '04',
-            'MAY': '05',
-            'JUN': '06',
-            'JUL': '07',
-            'AUG': '08',
-            'SEP': '09',
-            'OCT': '10',
-            'NOV': '11',
-            'DEC': '12',
-          };
-          final mon = months[monStr] ?? monStr;
-          dob = '$day-$mon-$year';
-        } else if (match.group(4) != null &&
-            match.group(5) != null &&
-            match.group(6) != null) {
-          dob = '${match.group(4)}-${match.group(5)}-${match.group(6)}';
-        }
-      }
-      // Passport No.
-      else if (upper.contains('NGA')) {
-        // dev.log('PASSPORT NO');
-        // dev.log(lines[i]);
-        // dev.log(lines[i + 1]);
-        if (i + 1 < lines.length) tempIdNumber = lines[i + 1].trim();
-      }
-    }
-
-    if (tempSurname != null) lastName = tempSurname;
-    if (tempFirstName != null) firstName = tempFirstName;
-    if (tempMiddleName != null) middleName = tempMiddleName;
-    if (tempIdNumber != null) idNumber = tempIdNumber;
-    return IDCardInfo(
-      firstName: firstName,
-      lastName: lastName,
-      middleName: middleName,
-      dateOfBirth: dob,
-      idNumber: idNumber,
-    );
-  }
-
-  static Future<IDCardInfo> extractDigitalNINslip(List<String> lines) async {
-    var idNumber;
-    var firstName;
-    var lastName;
-    var middleName;
-    var dob;
-    var fullName;
-    String? tempSurname, tempFirstName, tempMiddleName, tempDob, tempIdNumber;
-
-    // DOB
-    final dobRegex = RegExp(
-      r'(\d{2})[ /-]([A-Z]{3})[ /-](\d{2,4})|(\d{2})[ /-](\d{2})[ /-](\d{2,4})',
-    );
-    for (int i = 0; i < lines.length; i++) {
-      final upper = lines[i].toUpperCase().trim();
-
-      final match = dobRegex.firstMatch(upper);
-
-      // Surname
-      if ((upper.contains('SURNAME') && !upper.contains('GIVEN')) ||
-          upper.contains('SURNAME / NOM')) {
-        if (i + 1 < lines.length) tempSurname = lines[i + 1].trim();
-      }
-      // Given Names
-      else if (upper.contains('GIVEN NAMES') ||
-          upper.contains('GIVEN NAMES / PRÉNOMS') ||
-          upper.contains('PRÉNOMS') ||
-          upper.contains('Glven Names/ Prénoms')) {
-        if (i + 1 < lines.length) {
-          var names = lines[i + 1].trim().split(RegExp(r'\s+'));
-          if (names.isNotEmpty) tempFirstName = names[0];
-          if (names.length > 1) tempMiddleName = names.sublist(1).join(' ');
-        }
-      }
-      // Date of Birth
-      else if (match != null) {
-        if (match.group(2) != null) {
-          final day = match.group(1);
-          final monStr = match.group(2);
-          final year = match.group(3);
-          final months = {
-            'JAN': '01',
-            'FEB': '02',
-            'MAR': '03',
-            'APR': '04',
-            'MAY': '05',
-            'JUN': '06',
-            'JUL': '07',
-            'AUG': '08',
-            'SEP': '09',
-            'OCT': '10',
-            'NOV': '11',
-            'DEC': '12',
-          };
-          final mon = months[monStr] ?? monStr;
-          dob = '$day-$mon-$year';
-        } else if (match.group(4) != null &&
-            match.group(5) != null &&
-            match.group(6) != null) {
-          dob = '${match.group(4)}-${match.group(5)}-${match.group(6)}';
-        }
-      }
-      // Passport No.
-      else if (upper.contains('NGA')) {
-        if (i + 4 < lines.length) tempIdNumber = lines[i + 4].trim();
-      }
-    }
-
-    if (tempSurname != null) lastName = tempSurname;
-    if (tempFirstName != null) firstName = tempFirstName;
-    if (tempMiddleName != null) middleName = tempMiddleName;
-    if (tempIdNumber != null) idNumber = tempIdNumber;
-    return IDCardInfo(
-      firstName: firstName,
-      lastName: lastName,
-      middleName: middleName,
-      dateOfBirth: dob,
-      idNumber: idNumber,
-    );
-  }
-
-  static Future<IDCardInfo> extractunknown(List<String> lines) async {
-    var idNumber;
-    var firstName;
-    var lastName;
-    var middleName;
-    var dob;
-    var fullName;
-
-    // GENERIC FALLBACK LOGIC (try to extract what we can)
-    // Try to extract DOB
-    final dobRegex = RegExp(
-      r'(\d{2})[ /-]([A-Z]{3})[ /-](\d{2,4})|(\d{2})[ /-](\d{2})[ /-](\d{2,4})',
-    );
-    for (final line in lines) {
-      final match = dobRegex.firstMatch(line.toUpperCase());
-      if (match != null) {
-        if (match.group(2) != null) {
-          final day = match.group(1);
-          final monStr = match.group(2);
-          final year = match.group(3);
-          final months = {
-            'JAN': '01',
-            'FEB': '02',
-            'MAR': '03',
-            'APR': '04',
-            'MAY': '05',
-            'JUN': '06',
-            'JUL': '07',
-            'AUG': '08',
-            'SEP': '09',
-            'OCT': '10',
-            'NOV': '11',
-            'DEC': '12',
-          };
-          final mon = months[monStr] ?? monStr;
-          dob = '$day-$mon-$year';
-        } else if (match.group(4) != null &&
-            match.group(5) != null &&
-            match.group(6) != null) {
-          dob = '${match.group(4)}-${match.group(5)}-${match.group(6)}';
-        }
-        break;
-      }
-    }
-    // Try to extract ID number (longest digit/letter sequence)
-    String idText = lines.join(' ');
-    final idMatch = RegExp(
-      r'[A-Z0-9]{10,}',
-    ).firstMatch(idText.replaceAll(' ', ''));
-    if (idMatch != null) {
-      idNumber = idMatch.group(0);
-    }
-    // Try to extract name (first all-uppercase 2-3 word line)
-    for (final line in lines) {
-      final upper = line.toUpperCase().trim();
-      final parts = upper.split(RegExp(r'\s+'));
-      if ((parts.length == 2 || parts.length == 3) &&
-          RegExp(r'^[A-Z ]+$').hasMatch(upper)) {
-        lastName = parts[0].trim();
-        if (parts.length > 1) firstName = parts[1].trim();
-        if (parts.length > 2) middleName = parts[2].trim();
-        fullName = line.trim();
-        break;
-      }
-    }
-    return IDCardInfo(
-      firstName: firstName,
-      lastName: lastName,
-      middleName: middleName,
-      dateOfBirth: dob,
-      idNumber: idNumber,
-    );
   }
 }

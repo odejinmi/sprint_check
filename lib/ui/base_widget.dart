@@ -1,10 +1,5 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
-import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../models/checkout_response.dart';
@@ -32,7 +27,7 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
     var returnValue = getPopReturnValue();
     if (alwaysPop ||
         (returnValue != null &&
-            (returnValue is CheckoutResponse && returnValue.status == true))) {
+            (returnValue.status == true))) {
       Navigator.of(context).pop(returnValue);
       return false;
     }
@@ -152,7 +147,7 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
     }
   }
 
-  getPopReturnValue() {
+  CheckoutResponse? getPopReturnValue() {
     return null;
   }
 }

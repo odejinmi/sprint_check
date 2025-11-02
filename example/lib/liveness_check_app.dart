@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 import 'dart:io';
 import 'dart:math';
 
@@ -129,13 +130,12 @@ class LivenessCheckScreenState extends State<LivenessCheckScreen> {
       await _cameraController!.initialize();
 
       // Check if flash is available
-      _hasFlash = _cameraController!.value.flashMode != null;
-
+      _hasFlash = _cameraController!.value.flashMode == FlashMode.torch;
       setState(() {
         _isCameraInitialized = true;
       });
     } catch (e) {
-      print('Error initializing camera: $e');
+      dev.log('Error initializing camera: $e');
     }
   }
 
@@ -152,7 +152,7 @@ class LivenessCheckScreenState extends State<LivenessCheckScreen> {
         _isFlashlightOn = !_isFlashlightOn;
       });
     } catch (e) {
-      print('Error toggling flashlight: $e');
+      dev.log('Error toggling flashlight: $e');
     }
   }
 
@@ -191,7 +191,7 @@ class LivenessCheckScreenState extends State<LivenessCheckScreen> {
       // Delete the temporary file
       File(
         image.path,
-      ).delete().catchError((e) => print('Error deleting temp file: $e'));
+      ).delete().catchError((e) => dev.log('Error deleting temp file:'));
 
       if (faces.isEmpty) {
         setState(() {
@@ -208,7 +208,7 @@ class LivenessCheckScreenState extends State<LivenessCheckScreen> {
         await _processFaceForLivenessAndQuality(faces[0], inputImage);
       }
     } catch (e) {
-      print('Error processing frame: $e');
+      dev.log('Error processing frame: $e');
     } finally {
       _isProcessing = false;
     }
@@ -371,7 +371,7 @@ class LivenessCheckScreenState extends State<LivenessCheckScreen> {
         });
       });
     } catch (e) {
-      print('Error capturing image: $e');
+      dev.log('Error capturing image: $e');
       setState(() {
         _statusMessage = 'Failed to capture image';
       });
@@ -419,7 +419,7 @@ class LivenessCheckScreenState extends State<LivenessCheckScreen> {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
-                  backgroundColor: Colors.black.withOpacity(0.5),
+                  backgroundColor: Colors.black.withValues(alpha: 0.5),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -434,8 +434,8 @@ class LivenessCheckScreenState extends State<LivenessCheckScreen> {
                 padding: const EdgeInsets.all(8),
                 color:
                     _livenessScore >= _livenessThreshold
-                        ? Colors.green.withOpacity(0.7)
-                        : Colors.black.withOpacity(0.5),
+                        ? Colors.green.withValues(alpha: 0.7)
+                        : Colors.black.withValues(alpha: 0.5),
                 child: Text(
                   _statusMessage,
                   textAlign: TextAlign.center,

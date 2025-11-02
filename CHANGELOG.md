@@ -23,3 +23,14 @@ you now pass your nin and bvn to the checkout method and it is optional
 
 ##0.0.8
 add loaded on getting to faceverification
+
+##0.0.9
+new interface implementation
+remove logging
+
+##0.1.0
+bug fixed
+
+##0.1.1
+
+

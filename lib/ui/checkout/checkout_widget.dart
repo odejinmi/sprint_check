@@ -1,6 +1,7 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart' hide ErrorWidget;
 import 'package:sprint_check/pages/initializepage.dart';
-import 'package:sprint_check/pages/newinputpage.dart';
 import 'package:sprint_check/ui/base_widget.dart';
 
 import '../../models/charge.dart';
@@ -17,7 +18,7 @@ class CheckoutWidget extends StatefulWidget {
   final String publicKey;
   final String secretKey;
   final CheckoutMethod method;
-  const CheckoutWidget({Key? key, required this.charge, required this.publicKey, required this.secretKey, required this.method}) : super(key: key);
+  const CheckoutWidget({super.key, required this.charge, required this.publicKey, required this.secretKey, required this.method});
 
   @override
   _CheckoutWidgetState createState() => _CheckoutWidgetState(charge,method);
@@ -30,8 +31,6 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
   //   return Container();
   // }
   final Charge _charge;
-  bool _iscard = false;
-  bool _isbank = false;
   bool showlogo = false;
 
   CheckoutMethod method = CheckoutMethod.selectable;
@@ -75,7 +74,7 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
         child: Container(
             child:
             _response?.method == CheckoutMethod.bvn || _response?.method == CheckoutMethod.nin || _response?.method == CheckoutMethod.facial ?
-            Bvnverification(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method,):
+            Bvnverification(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
                 _response?.method == CheckoutMethod.idcard ?
             Idcardverification(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method,):
             Initializepage(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method,)),
@@ -85,18 +84,13 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
 
 
   void _onPaymentResponse(CheckoutResponse response) {
-    print("response: $response");
+    dev.log("response: $response");
     _response = response;
     if (!mounted) return;
       showlogo = true;
-      if (response.method == CheckoutMethod.nin) {
-        _isbank = true;
-      } else {
-        _iscard = true;
-      }
     if(response.status){
       Navigator.of(context).pop(response);
-    }else if(!response.status && response.confidence_level != null){
+    }else if(!response.status && response.confidenceLevel != null){
       response.method = CheckoutMethod.selectable;
       showlogo = false;
     }

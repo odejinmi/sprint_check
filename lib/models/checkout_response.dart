@@ -12,7 +12,7 @@ class CheckoutResponse {
 
   /// The confidence_level of the transaction. A successful response returns 0 to 100
   /// otherwise
-  double? confidence_level;
+  double? confidenceLevel;
 
   /// The confidence_level of the transaction. A successful response returns 0 to 100
   /// otherwise
@@ -45,13 +45,13 @@ class CheckoutResponse {
     required this.method,
     required this.name,
     required this.verify,
-    required this.confidence_level,
+    required this.confidenceLevel,
     required this.bvn,
     required this.nin,
   });
 
   @override
   String toString() {
-    return 'CheckoutResponse{message: $message,reference: $reference, status: $status, method: $method, name: $name, verify: $verify, bvn: $bvn,  nin: $nin, verify: $confidence_level, }';
+    return 'CheckoutResponse{message: $message,reference: $reference, status: $status, method: $method, name: $name, verify: $verify, bvn: $bvn,  nin: $nin, verify: $confidenceLevel, }';
   }
 }

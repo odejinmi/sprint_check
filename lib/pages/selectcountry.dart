@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Selectcountry extends StatefulWidget {
   final Function(Map<String, dynamic>) onResponse;
-  const Selectcountry({Key? key, required this.onResponse}) : super(key: key);
+  const Selectcountry({super.key, required this.onResponse});
 
   @override
   _SelectcountryState createState() => _SelectcountryState();
@@ -99,7 +99,7 @@ class _SelectcountryState extends State<Selectcountry> {
                     },
                     child: Row(
                       children: [
-                        Container(
+                        SizedBox(
                           width: 40,
                           height: 40,
                           child: Image.network(

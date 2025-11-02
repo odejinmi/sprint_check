@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
 }
 
 class Mypage extends StatefulWidget {
-  const Mypage({Key? key}) : super(key: key);
+  const Mypage({super.key});
 
   @override
   State<Mypage> createState() => _MypageState();
@@ -60,8 +61,8 @@ class _MypageState extends State<Mypage> {
           await _sprintCheckPlugin.getPlatformVersion() ??
           'Unknown platform version';
       _sprintCheckPlugin.initialize(
-        api_key: "scb*************************************",
-        encryption_key: "enc*************************",
+        apiKey: "scb*************************************",
+        encryptionKey: "enc*************************",
       );
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
@@ -156,8 +157,8 @@ class _MypageState extends State<Mypage> {
                     identifierController.text,
                     bvn: bvnController.text,
                   );
-                  showresult("response for the sdk: ${response}");
-                  print("response for the sdk: ${response}");
+                  showresult("response for the sdk: $response");
+                  dev.log("response for the sdk: $response");
                 },
                 child: Text("Start BVN verification"),
               ),
@@ -170,8 +171,8 @@ class _MypageState extends State<Mypage> {
                     identifierController.text,
                     nin: bvnController.text,
                   );
-                  showresult("response for the sdk: ${response}");
-                  print("response for the sdk: ${response}");
+                  showresult("response for the sdk: $response");
+                  dev.log("response for the sdk: $response");
                 },
                 child: Text("Start NIN verification"),
               ),
@@ -183,8 +184,8 @@ class _MypageState extends State<Mypage> {
                     CheckoutMethod.facial,
                     identifierController.text,
                   );
-                  showresult("response for the sdk: ${response}");
-                  print("response for the sdk: ${response}");
+                  showresult("response for the sdk: $response");
+                  dev.log("response for the sdk: $response");
                 },
                 child: Text("Start Face verification"),
               ),
@@ -196,8 +197,8 @@ class _MypageState extends State<Mypage> {
                     CheckoutMethod.idcard,
                     identifierController.text,
                   );
-                  showresult("response for the sdk: ${response}");
-                  print("response for the sdk: ${response}");
+                  showresult("response for the sdk: $response");
+                  dev.log("response for the sdk: $response");
                   // startEncryption();
                   // // decryptData();
                 },
@@ -210,22 +211,19 @@ class _MypageState extends State<Mypage> {
     );
   }
 
-  showresult(message) {
+  void showresult(String message) {
     showDialog(
       context: context,
       // barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: Container(
-            // color: Colors.white,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("Sdk result"),
-                SizedBox(height: 20),
-                Text(message),
-              ],
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Sdk result"),
+              SizedBox(height: 20),
+              Text(message),
+            ],
           ),
           surfaceTintColor: Colors.white,
           backgroundColor: Colors.white,
@@ -256,7 +254,7 @@ class _MypageState extends State<Mypage> {
     // Build PHP-style serialized string
     final phpSerialized = 's:$length:"$jsonbody1";';
 
-    print(phpSerialized);
+    dev.log(phpSerialized);
     var unrfy1 = utf8.encode(phpSerialized);
 
     // Encrypt
@@ -274,16 +272,16 @@ class _MypageState extends State<Mypage> {
       "tag": base64Encode(secretBox.mac.bytes), // 16-byte tag
     };
     var jsonbody = jsonEncode(jsonResult);
-    print(jsonbody);
+    dev.log(jsonbody);
     var unrfy = utf8.encode(jsonbody);
-    print(base64Encode(unrfy));
+    dev.log(base64Encode(unrfy));
 
     // --- Decrypt to verify ---
     // final decrypted = await algorithm.decrypt(secretBox, secretKey: secretKey);
-    // print('Decrypted: ${utf8.decode(decrypted)}');
+    // dev.log('Decrypted: ${utf8.decode(decrypted)}');
   }
 
-  decryptData() async {
+  void decryptData() async {
     // AES-256 requires a 32-byte key
     final keyBytes = utf8.encode('BaVkxaDFoNzI2U0FHa2o1OTJ2aytEeVY');
     final secretKey = SecretKey(keyBytes);
@@ -291,11 +289,11 @@ class _MypageState extends State<Mypage> {
     var data =
         "eyJpdiI6InVwZzNCUUxVMTJJd2l2emUiLCJ2YWx1ZSI6ImRGbXlUTTNyWXgwbVBuL1IwTFZUOTFkV2ZSUkRLWnNlVFJOaDNYdVBTdk9kYzY5L1hWWFp0d1djS09pTFJ3cXpwa01PeU5LOVhSQkZmTVFROG1vSnplTT0iLCJtYWMiOiIiLCJ0YWciOiI0WisvUlBySWRIMUU2R011S3ZnWWNRPT0ifQ==";
     var unrfy = base64Decode(data);
-    print(unrfy);
+    dev.log(unrfy.toString());
     var body = utf8.decode(unrfy);
-    print(body);
+    dev.log(body);
     var bodyJson = jsonDecode(body);
-    print(bodyJson);
+    dev.log(bodyJson);
     final decrypted = await algorithm.decrypt(
       SecretBox(
         base64Decode(bodyJson["value"]),
@@ -304,7 +302,7 @@ class _MypageState extends State<Mypage> {
       ),
       secretKey: secretKey,
     );
-    print(utf8.decode(decrypted));
-    // print('Decrypted: ${utf8.decode(decrypted)}');
+    dev.log(utf8.decode(decrypted));
+    // dev.log('Decrypted: ${utf8.decode(decrypted)}');
   }
 }

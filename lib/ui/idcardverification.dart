@@ -12,7 +12,7 @@ class Idcardverification extends StatefulWidget {
   final Charge charge;
   final CheckoutMethod checkoutmethod;
   final Function(CheckoutResponse) onResponse;
-  const Idcardverification({Key? key, required this.charge, required this.checkoutmethod, required this.onResponse}) : super(key: key);
+  const Idcardverification({super.key, required this.charge, required this.checkoutmethod, required this.onResponse});
 
   @override
   _IdcardverificationState createState() => _IdcardverificationState(charge, onResponse);
@@ -21,7 +21,7 @@ class Idcardverification extends StatefulWidget {
 class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverification> {
   _IdcardverificationState(this._charge, OnResponse<CheckoutResponse> onResponse)
       : super(onResponse, CheckoutMethod.bvn);
-  Charge _charge;
+  final Charge _charge;
 
   int stage = 0;
   Map<String, dynamic> country = {};

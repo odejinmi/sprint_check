@@ -7,7 +7,7 @@ class ExtractVoter {
     String? lastName;
     String? middleName;
     String? dob;
-    String? fullName;
+    // String? fullName;
     String? extractedDetails;
 
     // VOTER'S CARD LOGIC
@@ -47,7 +47,7 @@ class ExtractVoter {
         lastName = parts[0].trim();
         firstName = parts[1].trim();
         middleName = parts[2].trim();
-        fullName = line.trim();
+        // fullName = line.trim();
         break;
       }
     }

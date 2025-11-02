@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:sprint_check/common/verificationController.dart';
 import 'package:sprint_check/ui/checkout/checkout_widget.dart';
-// import 'package:sprint_check/pages/checkout_widget.dart';
 
 import 'common/exceptions.dart';
 import 'common/utils.dart';
@@ -67,7 +64,7 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     }
   }
 
-  _validateSdkInitialized() {
+  void _validateSdkInitialized() {
     if (!_sdkInitialized) {
       throw SprintCheckSdkNotInitializedException(
         'SprintCheck SDK has not been initialized. The SDK has'
@@ -106,13 +103,13 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     //   return true;
     // }());
     _performChecks();
-    Charge _charge = Charge(identifier);
-    _charge.bvn = bvn;
-    _charge.nin = nin;
+    Charge charge = Charge(identifier);
+    charge.bvn = bvn;
+    charge.nin = nin;
     CheckoutResponse? response = await showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (BuildContext context) => CheckoutWidget(charge: _charge, publicKey: _publicKey , secretKey: _secretKey, method: checkoutmethod,),
+      builder: (BuildContext context) => CheckoutWidget(charge: charge, publicKey: _publicKey , secretKey: _secretKey, method: checkoutmethod,),
     );
     return response!;
   }

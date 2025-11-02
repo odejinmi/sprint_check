@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import '../common/exceptions.dart';
-
 class Charge {
   // PaymentCard? card;
 

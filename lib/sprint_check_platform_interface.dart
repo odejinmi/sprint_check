@@ -29,7 +29,7 @@ abstract class SprintCheckPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  initialize({required String publicKey, required String secretKey}) {
+  void initialize({required String publicKey, required String secretKey}) {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 

@@ -7,12 +7,11 @@ class CustomAnimatedWidget extends StatelessWidget {
   final Widget child;
 
   CustomAnimatedWidget(
-      {Key? key, required this.child, required AnimationController controller})
+      {super.key, required this.child, required AnimationController controller})
       : _animation = CurvedAnimation(
           parent: controller,
           curve: Curves.fastOutSlowIn,
-        ),
-        super(key: key);
+        );
 
   final Tween<Offset> slideTween =
       Tween(begin: const Offset(0.0, 0.02), end: Offset.zero);

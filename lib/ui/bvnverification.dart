@@ -9,10 +9,12 @@ import '../sprint_check_method_channel.dart';
 import 'checkout/base_checkout.dart';
 
 class Bvnverification extends StatefulWidget {
+  final String publicKey;
+  final String secretKey;
   final Charge charge;
   final CheckoutMethod checkoutmethod;
   final Function(CheckoutResponse) onResponse;
-  const Bvnverification({Key? key, required this.charge, required this.checkoutmethod, required this.onResponse}) : super(key: key);
+  const Bvnverification({super.key, required this.charge, required this.checkoutmethod, required this.onResponse, required this.publicKey, required this.secretKey});
 
   @override
   _BvnverificationState createState() => _BvnverificationState(charge, onResponse);
@@ -22,7 +24,7 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
   _BvnverificationState(this._charge, OnResponse<CheckoutResponse> onResponse)
       : super(onResponse, CheckoutMethod.bvn);
 
-  Charge _charge;
+  final Charge _charge;
 
   String bvnimage = "";
   String reference = "";
@@ -36,7 +38,7 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
   Widget buildAnimatedChild() {
     // TODO: implement buildAnimatedChild
     return stage == 0?
-        Newinputpage(charge: _charge, checkoutmethod: widget.checkoutmethod, onResponse: (response)
+        Newinputpage(charge: _charge, checkoutmethod: widget.checkoutmethod, publicKey: widget.publicKey, secretKey: widget.secretKey, onResponse: (response)
         {
           _charge.bvn = response["number"];
           bvnimage = response["bvnimage"];
@@ -47,7 +49,7 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
 
           });
         }) : stage == 1?
-        Newfacepage(charge: _charge, checkoutmethod: widget.checkoutmethod, bvnimage: bvnimage, reference: reference, onResponse: (response)
+        Newfacepage(charge: _charge, checkoutmethod: widget.checkoutmethod, bvnimage: bvnimage, reference: reference, publicKey: widget.publicKey, secretKey: widget.secretKey, onResponse: (response)
         {
           score = response["score"];
           enrollmentdata = response["enrollmentdata"];
@@ -65,7 +67,7 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
               method: widget.checkoutmethod,
               verify: score > 50,
               name: enrollmentdata,
-              confidence_level: score,
+              confidenceLevel: score,
               bvn: widget.charge.bvn,
               nin: widget.charge.nin,
             );

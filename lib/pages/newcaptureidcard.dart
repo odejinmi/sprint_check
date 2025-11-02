@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 class Newcaptureidcard extends StatefulWidget {
   final Function(Map<String, dynamic>) onResponse;
-  const Newcaptureidcard({Key? key, required this.onResponse}) : super(key: key);
+  const Newcaptureidcard({super.key, required this.onResponse});
 
   @override
   State<Newcaptureidcard> createState() => _NewcaptureidcardState();
@@ -18,8 +18,6 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
   List<CameraDescription> cameras = [];
   final GlobalKey frameKey = GlobalKey();
   final GlobalKey previewKey = GlobalKey();
-
-  String? _croppedImagePath;
 
   @override
   void initState() {
@@ -33,7 +31,7 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
     super.dispose();
   }
 
-  initializeCamera() {
+  void initializeCamera() {
     availableCameras().then((camera) {
       cameras = camera;
       if (cameras.isNotEmpty) {
@@ -160,7 +158,7 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     border: Border.all(color: Colors.white, width: 3),
                   ),
                   child: const Center(

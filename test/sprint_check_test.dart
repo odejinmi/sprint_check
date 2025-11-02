@@ -14,9 +14,11 @@ class MockSprintCheckPlatform
 
   @override
   Future<CheckoutResponse> checkout(
-    BuildContext context,
-    CheckoutMethod checkoutmethod,
-    String identifier,
+  BuildContext context,
+  CheckoutMethod checkoutmethod,
+  String identifier, {
+  String? bvn,
+  String? nin,}
   ) {
     // TODO: implement checkout
     throw UnimplementedError();

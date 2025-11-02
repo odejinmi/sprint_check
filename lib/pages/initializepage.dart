@@ -8,7 +8,7 @@ class Initializepage extends StatelessWidget {
   final OnResponse<CheckoutResponse> onResponse;
   final Charge charge;
   final CheckoutMethod checkoutmethod;
-  const Initializepage({Key? key, required this.onResponse, required this.charge, required this.checkoutmethod}) : super(key: key);
+  const Initializepage({super.key, required this.onResponse, required this.charge, required this.checkoutmethod});
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +140,7 @@ class Initializepage extends StatelessWidget {
                   method: checkoutmethod,
                   verify: false,
                   name: '',
-                  confidence_level: null,
+                  confidenceLevel: null,
                   bvn: charge.bvn,
                   nin: charge.nin);
               onResponse(response);

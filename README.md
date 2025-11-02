@@ -66,7 +66,7 @@ verification in an instance of `CheckoutResponse` .
 
 ### checkoutresponse
 ```dart
-print("response for the sdk: ${response}");
+dev.log("response for the sdk: ${response}");
 
 result:
 response for the sdk: CheckoutResponse{message: Verification Completed,reference: 99ed1c4d-362f-4a98-ac32-2f471e12aefb, status: true, method: CheckoutMethod.bvn, name: ***************, verify: true, bvn: ***********,  nin: null, verify: 98, }

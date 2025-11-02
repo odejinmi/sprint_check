@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Idcardtype extends StatefulWidget {
   final Function(Map<String, dynamic>) onResponse;
 
-  const Idcardtype({Key? key, required this.onResponse}) : super(key: key);
+  const Idcardtype({super.key, required this.onResponse});
 
   @override
   State<Idcardtype> createState() => _IdcardtypeState();

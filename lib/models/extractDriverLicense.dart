@@ -37,7 +37,7 @@ class ExtractDriverLicense {
        if(extracteddetails == null){
          extracteddetails = line;
        }else{
-         extracteddetails += " ***videx*** " + line;
+         extracteddetails += " ***videx*** $line";
        }
        final upper = line.toUpperCase();
        // Look for "LASTNAME, FIRSTNAME MIDDLE..."
@@ -66,7 +66,7 @@ class ExtractDriverLicense {
        String searchArea = lines[i];
 
        if (i + 1 < lines.length) {
-         searchArea += " " + lines[i+1];
+         searchArea += " ${lines[i+1]}";
        }
 
        if (dobLabelRegex.hasMatch(searchArea)) {

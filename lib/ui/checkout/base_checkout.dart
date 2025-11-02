@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../models/checkout_response.dart';
 import '../../sprint_check_method_channel.dart';
 import '../animated_widget.dart';
-import 'checkout_widget.dart';
 
 abstract class BaseCheckoutMethodState<T extends StatefulWidget>
     extends BaseAnimatedState<T> {

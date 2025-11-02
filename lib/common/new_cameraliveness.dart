@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_face_api/flutter_face_api.dart';
 
-class newCameraliveness {
+class NewCameraliveness {
 
-  _newCameraliveness() {
+  NewCameraliveness() {
     initialize();
   }
 
@@ -14,7 +15,7 @@ class newCameraliveness {
     return response.image;
   }
 
-  Future<double> comparefaceKyc(image1, image2) async {
+  Future<double> comparefaceKyc(String image1, String image2) async {
     var encoded1 = base64Decode(image1);
     var bytes1 = Uint8List.fromList(encoded1);
     var encoded2 = base64Decode(image2);
@@ -27,13 +28,7 @@ class newCameraliveness {
     var split = await faceSdk.splitComparedFaces(response.results, 0.75);
     var match = split.matchedFaces;
     if (match.isNotEmpty) {
-      // var similarityStatus =
-      //     (match[0].similarity * 100).toStringAsFixed(2) + "%";
-      // if ((match[0].similarity * 100) > 70) {
-      //   return (match[0].similarity * 100);
-      // } else {
       return (match[0].similarity * 100);
-      // }
     } else {
       return 0;
     }
@@ -45,6 +40,7 @@ class newCameraliveness {
   MatchFacesImage? mfImage2;
 
   Future<LivenessResponse?> startLiveness() async {
+    dev.log("start liveness");
     var result = await faceSdk.startLiveness(
       config: LivenessConfig(skipStep: [LivenessSkipStep.ONBOARDING_STEP]),
       notificationCompletion: (notification) {
@@ -54,33 +50,23 @@ class newCameraliveness {
     return result;
   }
 
-  matchFaces1() async {
-    if (mfImage1 == null || mfImage2 == null) {
-      // status = "Both images required!";
-      return;
-    }
-    // status = "Processing...";
-    var request = MatchFacesRequest([mfImage1!, mfImage2!]);
-    var response = await faceSdk.matchFaces(request);
-    var split = await faceSdk.splitComparedFaces(response.results, 0.75);
-    var match = split.matchedFaces;
-    if (match.isNotEmpty) {
-      // similarityStatus = (match[0].similarity * 100).toStringAsFixed(2) + "%";
-    }
-    // status = "Ready";
-  }
+  // matchFaces1() async {
+  //   if (mfImage1 == null || mfImage2 == null) {
+  //     return;
+  //   }
+  //   var request = MatchFacesRequest([mfImage1!, mfImage2!]);
+  //   var response = await faceSdk.matchFaces(request);
+  //   var split = await faceSdk.splitComparedFaces(response.results, 0.75);
+  // }
 
-  // If 'assets/regula.license' exists, init using license(enables offline match)
-  // otherwise init without license.
   Future<bool> initialize() async {
-    // status = "Initializing...";
+    dev.log("initializing");
     var license = await loadAssetIfExists("assets/regula.license");
-    InitConfig? config = null;
+    InitConfig? config;
     if (license != null) config = InitConfig(license);
     var (success, error) = await faceSdk.initialize(config: config);
     if (!success) {
       // status = error!.message;
-      // dev.log("${error!.code}: ${error.message}");
     }
     return success;
   }
@@ -93,7 +79,7 @@ class newCameraliveness {
     }
   }
 
-  setImage1(Uint8List bytes, ImageType type, int number) {
+  void setImage1(Uint8List bytes, ImageType type, int number) {
     var mfImage = MatchFacesImage(bytes, type);
     if (number == 1) {
       mfImage1 = mfImage;

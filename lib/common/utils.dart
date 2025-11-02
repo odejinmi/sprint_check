@@ -10,7 +10,7 @@ class Utils {
 
   static NumberFormat? _currencyFormatter;
 
-  static setCurrencyFormatter(String? currency, String? locale) =>
+  static NumberFormat setCurrencyFormatter(String? currency, String? locale) =>
       _currencyFormatter =
           NumberFormat.currency(locale: locale, name: '$currency\u{0020}');
 
