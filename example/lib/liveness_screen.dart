@@ -17,6 +17,12 @@ class LivenessScreen extends StatefulWidget {
   State<LivenessScreen> createState() => _LivenessScreenState();
 }
 
+enum _LivenessState {
+  preLiveness, // Not started, show alignment instructions
+  liveness,    // Face is positioned, start turning head
+  done,        // Liveness successful
+}
+
 class _LivenessScreenState extends State<LivenessScreen> {
   CameraController? _controller;
   late FaceDetector _faceDetector;
@@ -26,25 +32,14 @@ class _LivenessScreenState extends State<LivenessScreen> {
 
   final List<_Action> _required = [_Action.turnLeft, _Action.turnRight];
   int _currentIndex = 0;
-
-  String get _instruction {
-    if (!_faceVisible) return 'Align your face in the circle';
-    if (_currentIndex >= _required.length) return 'Done';
-    switch (_required[_currentIndex]) {
-      case _Action.turnLeft:
-        return 'Turn your head a bit to the left';
-      case _Action.turnRight:
-        return 'Turn your head a bit to the right';
-    }
-  }
-
-  bool _faceVisible = false;
-  final List<double> _yawHistory = [];
+  
+  _LivenessState _livenessState = _LivenessState.preLiveness;
+  String _instruction = 'Align your face in the circle';
 
   @override
   void initState() {
     super.initState();
-    _required.shuffle(); // Randomize the order of actions
+    _required.shuffle();
     _init();
   }
 
@@ -76,10 +71,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
 
     _faceDetector = FaceDetector(
       options: FaceDetectorOptions(
-        enableContours: false,
-        enableClassification: true,
-        enableLandmarks: true,
-        enableTracking: true,
         performanceMode: FaceDetectorMode.accurate,
         minFaceSize: 0.2,
       ),
@@ -102,22 +93,48 @@ class _LivenessScreenState extends State<LivenessScreen> {
 
       if (faces.isEmpty) {
         setState(() {
-          _faceVisible = false;
+          _instruction = 'Align your face in the circle';
+          _livenessState = _LivenessState.preLiveness;
           _progress = 0;
-          _yawHistory.clear();
         });
         return;
       }
 
       final face = faces.first;
-      setState(() => _faceVisible = true);
+      final faceRect = face.boundingBox;
 
-      final yaw = face.headEulerAngleY;
-      if (yaw != null) {
-        _yawHistory.add(yaw);
-        if (_yawHistory.length > 10) _yawHistory.removeAt(0);
-        _evaluateYaw();
+      // Get screen size and oval size for position checking
+      final screenSize = MediaQuery.of(context).size;
+      final ovalDiameter = screenSize.width * 0.78;
+      final ovalRect = Rect.fromCenter(
+        center: Offset(screenSize.width / 2, (screenSize.height / 2) - (screenSize.height * 0.15)),
+        width: ovalDiameter,
+        height: ovalDiameter,
+      );
+
+      // Check if the face is inside the oval and of an appropriate size.
+      final double faceWidth = faceRect.width;
+      final double faceHeight = faceRect.height;
+      final bool isCentered = ovalRect.contains(faceRect.center);
+      final bool isGoodSize = faceWidth > ovalDiameter * 0.4 && faceHeight > ovalDiameter * 0.4;
+
+      if (!isCentered) {
+         setState(() => _instruction = 'Center your face');
+         _livenessState = _LivenessState.preLiveness;
+      } else if (faceWidth < ovalDiameter * 0.4) {
+         setState(() => _instruction = 'Move closer');
+         _livenessState = _LivenessState.preLiveness;
+      } else if (faceWidth > ovalDiameter * 0.9) {
+        setState(() => _instruction = 'Move further away');
+         _livenessState = _LivenessState.preLiveness;
+      } else if (isGoodSize && isCentered) {
+        if (_livenessState == _LivenessState.preLiveness) {
+          setState(() => _livenessState = _LivenessState.liveness);
+        }
+        // Once face is well-positioned, evaluate head turns.
+        _evaluateYaw(face);
       }
+
     } catch (e, s) {
       dev.log('Error during face processing', error: e, stackTrace: s);
     } finally {
@@ -125,48 +142,43 @@ class _LivenessScreenState extends State<LivenessScreen> {
     }
   }
 
-  void _evaluateYaw() {
-    if (_currentIndex >= _required.length || !_faceVisible) return;
-    if (_yawHistory.isEmpty) return;
+  void _evaluateYaw(Face face) {
+    if (_livenessState != _LivenessState.liveness) return;
 
-    final minYaw = _yawHistory.reduce(min);
-    final maxYaw = _yawHistory.reduce(max);
-    const leftThreshold = -15.0;
-    const rightThreshold = 15.0;
-
+    final yaw = face.headEulerAngleY;
+    if (yaw == null) return;
+    
+    const leftThreshold = -18.0;
+    const rightThreshold = 18.0;
+    
     final target = _required[_currentIndex];
     bool satisfied = false;
 
     switch (target) {
       case _Action.turnLeft:
-        satisfied = minYaw <= leftThreshold;
+        setState(() => _instruction = 'Turn your head a bit to the left');
+        satisfied = yaw <= leftThreshold;
         break;
       case _Action.turnRight:
-        satisfied = maxYaw >= rightThreshold;
+        setState(() => _instruction = 'Turn your head a bit to the right');
+        satisfied = yaw >= rightThreshold;
         break;
     }
 
     if (satisfied) {
       HapticFeedback.lightImpact();
       _currentIndex++;
-      _yawHistory.clear();
       if (_currentIndex >= _required.length) {
-        setState(() => _progress = 1.0);
+        setState(() {
+          _instruction = 'Done';
+          _progress = 1.0;
+          _livenessState = _LivenessState.done;
+        });
         _onComplete();
       } else {
         setState(() => _progress = _currentIndex / _required.length);
       }
-    } else {
-      double proximity = 0;
-      if (target == _Action.turnLeft) {
-        proximity = (minYaw / leftThreshold).clamp(0.0, 1.0);
-      } else {
-        proximity = (maxYaw / rightThreshold).clamp(0.0, 1.0);
-      }
-      final base = _currentIndex / _required.length;
-      final stepProgress = proximity * (1.0 / _required.length);
-      setState(() => _progress = (base + stepProgress).clamp(0.0, 1.0));
-    }
+    } 
   }
 
   Future<void> _onComplete() async {
@@ -175,7 +187,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Liveness check complete')),
     );
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 800), () {
       if (mounted) Navigator.of(context).pop(true);
     });
   }
@@ -231,7 +243,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
                       child: _CircularLivenessViewport(
                         controller: _controller!,
                         ringProgress: _progress,
-                        faceDetected: _faceVisible,
+                        faceDetected: _livenessState != _LivenessState.preLiveness,
                       ),
                     ),
                   ),
@@ -303,7 +315,6 @@ class _CircularLivenessViewport extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double diameter = MediaQuery.of(context).size.width * 0.78;
-    final double ringThickness = 10;
 
     return SizedBox(
       width: diameter,
@@ -329,10 +340,10 @@ class _CircularLivenessViewport extends StatelessWidget {
               size: Size(diameter, diameter),
               painter: _RingPainter(
                 progress: ringProgress,
-                thickness: ringThickness,
+                thickness: 10,
                 activeColor1: const Color(0xFF9B5CFF),
                 activeColor2: const Color(0xFF6A3BFF),
-                idleColor: const Color(0x4DFFFFFF), // Semi-transparent white
+                idleColor: const Color(0x4DFFFFFF),
               ),
             ),
           ),
@@ -351,6 +362,7 @@ class _CircularLivenessViewport extends StatelessWidget {
     );
   }
 }
+
 
 class _RingPainter extends CustomPainter {
   final double progress; // 0..1
