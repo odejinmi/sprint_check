@@ -1,5 +1,6 @@
-// lib/screens/liveness_screen.dart
 import 'dart:async';
+import 'dart:developer' as dev;
+import 'dart:io';
 import 'dart:math';
 
 import 'package:camera/camera.dart';
@@ -23,7 +24,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
   bool _initialized = false;
   double _progress = 0.0;
 
-  // Active liveness steps: ask user to turn left then right (or vice versa).
   final List<_Action> _required = [_Action.turnLeft, _Action.turnRight];
   int _currentIndex = 0;
 
@@ -44,6 +44,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
   @override
   void initState() {
     super.initState();
+    _required.shuffle(); // Randomize the order of actions
     _init();
   }
 
@@ -60,15 +61,15 @@ class _LivenessScreenState extends State<LivenessScreen> {
 
     final cameras = await availableCameras();
     final front = cameras.firstWhere(
-          (c) => c.lensDirection == CameraLensDirection.front,
-      orElse: () => cameras.first,
+      (c) => c.lensDirection == CameraLensDirection.front,
+      orElse: () => throw Exception("No front camera found"),
     );
 
     _controller = CameraController(
       front,
       ResolutionPreset.high,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.yuv420,
+      imageFormatGroup: Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888,
     );
 
     await _controller!.initialize();
@@ -80,17 +81,16 @@ class _LivenessScreenState extends State<LivenessScreen> {
         enableLandmarks: true,
         enableTracking: true,
         performanceMode: FaceDetectorMode.accurate,
-        minFaceSize: 0.15,
+        minFaceSize: 0.2,
       ),
     );
 
     setState(() => _initialized = true);
-
     await _controller!.startImageStream(_onFrame);
   }
 
   Future<void> _onFrame(CameraImage image) async {
-    if (_processing || !_initialized) return;
+    if (_processing) return;
     _processing = true;
 
     try {
@@ -98,9 +98,13 @@ class _LivenessScreenState extends State<LivenessScreen> {
       if (inputImage == null) return;
 
       final faces = await _faceDetector.processImage(inputImage);
+      if (!mounted) return;
+
       if (faces.isEmpty) {
         setState(() {
           _faceVisible = false;
+          _progress = 0;
+          _yawHistory.clear();
         });
         return;
       }
@@ -111,23 +115,24 @@ class _LivenessScreenState extends State<LivenessScreen> {
       final yaw = face.headEulerAngleY;
       if (yaw != null) {
         _yawHistory.add(yaw);
-        if (_yawHistory.length > 24) _yawHistory.removeAt(0);
+        if (_yawHistory.length > 10) _yawHistory.removeAt(0);
         _evaluateYaw();
       }
-    } catch (_) {
+    } catch (e, s) {
+      dev.log('Error during face processing', error: e, stackTrace: s);
     } finally {
       _processing = false;
     }
   }
 
   void _evaluateYaw() {
-    if (_currentIndex >= _required.length) return;
+    if (_currentIndex >= _required.length || !_faceVisible) return;
     if (_yawHistory.isEmpty) return;
+
     final minYaw = _yawHistory.reduce(min);
     final maxYaw = _yawHistory.reduce(max);
-
-    const leftThreshold = -12.0;
-    const rightThreshold = 12.0;
+    const leftThreshold = -15.0;
+    const rightThreshold = 15.0;
 
     final target = _required[_currentIndex];
     bool satisfied = false;
@@ -142,79 +147,66 @@ class _LivenessScreenState extends State<LivenessScreen> {
     }
 
     if (satisfied) {
-      HapticFeedback.selectionClick();
+      HapticFeedback.lightImpact();
       _currentIndex++;
       _yawHistory.clear();
-      final p = _currentIndex / _required.length;
-      setState(() => _progress = p.clamp(0.0, 1.0));
-
       if (_currentIndex >= _required.length) {
+        setState(() => _progress = 1.0);
         _onComplete();
+      } else {
+        setState(() => _progress = _currentIndex / _required.length);
       }
     } else {
-      double proximity;
+      double proximity = 0;
       if (target == _Action.turnLeft) {
-        proximity = (0.0 - (minYaw / leftThreshold)).clamp(0.0, 1.0);
+        proximity = (minYaw / leftThreshold).clamp(0.0, 1.0);
       } else {
-        proximity = ((maxYaw / rightThreshold)).clamp(0.0, 1.0);
+        proximity = (maxYaw / rightThreshold).clamp(0.0, 1.0);
       }
       final base = _currentIndex / _required.length;
-      final perStep = 1.0 / _required.length;
-      setState(() => _progress = (base + proximity * perStep).clamp(0.0, 1.0));
+      final stepProgress = proximity * (1.0 / _required.length);
+      setState(() => _progress = (base + stepProgress).clamp(0.0, 1.0));
     }
   }
 
-  void _onComplete() async {
-    try {
-      await _controller?.stopImageStream();
-    } catch (_) {}
+  Future<void> _onComplete() async {
+    await _controller?.stopImageStream();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Liveness check complete')),
     );
-    Navigator.of(context).pop(true);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) Navigator.of(context).pop(true);
+    });
   }
 
   InputImage? _toInputImage(CameraImage image, CameraDescription description) {
-    try {
-      final format = InputImageFormatValue.fromRawValue(image.format.raw) ??
-          InputImageFormat.nv21;
+    final camera = description;
 
-      return InputImage.fromBytes(
-        bytes: _concatenatePlanes(image.planes),
-        metadata: InputImageMetadata(
-          size: Size(image.width.toDouble(), image.height.toDouble()),
-          rotation: _rotationFromSensor(description.sensorOrientation, description),
-          format: format,
-          bytesPerRow: image.planes.first.bytesPerRow,
-        ),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Uint8List _concatenatePlanes(List<Plane> planes) {
     final WriteBuffer allBytes = WriteBuffer();
-    for (final p in planes) {
-      allBytes.putUint8List(p.bytes);
+    for (final Plane plane in image.planes) {
+      allBytes.putUint8List(plane.bytes);
     }
-    return allBytes.done().buffer.asUint8List();
+    final bytes = allBytes.done().buffer.asUint8List();
+
+    final imageSize = Size(image.width.toDouble(), image.height.toDouble());
+
+    final imageRotation = InputImageRotationValue.fromRawValue(camera.sensorOrientation);
+    if (imageRotation == null) return null;
+
+    final inputImageFormat = InputImageFormatValue.fromRawValue(image.format.raw);
+    if (inputImageFormat == null) return null;
+
+    final metadata = InputImageMetadata(
+      size: imageSize,
+      rotation: imageRotation,
+      format: inputImageFormat,
+      bytesPerRow: image.planes.first.bytesPerRow, 
+    );
+
+    return InputImage.fromBytes(bytes: bytes, metadata: metadata);
   }
 
-  InputImageRotation _rotationFromSensor(int sensorOrientation, CameraDescription d) {
-    switch (sensorOrientation) {
-      case 0:
-        return InputImageRotation.rotation0deg;
-      case 90:
-        return InputImageRotation.rotation90deg;
-      case 180:
-        return InputImageRotation.rotation180deg;
-      case 270:
-      default:
-        return InputImageRotation.rotation270deg;
-    }
-  }
 
   @override
   void dispose() {
@@ -231,68 +223,65 @@ class _LivenessScreenState extends State<LivenessScreen> {
         child: !_initialized
             ? const Center(child: CircularProgressIndicator())
             : Stack(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: _CircularLivenessViewport(
-                  controller: _controller!,
-                  ringProgress: _progress,
-                  faceDetected: _faceVisible,
-                ),
-              ),
-            ),
-            Positioned(
-              right: 12,
-              top: 12,
-              child: IconButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                icon: const Icon(Icons.close, color: Colors.black87),
-                tooltip: 'Close',
-              ),
-            ),
-            Align(
-              alignment: Alignment(0, 0.45),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  _instruction,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.black54,
+                children: [
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 24),
+                      child: _CircularLivenessViewport(
+                        controller: _controller!,
+                        ringProgress: _progress,
+                        faceDetected: _faceVisible,
+                      ),
                     ),
-                    children: const [
-                      TextSpan(text: 'Powered by '),
-                      TextSpan(
-                        text: 'Regula',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF7A46FF),
+                  ),
+                  Positioned(
+                    right: 12,
+                    top: 12,
+                    child: IconButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      icon: const Icon(Icons.close, color: Colors.black87),
+                      tooltip: 'Close',
+                    ),
+                  ),
+                  Align(
+                    alignment: const Alignment(0, 0.45),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        _instruction,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: RichText(
+                        text: const TextSpan(
+                          style: TextStyle(fontSize: 13, color: Colors.black54),
+                          children: [
+                            TextSpan(text: 'Powered by '),
+                            TextSpan(
+                              text: 'YourCompany',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF7A46FF),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -302,7 +291,7 @@ enum _Action { turnLeft, turnRight }
 
 class _CircularLivenessViewport extends StatelessWidget {
   final CameraController controller;
-  final double ringProgress; // 0..1
+  final double ringProgress;
   final bool faceDetected;
 
   const _CircularLivenessViewport({
@@ -318,17 +307,14 @@ class _CircularLivenessViewport extends StatelessWidget {
 
     return SizedBox(
       width: diameter,
-      height: diameter + 24,
+      height: diameter,
       child: Stack(
-        clipBehavior: Clip.none,
         children: [
-          // Positioned.fill(
-          //   child: IgnorePointer(
-          //     child: CustomPaint(
-          //       painter: _AccentPainter(),
-          //     ),
-          //   ),
-          // ),
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(painter: _AccentPainter()),
+            ),
+          ),
           Center(
             child: ClipOval(
               child: SizedBox(
@@ -338,8 +324,6 @@ class _CircularLivenessViewport extends StatelessWidget {
               ),
             ),
           ),
-
-          // Purple ring + progress + top tab
           Center(
             child: CustomPaint(
               size: Size(diameter, diameter),
@@ -348,18 +332,20 @@ class _CircularLivenessViewport extends StatelessWidget {
                 thickness: ringThickness,
                 activeColor1: const Color(0xFF9B5CFF),
                 activeColor2: const Color(0xFF6A3BFF),
-                idleColor: Colors.white,
+                idleColor: const Color(0x4DFFFFFF), // Semi-transparent white
               ),
             ),
           ),
-          // Positioned(
-          //   right: max(0.0, (MediaQuery.of(context).size.width - diameter) / 2 - 12),
-          //   bottom: 12,
-          //   child: _Badge(
-          //     icon: faceDetected ? Icons.check_rounded : Icons.camera_alt_rounded,
-          //     background: faceDetected ? const Color(0xFF2ECC71) : const Color(0xFF4C69FF),
-          //   ),
-          // ),
+          if (faceDetected)
+            Positioned(
+              right: max(
+                  0.0, (MediaQuery.of(context).size.width - diameter) / 2 - 20),
+              bottom: 20,
+              child: const _Badge(
+                icon: Icons.check_rounded,
+                background: Color(0xFF2ECC71),
+              ),
+            ),
         ],
       ),
     );
@@ -367,7 +353,7 @@ class _CircularLivenessViewport extends StatelessWidget {
 }
 
 class _RingPainter extends CustomPainter {
-  final double progress;
+  final double progress; // 0..1
   final double thickness;
   final Color activeColor1;
   final Color activeColor2;
@@ -399,6 +385,7 @@ class _RingPainter extends CustomPainter {
         startAngle: -pi / 2,
         endAngle: -pi / 2 + sweep,
         colors: [activeColor1, activeColor2],
+        stops: const [0.2, 1.0],
       );
       final progressPaint = Paint()
         ..shader = gradient.createShader(rect)
@@ -413,35 +400,16 @@ class _RingPainter extends CustomPainter {
         progressPaint,
       );
     }
-
-    final tabWidth = size.width * 0.16;
-    final tabHeight = thickness * 1.2;
-    final tabRect = Rect.fromCenter(
-      center: Offset(center.dx, center.dy - radius - tabHeight / 2 + thickness / 2),
-      width: tabWidth,
-      height: tabHeight,
-    );
-    final tabPath = Path()
-      ..moveTo(tabRect.left, tabRect.bottom)
-      ..lineTo(tabRect.left + 10, tabRect.top)
-      ..lineTo(tabRect.right - 10, tabRect.top)
-      ..lineTo(tabRect.right, tabRect.bottom)
-      ..close();
-
-    final tabPaint = Paint()..color = const Color(0xFF7D4BFF);
-    canvas.drawPath(tabPath, tabPaint);
   }
 
   @override
-  bool shouldRepaint(covariant _RingPainter old) {
-    return old.progress != progress;
-  }
+  bool shouldRepaint(_RingPainter old) => progress != old.progress;
 }
 
 class _AccentPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0x1A7D4BFF);
+    final paint = Paint()..color = const Color(0x269B5CFF);
     final w = size.width;
     final h = size.height;
     final path1 = Path()
