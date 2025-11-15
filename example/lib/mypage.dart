@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 
+import 'package:camera/camera.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sprint_check/sprint_check.dart';
 import 'package:sprint_check/sprint_check_method_channel.dart';
+
+import 'liveness_check_app.dart';
+import 'liveness_screen.dart';
 
 
 class Mypage1 extends StatefulWidget {
@@ -23,6 +27,8 @@ class _MypageState extends State<Mypage1> {
     text: "odejinmiabraham@gmail.com",
   );
   TextEditingController bvnController = TextEditingController();
+
+  List<CameraDescription>? cameras;
   @override
   void initState() {
     super.initState();
@@ -31,6 +37,7 @@ class _MypageState extends State<Mypage1> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
+    cameras = await availableCameras();
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
@@ -181,6 +188,20 @@ class _MypageState extends State<Mypage1> {
                   // // decryptData();
                 },
                 child: Text("Start Id card verification"),
+              ),
+              SizedBox(height: 20),
+              InkWell(
+                onTap: () async {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LivenessScreen(),
+                    ),
+                  );
+                  // startEncryption();
+                  // // decryptData();
+                },
+                child: Text("Start liveness check"),
               ),
             ],
           ),

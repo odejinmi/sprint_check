@@ -15,14 +15,14 @@ dependencies:
   web: ^1.1.1
   plugin_platform_interface: ^2.1.8
 
-  flutter_face_api: ^7.2.407
+  flutter_face_api: ^7.2.540
   flutter_face_core_basic: ^7.2.235
   intl: ^0.20.2
-  http: ^1.5.0
-  syncfusion_flutter_gauges: ^31.2.4
+  http: ^1.6.0
+  syncfusion_flutter_gauges: ^31.2.10
   dio: ^5.9.0
-  crypto: ^3.0.6
-  image_picker: ^1.2.0
+  crypto: ^3.0.7
+  image_picker: ^1.2.1
   google_mlkit_text_recognition: ^0.15.0
   camera: ^0.11.3
   google_mlkit_face_detection: ^0.13.1

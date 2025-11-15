@@ -133,7 +133,7 @@ class IDCardParser {
             final croppedFace = img.copyCrop(originalImage, x: x, y: y, width: w, height: h);
 
             final tempDir = await getTemporaryDirectory();
-            final file = await File('${tempDir.path}/face_crop.jpg').create();
+            final file = await File('${tempDir.path}/face_crop${DateTime.now().millisecondsSinceEpoch}.jpg').create();
             file.writeAsBytesSync(img.encodeJpg(croppedFace));
             croppedFacePath = file.path;
           }

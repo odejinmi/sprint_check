@@ -76,7 +76,7 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
             _response?.method == CheckoutMethod.bvn || _response?.method == CheckoutMethod.nin || _response?.method == CheckoutMethod.facial ?
             Bvnverification(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
                 _response?.method == CheckoutMethod.idcard ?
-            Idcardverification(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method,):
+            Idcardverification(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
             Initializepage(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method,)),
       ),
     );
@@ -101,7 +101,7 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
 
   @override
   getPopReturnValue() {
-    return _getResponse();
+    return CheckoutResponse.defaults();
   }
 
   CheckoutResponse _getResponse() {

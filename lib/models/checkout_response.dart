@@ -33,7 +33,7 @@ class CheckoutResponse {
   bool verify;
 
   CheckoutResponse.defaults()
-    : message = "Enter your card details to pay",
+    : message = "The process was terminated by the user",
       status = false,
       verify = false,
       method = CheckoutMethod.selectable;
