@@ -18,10 +18,10 @@ class LivenessScreen extends StatefulWidget {
 }
 
 enum _LivenessState {
-  faceAlignment,      // Guide user to position face
-  holdStill,          // Face is positioned, user must hold still
-  livenessChallenge,  // Head turning part
-  done,               // Process complete
+  faceAlignment,
+  holdStill,
+  livenessChallenge,
+  done,
 }
 
 class _LivenessScreenState extends State<LivenessScreen> {
@@ -31,24 +31,20 @@ class _LivenessScreenState extends State<LivenessScreen> {
   bool _initialized = false;
   double _progress = 0.0;
 
-  // Expanded list of possible actions
   final List<_Action> _required = [];
   int _currentIndex = 0;
-  
   _LivenessState _livenessState = _LivenessState.faceAlignment;
   String _instruction = 'Align your face in the circle';
-  
+
   String? _capturedImagePath;
   Timer? _holdStillTimer;
 
   @override
   void initState() {
     super.initState();
-    // Randomly select 2 out of the 4 possible actions
     final allActions = [_Action.turnLeft, _Action.turnRight, _Action.turnUp, _Action.turnDown];
     allActions.shuffle();
     _required.addAll(allActions.take(2));
-    
     _init();
   }
 
@@ -107,26 +103,44 @@ class _LivenessScreenState extends State<LivenessScreen> {
       }
 
       final face = faces.first;
-      final faceRect = face.boundingBox;
+      
+      // Strict state-based logic
+      switch (_livenessState) {
+        case _LivenessState.faceAlignment:
+        case _LivenessState.holdStill:
+          _handleFaceAlignment(face, image);
+          break;
+        case _LivenessState.livenessChallenge:
+          _evaluateHeadPose(face);
+          break;
+        case _LivenessState.done:
+          // Do nothing
+          break;
+      }
+    } catch (e, s) {
+      dev.log('Error during face processing', error: e, stackTrace: s);
+    } finally {
+      _processing = false;
+    }
+  }
 
-      final screenSize = MediaQuery.of(context).size;
-      final ovalDiameter = screenSize.width * 0.78;
-      final ovalRect = Rect.fromCenter(
-        center: Offset(screenSize.width / 2, (screenSize.height / 2) - (screenSize.height * 0.15)),
-        width: ovalDiameter,
-        height: ovalDiameter,
-      );
+  void _handleFaceAlignment(Face face, CameraImage image) {
+      // Use face width relative to image width for a more robust size check.
+      final imageWidth = image.width;
+      final faceWidth = face.boundingBox.width;
+      final faceHeight = face.boundingBox.height;
 
-      final bool isCentered = ovalRect.contains(faceRect.center);
-      final bool isGoodSize = faceRect.width > ovalDiameter * 0.4;
+      // Check for centered face (heuristic)
+      final faceCenterX = face.boundingBox.center.dx;
+      final isCentered = (faceCenterX > imageWidth * 0.25) && (faceCenterX < imageWidth * 0.75);
 
-      if (!isCentered) {
-        _resetToFaceAlignment('Center your face');
-      } else if (faceRect.width < ovalDiameter * 0.4) {
+      if (faceWidth < imageWidth * 0.35) {
         _resetToFaceAlignment('Move closer');
-      } else if (faceRect.width > ovalDiameter * 0.9) {
+      } else if (faceWidth > imageWidth * 0.6) {
         _resetToFaceAlignment('Move further away');
-      } else if (isGoodSize && isCentered) {
+      } else if (!isCentered) {
+        _resetToFaceAlignment('Center your face');
+      } else {
         if (_livenessState == _LivenessState.faceAlignment) {
           setState(() {
             _livenessState = _LivenessState.holdStill;
@@ -134,15 +148,8 @@ class _LivenessScreenState extends State<LivenessScreen> {
           });
           _holdStillTimer?.cancel();
           _holdStillTimer = Timer(const Duration(milliseconds: 1500), _captureAndProceed);
-        } else if (_livenessState == _LivenessState.livenessChallenge) {
-           _evaluateHeadPose(face);
         }
       }
-    } catch (e, s) {
-      dev.log('Error during face processing', error: e, stackTrace: s);
-    } finally {
-      _processing = false;
-    }
   }
 
   void _resetToFaceAlignment(String instruction) {
@@ -159,18 +166,17 @@ class _LivenessScreenState extends State<LivenessScreen> {
   }
 
   Future<void> _captureAndProceed() async {
-     if (_controller == null || !_controller!.value.isTakingPicture) {
-        try {
-          final XFile imageFile = await _controller!.takePicture();
-          setState(() {
-            _capturedImagePath = imageFile.path;
-            _livenessState = _LivenessState.livenessChallenge;
-          });
-          HapticFeedback.lightImpact();
-        } catch(e) {
-          _resetToFaceAlignment('Could not capture image, please try again');
-        }
-     }
+     if (_controller == null || _controller!.value.isTakingPicture) return;
+     try {
+        final XFile imageFile = await _controller!.takePicture();
+        setState(() {
+          _capturedImagePath = imageFile.path;
+          _livenessState = _LivenessState.livenessChallenge;
+        });
+        HapticFeedback.lightImpact();
+      } catch(e) {
+        _resetToFaceAlignment('Could not capture image, please try again');
+      }
   }
 
   void _evaluateHeadPose(Face face) {
@@ -269,7 +275,8 @@ class _LivenessScreenState extends State<LivenessScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    // UI code remains the same
+        return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       body: SafeArea(
         child: !_initialized
@@ -341,6 +348,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
 
 enum _Action { turnLeft, turnRight, turnUp, turnDown }
 
+// Viewport and Painter classes remain the same
 class _CircularLivenessViewport extends StatelessWidget {
   final CameraController controller;
   final double ringProgress;
