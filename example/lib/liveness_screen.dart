@@ -31,7 +31,8 @@ class _LivenessScreenState extends State<LivenessScreen> {
   bool _initialized = false;
   double _progress = 0.0;
 
-  final List<_Action> _required = [_Action.turnLeft, _Action.turnRight];
+  // Expanded list of possible actions
+  final List<_Action> _required = [];
   int _currentIndex = 0;
   
   _LivenessState _livenessState = _LivenessState.faceAlignment;
@@ -43,7 +44,11 @@ class _LivenessScreenState extends State<LivenessScreen> {
   @override
   void initState() {
     super.initState();
-    _required.shuffle();
+    // Randomly select 2 out of the 4 possible actions
+    final allActions = [_Action.turnLeft, _Action.turnRight, _Action.turnUp, _Action.turnDown];
+    allActions.shuffle();
+    _required.addAll(allActions.take(2));
+    
     _init();
   }
 
@@ -77,6 +82,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
       options: FaceDetectorOptions(
         performanceMode: FaceDetectorMode.accurate,
         minFaceSize: 0.2,
+        enableClassification: true,
       ),
     );
 
@@ -121,9 +127,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
       } else if (faceRect.width > ovalDiameter * 0.9) {
         _resetToFaceAlignment('Move further away');
       } else if (isGoodSize && isCentered) {
-        // Face is correctly positioned. Handle next steps.
         if (_livenessState == _LivenessState.faceAlignment) {
-          // Transition to holding still for capture.
           setState(() {
             _livenessState = _LivenessState.holdStill;
             _instruction = 'Hold still...';
@@ -131,7 +135,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
           _holdStillTimer?.cancel();
           _holdStillTimer = Timer(const Duration(milliseconds: 1500), _captureAndProceed);
         } else if (_livenessState == _LivenessState.livenessChallenge) {
-           _evaluateYaw(face);
+           _evaluateHeadPose(face);
         }
       }
     } catch (e, s) {
@@ -169,12 +173,16 @@ class _LivenessScreenState extends State<LivenessScreen> {
      }
   }
 
-  void _evaluateYaw(Face face) {
-    final yaw = face.headEulerAngleY;
-    if (yaw == null) return;
+  void _evaluateHeadPose(Face face) {
+    final yaw = face.headEulerAngleY; // Left-Right
+    final pitch = face.headEulerAngleX; // Up-Down
+
+    if (yaw == null || pitch == null) return;
     
     const leftThreshold = -18.0;
     const rightThreshold = 18.0;
+    const upThreshold = 12.0;
+    const downThreshold = -12.0;
     
     final target = _required[_currentIndex];
     bool satisfied = false;
@@ -187,6 +195,14 @@ class _LivenessScreenState extends State<LivenessScreen> {
       case _Action.turnRight:
         setState(() => _instruction = 'Turn your head a bit to the right');
         satisfied = yaw >= rightThreshold;
+        break;
+      case _Action.turnUp:
+        setState(() => _instruction = 'Tilt your head up');
+        satisfied = pitch >= upThreshold;
+        break;
+      case _Action.turnDown:
+        setState(() => _instruction = 'Tilt your head down');
+        satisfied = pitch <= downThreshold;
         break;
     }
 
@@ -323,7 +339,7 @@ class _LivenessScreenState extends State<LivenessScreen> {
   }
 }
 
-enum _Action { turnLeft, turnRight }
+enum _Action { turnLeft, turnRight, turnUp, turnDown }
 
 class _CircularLivenessViewport extends StatelessWidget {
   final CameraController controller;
