@@ -48,7 +48,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
   }
 
   Future<void> _init() async {
-    // Ask permissions
     final status = await Permission.camera.request();
     if (!status.isGranted) {
       if (mounted) {
@@ -59,7 +58,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
       return;
     }
 
-    // Init camera
     final cameras = await availableCameras();
     final front = cameras.firstWhere(
           (c) => c.lensDirection == CameraLensDirection.front,
@@ -75,7 +73,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
 
     await _controller!.initialize();
 
-    // Init ML Kit face detector
     _faceDetector = FaceDetector(
       options: FaceDetectorOptions(
         enableContours: false,
@@ -89,7 +86,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
 
     setState(() => _initialized = true);
 
-    // Start stream
     await _controller!.startImageStream(_onFrame);
   }
 
@@ -112,15 +108,13 @@ class _LivenessScreenState extends State<LivenessScreen> {
       final face = faces.first;
       setState(() => _faceVisible = true);
 
-      // Head yaw (Y axis): negative = left, positive = right
-      final yaw = face.headEulerAngleY; // degrees
+      final yaw = face.headEulerAngleY;
       if (yaw != null) {
         _yawHistory.add(yaw);
         if (_yawHistory.length > 24) _yawHistory.removeAt(0);
         _evaluateYaw();
       }
     } catch (_) {
-      // swallow for stability
     } finally {
       _processing = false;
     }
@@ -128,12 +122,10 @@ class _LivenessScreenState extends State<LivenessScreen> {
 
   void _evaluateYaw() {
     if (_currentIndex >= _required.length) return;
-
     if (_yawHistory.isEmpty) return;
     final minYaw = _yawHistory.reduce(min);
     final maxYaw = _yawHistory.reduce(max);
 
-    // Gentle thresholds to match "Turn your head a bit"
     const leftThreshold = -12.0;
     const rightThreshold = 12.0;
 
@@ -160,7 +152,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
         _onComplete();
       }
     } else {
-      // Smooth progress feedback: map yaw proximity to 0..1 for current step
       double proximity;
       if (target == _Action.turnLeft) {
         proximity = (0.0 - (minYaw / leftThreshold)).clamp(0.0, 1.0);
@@ -174,7 +165,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
   }
 
   void _onComplete() async {
-    // Stop stream for demo; in production, capture frame(s) and return result
     try {
       await _controller?.stopImageStream();
     } catch (_) {}
@@ -190,14 +180,11 @@ class _LivenessScreenState extends State<LivenessScreen> {
       final format = InputImageFormatValue.fromRawValue(image.format.raw) ??
           InputImageFormat.nv21;
 
-      final rotation =
-      _rotationFromSensor(description.sensorOrientation, description);
-
       return InputImage.fromBytes(
         bytes: _concatenatePlanes(image.planes),
         metadata: InputImageMetadata(
           size: Size(image.width.toDouble(), image.height.toDouble()),
-          rotation: rotation,
+          rotation: _rotationFromSensor(description.sensorOrientation, description),
           format: format,
           bytesPerRow: image.planes.first.bytesPerRow,
         ),
@@ -216,7 +203,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
   }
 
   InputImageRotation _rotationFromSensor(int sensorOrientation, CameraDescription d) {
-    // Front camera stream often comes already mirrored; ML Kit needs rotation only
     switch (sensorOrientation) {
       case 0:
         return InputImageRotation.rotation0deg;
@@ -246,7 +232,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
             ? const Center(child: CircularProgressIndicator())
             : Stack(
           children: [
-            // Centered biometric UI
             Align(
               alignment: Alignment.topCenter,
               child: Padding(
@@ -258,8 +243,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
                 ),
               ),
             ),
-
-            // Top-right Close button
             Positioned(
               right: 12,
               top: 12,
@@ -269,8 +252,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
                 tooltip: 'Close',
               ),
             ),
-
-            // Instruction text under the circle
             Align(
               alignment: Alignment(0, 0.45),
               child: Padding(
@@ -286,8 +267,6 @@ class _LivenessScreenState extends State<LivenessScreen> {
                 ),
               ),
             ),
-
-            // Branding footer (replace with your brand)
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
@@ -301,10 +280,10 @@ class _LivenessScreenState extends State<LivenessScreen> {
                     children: const [
                       TextSpan(text: 'Powered by '),
                       TextSpan(
-                        text: 'YourCompany',
+                        text: 'Regula',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF7A46FF), // purple
+                          color: Color(0xFF7A46FF),
                         ),
                       ),
                     ],
@@ -334,26 +313,22 @@ class _CircularLivenessViewport extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Target diameter similar to your screenshots
     final double diameter = MediaQuery.of(context).size.width * 0.78;
     final double ringThickness = 10;
 
     return SizedBox(
       width: diameter,
-      height: diameter + 24, // room for top tab
+      height: diameter + 24,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // Decorative accents behind circle (purple angular shapes)
-          Positioned.fill(
-            child: IgnorePointer(
-              child: CustomPaint(
-                painter: _AccentPainter(),
-              ),
-            ),
-          ),
-
-          // Circular camera preview
+          // Positioned.fill(
+          //   child: IgnorePointer(
+          //     child: CustomPaint(
+          //       painter: _AccentPainter(),
+          //     ),
+          //   ),
+          // ),
           Center(
             child: ClipOval(
               child: SizedBox(
@@ -377,8 +352,6 @@ class _CircularLivenessViewport extends StatelessWidget {
               ),
             ),
           ),
-
-          // // Bottom-right circular badge (camera/refresh)
           // Positioned(
           //   right: max(0.0, (MediaQuery.of(context).size.width - diameter) / 2 - 12),
           //   bottom: 12,
@@ -394,7 +367,7 @@ class _CircularLivenessViewport extends StatelessWidget {
 }
 
 class _RingPainter extends CustomPainter {
-  final double progress; // 0..1
+  final double progress;
   final double thickness;
   final Color activeColor1;
   final Color activeColor2;
@@ -414,14 +387,12 @@ class _RingPainter extends CustomPainter {
     final center = rect.center;
     final radius = size.width / 2;
 
-    // Base ring (white)
     final base = Paint()
       ..color = idleColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = thickness;
     canvas.drawCircle(center, radius - thickness / 2, base);
 
-    // Gradient progress arc
     if (progress > 0) {
       final sweep = 2 * pi * progress;
       final gradient = SweepGradient(
@@ -443,7 +414,6 @@ class _RingPainter extends CustomPainter {
       );
     }
 
-    // Small top tab (as in your image)
     final tabWidth = size.width * 0.16;
     final tabHeight = thickness * 1.2;
     final tabRect = Rect.fromCenter(
@@ -471,8 +441,7 @@ class _RingPainter extends CustomPainter {
 class _AccentPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // Purple geometric accents behind ring
-    final paint = Paint()..color = const Color(0x1A7D4BFF); // 10% alpha
+    final paint = Paint()..color = const Color(0x1A7D4BFF);
     final w = size.width;
     final h = size.height;
     final path1 = Path()
