@@ -1,9 +1,50 @@
-import 'dart:developer' as dev;
-
 import 'IDCardInfo.dart';
 
 class ExtractNIN {
   static Future<IDCardInfo> extractNIN(List<String> lines) async {
+    String cardType = 'unknown';
+    if (lines.any((l) => l.contains('DIGITAL NIN SLIP'))) {
+      cardType = 'digitalninslip';
+    } else if (lines.any((l) => l.contains('National ldentification Number'))) {
+      cardType = 'ninslip';
+    } else if (lines.any(
+          (l) =>
+      l.toUpperCase().contains('NATIONAL IDENTITY MANAGEMENT') ||
+          l.toUpperCase().contains('NIN'),
+    )) {
+      cardType = 'nin';
+    } else if (lines.any(
+          (l) =>
+      l.toUpperCase().contains('NATIONAL IDENTITY CARD') ||
+          l.toUpperCase().contains('NIMC'),
+    )) {
+      cardType = 'nimc';
+    }
+
+    // --- Multi-Layered Extraction Strategy ---
+
+    // --- CARD-SPECIFIC EXTRACTION ---
+    switch (cardType) {
+    // case 'nin':
+    //   extractNIN();
+    //   break;
+    // case 'nimc':
+    //   extractnimc();
+    //   break;
+    // case 'ninslip':
+    //   extractNINslip();
+    //   break;
+      case 'digitalninslip':
+        return await extractDigitalNINslip(lines);
+        break;
+      default:
+        return IDCardInfo();
+      // extractunknown();
+        break;
+    }
+  }
+
+  static Future<IDCardInfo> extractDigitalNINslip(List<String> lines) async {
     String? idNumber;
     String? firstName;
     String? lastName;
@@ -60,37 +101,37 @@ class ExtractNIN {
       if (upper.contains('SURNAME')) {
         String nameLine = "";
         if (i + 1 < lines.length && !lines[i+1].toUpperCase().contains('NAME')) {
-            nameLine = lines[i+1];
+          nameLine = lines[i+1];
         } else {
-           try {
-             nameLine = upper.split(RegExp(r'SURNAME[:/\s]*', caseSensitive: false)).last.trim();
-           } catch (e) {}
+          try {
+            nameLine = upper.split(RegExp(r'SURNAME[:/\s]*', caseSensitive: false)).last.trim();
+          } catch (e) {}
         }
         if (nameLine.isNotEmpty) lastName = nameLine;
       }
       if (upper.contains('GIVEN NAMES') || upper.contains('FIRST NAME')) {
         String nameLine = "";
         if (i + 1 < lines.length && !lines[i+1].toUpperCase().contains('NAME')) {
-            nameLine = lines[i+1];
+          nameLine = lines[i+1];
         } else {
-           try {
+          try {
             nameLine = upper.split(RegExp(r'(GIVEN|FIRST) NAMES?[:/\s]*', caseSensitive: false)).last.trim();
-           } catch (e) {}
+          } catch (e) {}
         }
         if(nameLine.isNotEmpty) {
-            final parts = nameLine.split(RegExp(r'[ ,]+'));
-            firstName = parts.isNotEmpty ? parts[0] : null;
-            middleName = parts.length > 1 ? parts.sublist(1).join(' ') : null;
+          final parts = nameLine.split(RegExp(r'[ ,]+'));
+          firstName = parts.isNotEmpty ? parts[0] : null;
+          middleName = parts.length > 1 ? parts.sublist(1).join(' ') : null;
         }
       }
-       if (upper.contains('MIDDLE NAME')) {
+      if (upper.contains('MIDDLE NAME')) {
         String nameLine = "";
         if (i + 1 < lines.length && !lines[i+1].toUpperCase().contains('NAME')){
-            nameLine = lines[i+1];
+          nameLine = lines[i+1];
         } else {
-           try {
+          try {
             nameLine = upper.split(RegExp(r'MIDDLE NAME[:/\s]*', caseSensitive: false)).last.trim();
-           } catch (e) {}
+          } catch (e) {}
         }
         if (nameLine.isNotEmpty) middleName = nameLine;
       }
@@ -101,11 +142,11 @@ class ExtractNIN {
       if (lines[i].toUpperCase().contains('DATE OF BIRTH')) {
         String dobLine = "";
         if(i + 1 < lines.length) {
-             dobLine = lines[i+1];
+          dobLine = lines[i+1];
         } else {
-            try {
-                dobLine = lines[i].split(RegExp(r'BIRTH[:/\s]*', caseSensitive: false)).last.trim();
-            } catch(e){}
+          try {
+            dobLine = lines[i].split(RegExp(r'BIRTH[:/\s]*', caseSensitive: false)).last.trim();
+          } catch(e){}
         }
 
         final dobRegex = RegExp(r'(\d{1,2})\s+([A-Z]{3})\s+(\d{4})', caseSensitive: false);
