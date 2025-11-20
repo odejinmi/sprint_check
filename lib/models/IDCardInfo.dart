@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'extractDriverLicense.dart';
 import 'extractnational.dart';
 import 'extractVoter.dart';
-
+import 'extractNIN.dart';
 
 
 /// Holds the extracted information from a recognized ID card.
@@ -89,20 +89,20 @@ class IDCardParser {
       case 'Internation Passport':
         idCardInfo = await ExtractNational.extractnational(lines);
         break;
+      case 'National identity card':
+        idCardInfo = await ExtractNIN.extractNIN(lines);
+        break;
       case "Driver's License":
         idCardInfo = await ExtractDriverLicense.extractDriverLicense(lines);
         break;
-      case 'National identity card':
-      // idCardInfo = await extractNIN(lines);
-        break;
       case 'nimc':
-        // idCardInfo = await extractnimc(lines);
+        idCardInfo = await ExtractNIN.extractNIN(lines);
         break;
       case 'ninslip':
-        // idCardInfo = await extractNINslip(lines);
+        idCardInfo = await ExtractNIN.extractNIN(lines);
         break;
       case 'digitalninslip':
-        // idCardInfo = await extractDigitalNINslip(lines);
+        idCardInfo = await ExtractNIN.extractNIN(lines);
         break;
       default:
         // idCardInfo = await extractunknown(lines);

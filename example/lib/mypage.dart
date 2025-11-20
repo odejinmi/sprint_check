@@ -8,9 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:sprint_check/sprint_check.dart';
 import 'package:sprint_check/sprint_check_method_channel.dart';
 
-import 'liveness_check_app.dart';
-import 'liveness_screen.dart';
-
 
 class Mypage1 extends StatefulWidget {
   const Mypage1({super.key});
@@ -188,20 +185,6 @@ class _MypageState extends State<Mypage1> {
                   // // decryptData();
                 },
                 child: Text("Start Id card verification"),
-              ),
-              SizedBox(height: 20),
-              InkWell(
-                onTap: () async {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LivenessScreen(),
-                    ),
-                  );
-                  // startEncryption();
-                  // // decryptData();
-                },
-                child: Text("Start liveness check"),
               ),
             ],
           ),

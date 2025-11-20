@@ -8,7 +8,6 @@ import '../common/diorequest.dart';
 import '../common/new_cameraliveness.dart';
 import '../models/charge.dart';
 import '../sprint_check_method_channel.dart';
-import 'liveness_check_page.dart';
 
 class Newfacepage extends StatefulWidget {
   final String publicKey;
@@ -280,19 +279,13 @@ class _NewfacepageState extends State<Newfacepage> {
               // score = 94;
               // enrollmentdata = "ODEJINMI TOLULOPE ABRAHAM";
               // setState(() {});
-              // LivenessResponse? pickedFile =
-              // await faceapi.startLiveness();
-              // if (pickedFile != null && pickedFile.image != null) {
-              //   var captureimage = base64Encode(pickedFile.image!);
-              //   // controller.loading(context);
-              //   compareimage(captureimage, widget.bvnimage);
-              // }
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LivenessCheckScreen(),
-                ),
-              );
+              LivenessResponse? pickedFile =
+              await faceapi.startLiveness();
+              if (pickedFile != null && pickedFile.image != null) {
+                var captureimage = base64Encode(pickedFile.image!);
+                // controller.loading(context);
+                compareimage(captureimage, widget.bvnimage);
+              }
             }else if (stage == 2) {
               widget.onResponse({
                 "score": score,

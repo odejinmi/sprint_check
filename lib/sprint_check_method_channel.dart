@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sprint_check/ui/checkout/checkout_widget.dart';
@@ -106,6 +108,7 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     Charge charge = Charge(identifier);
     charge.bvn = bvn;
     charge.nin = nin;
+    dev.log("identifier: $identifier, bvn: $bvn, nin: $nin");
     CheckoutResponse? response = await showDialog(
       barrierDismissible: false,
       context: context,

@@ -312,7 +312,7 @@ class _IdcardpageState extends State<Idcardpage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
               children: [
-                // if(debug)
+                if(idcardinfo!.faceImagePath != null)
                 Image.file(File(idcardinfo!.faceImagePath!),
                   fit: BoxFit.fill,
                 ),
