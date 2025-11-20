@@ -281,7 +281,6 @@ class _IdcardpageState extends State<Idcardpage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Row(),
-                Spacer(),
                 Center(
                   child: Image.asset(
                     "assets/logo.png",
@@ -300,7 +299,6 @@ class _IdcardpageState extends State<Idcardpage> {
                     height: 2.13,
                   ),
                 ),
-                Spacer()
               ],
             ),
           ):

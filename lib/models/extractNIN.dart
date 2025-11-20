@@ -25,11 +25,10 @@ class ExtractNIN {
       case 'nimc':
         return _extractPlasticNIMCCard(lines);
       default:
-        return extractunknown(lines); // Return empty if type is unknown
+        return extractunknown(lines); // Use the powerful fallback
     }
   }
 
-  // For old paper slips
   static IDCardInfo _extractPaperNINSlip(List<String> lines) {
     String? idNumber;
     String? firstName;
@@ -52,131 +51,98 @@ class ExtractNIN {
     return IDCardInfo(firstName: firstName, lastName: lastName, middleName: middleName, idNumber: idNumber);
   }
 
-  // For the newer plastic cards
   static IDCardInfo _extractPlasticNIMCCard(List<String> lines) {
-    String? idNumber;
-    String? firstName;
-    String? lastName;
-    String? middleName;
-    String? dob;
-
-     for (int i = 0; i < lines.length; i++) {
-      final upper = lines[i].toUpperCase();
-      if (upper.contains('SURNAME/NOM') || upper.contains('SURNAME')) {
-         if (i + 1 < lines.length) lastName = lines[i + 1].trim();
-      } else if (upper.contains('GIVEN NAMES/PRÉNOMS') || upper.contains('GIVEN NAMES')) {
-         if (i + 1 < lines.length) {
-            final nameLine = lines[i+1].trim();
-            final parts = nameLine.split(RegExp(r'[ ,]+'));
-            firstName = parts.isNotEmpty ? parts[0] : null;
-            if (parts.length > 1) middleName = parts.sublist(1).join(' ').trim();
-         }
-      }
-      else if (upper.contains('DATE OF BIRTH')) {
-         if (i + 1 < lines.length) {
-            final dobLine = lines[i+1];
-            final dobRegex = RegExp(r'(\d{1,2})\s+([A-Z]{3})\s+(\d{4})', caseSensitive: false);
-            final match = dobRegex.firstMatch(dobLine.toUpperCase());
-            if (match != null) {
-                String day = match.group(1)!.padLeft(2, '0');
-                String monthStr = match.group(2)!;
-                String year = match.group(3)!;
-                final months = {
-                    'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'MAY': '05', 'JUN': '06',
-                    'JUL': '07', 'AUG': '08', 'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12',
-                };
-                String? month = months[monthStr];
-                if (month != null) {
-                    dob = '$day-$month-$year';
-                }
-            }
-         }
-      }
-      // For plastic cards, the NIN is often a large standalone number
-      else if (RegExp(r'^\d{4}\s+\d{3}\s+\d{4}$').hasMatch(upper.trim())) {
-          idNumber = upper.replaceAll(' ', '');
-      } else if (RegExp(r'^\d{4}\s+\d{4}\s+\d{4}\s+\d{4}$').hasMatch(upper.trim())) { // Fallback for Federal ID Card
-          idNumber = upper.replaceAll(' ', '');
-      }
-    }
-
-    return IDCardInfo(
-        firstName: firstName, lastName: lastName, middleName: middleName, dateOfBirth: dob, idNumber: idNumber);
+     // This function is now superseded by the more robust `extractunknown` logic
+     // but is kept for structure. The default case will handle plastic cards.
+    return extractunknown(lines);
   }
 
+  // A powerful fallback extractor that can handle multiple NIN card layouts.
   static IDCardInfo extractunknown(List<String> lines) {
     String? idNumber;
     String? firstName;
     String? lastName;
     String? middleName;
     String? dob;
-    String? extractedDetails;
+    String? extractedDetails; // Preserved as requested
 
-    // VOTER'S CARD LOGIC
     for (final line in lines) {
-      if (extractedDetails == null){
+      if (extractedDetails == null) {
         extractedDetails = line;
-      }else{
+      } else {
         extractedDetails += " ***videx*** $line";
       }
     }
-    // GENERIC FALLBACK LOGIC (try to extract what we can)
-    // Try to extract DOB
-    final dobRegex = RegExp(
-      r'(\d{2})[ /-]([A-Z]{3})[ /-](\d{2,4})|(\d{2})[ /-](\d{2})[ /-](\d{2,4})',
-    );
+
+    // --- Robust, Multi-Strategy Extraction ---
+
+    // 1. Find NIN (most reliable feature)
     for (final line in lines) {
-      final match = dobRegex.firstMatch(line.toUpperCase());
-      if (match != null) {
-        if (match.group(2) != null) {
-          final day = match.group(1);
-          final monStr = match.group(2);
-          final year = match.group(3);
-          final months = {
-            'JAN': '01',
-            'FEB': '02',
-            'MAR': '03',
-            'APR': '04',
-            'MAY': '05',
-            'JUN': '06',
-            'JUL': '07',
-            'AUG': '08',
-            'SEP': '09',
-            'OCT': '10',
-            'NOV': '11',
-            'DEC': '12',
-          };
-          final mon = months[monStr] ?? monStr;
-          dob = '$day-$mon-$year';
-        } else if (match.group(4) != null &&
-            match.group(5) != null &&
-            match.group(6) != null) {
-          dob = '${match.group(4)}-${match.group(5)}-${match.group(6)}';
+        final cleanedLine = line.replaceAll(' ', '');
+        if (RegExp(r'^\d{11}$').hasMatch(cleanedLine)) {
+            idNumber = cleanedLine;
+            break;
         }
-        break;
+        final match = RegExp(r'(\d{4}\d{3}\d{4})').firstMatch(line.replaceAll(' ', ''));
+        if (match != null) {
+            idNumber = match.group(1);
+            break;
+        }
+    }
+
+    // 2. Find Name and DOB by intelligent label search
+    for (int i = 0; i < lines.length; i++) {
+      final upper = lines[i].toUpperCase();
+
+      // --- Name ---
+      if (upper.contains('SURNAME/NOM') || upper.contains('SURNAME')) {
+        var value = upper.split(RegExp(r'SURNAME(?:/NOM)?\s*[:]?\s*')).last.trim();
+        if (value.isNotEmpty) {
+          lastName = value;
+        } else if (i + 1 < lines.length) {
+          lastName = lines[i + 1].trim();
+        }
+      }
+      else if (upper.contains('GIVEN NAMES') || upper.contains('FIRST NAME')) {
+        var value = upper.split(RegExp(r'(?:GIVEN|FIRST) NAMES(?:/PRÉNOMS)?\s*[:]?\s*')).last.trim();
+        if (value.isEmpty && i + 1 < lines.length) {
+          value = lines[i+1].trim();
+        }
+        
+        if (value.isNotEmpty) {
+            final parts = value.split(RegExp(r'[ ,]+'));
+            firstName = parts.isNotEmpty ? parts[0].trim() : null;
+            if (parts.length > 1) middleName = parts.sublist(1).join(' ').trim();
+        }
+      }
+
+      // --- DOB ---
+      else if (upper.contains('DATE OF BIRTH')) {
+         var value = upper.split(RegExp(r'DATE OF BIRTH\s*[:]?\s*')).last.trim();
+         if (value.isEmpty && i + 1 < lines.length) {
+          value = lines[i+1].trim();
+        }
+
+        if (value.isNotEmpty) {
+            final dobRegex = RegExp(r'(\d{1,2})[.\s]+([A-Z]{3})[.\s]+(\d{4})', caseSensitive: false);
+            final match = dobRegex.firstMatch(value.toUpperCase());
+            if (match != null) {
+              String day = match.group(1)!.padLeft(2, '0');
+              String monthStr = match.group(2)!;
+              String year = match.group(3)!;
+              final months = {
+                  'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'MAY': '05', 'JUN': '06',
+                  'JUL': '07', 'AUG': '08', 'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12',
+              };
+              String? month = months[monthStr];
+              if (month != null) {
+                  dob = '$day-$month-$year';
+              }
+            }
+        }
       }
     }
-    // Try to extract ID number (longest digit/letter sequence)
-    String idText = lines.join(' ');
-    final idMatch = RegExp(
-      r'[A-Z0-9]{10,}',
-    ).firstMatch(idText.replaceAll(' ', ''));
-    if (idMatch != null) {
-      idNumber = idMatch.group(0);
-    }
-    // Try to extract name (first all-uppercase 2-3 word line)
-    for (final line in lines) {
-      final upper = line.toUpperCase().trim();
-      final parts = upper.split(RegExp(r'\s+'));
-      if ((parts.length == 2 || parts.length == 3) &&
-          RegExp(r'^[A-Z ]+$').hasMatch(upper)) {
-        lastName = parts[0].trim();
-        if (parts.length > 1) firstName = parts[1].trim();
-        if (parts.length > 2) middleName = parts[2].trim();
-        // fullName = line.trim();
-        break;
-      }
-    }
+
     return IDCardInfo(
         firstName: firstName, lastName: lastName, middleName: middleName, dateOfBirth: dob, idNumber: idNumber, extracteddetails: extractedDetails);
   }
