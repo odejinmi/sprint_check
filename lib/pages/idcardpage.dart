@@ -81,9 +81,7 @@ class _IdcardpageState extends State<Idcardpage> {
   @override
   Widget build(BuildContext context) {
     return capture ?Newcaptureidcard(onResponse: (value){
-      setState(() {
         _image = value['image'];
-      });
       capture = false;
       setState(() {
       });

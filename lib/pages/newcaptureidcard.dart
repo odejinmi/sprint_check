@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
+import 'package:image_cropper/image_cropper.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Newcaptureidcard extends StatefulWidget {
@@ -22,11 +24,21 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
   @override
   void initState() {
     super.initState();
+    // Lock to landscape mode when the screen is first shown
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
     initializeCamera();
   }
 
   @override
   void dispose() {
+    // Reset to portrait mode when the screen is closed
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     cameracontroller?.dispose();
     super.dispose();
   }
@@ -56,56 +68,82 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
       return;
     }
 
+    // 1. Take a full-screen picture
     final pictureFile = await cameracontroller!.takePicture();
-    final imageBytes = await pictureFile.readAsBytes();
-    final originalImage = img.decodeImage(imageBytes)!;
 
-    final previewBox = previewKey.currentContext!.findRenderObject() as RenderBox;
-    final frameBox = frameKey.currentContext!.findRenderObject() as RenderBox;
-
-    // Get the render object of the preview and frame
-    final previewSize = previewBox.size;
-    // Get the position of the frame within the preview
-    final framePosition = frameBox.localToGlobal(Offset.zero, ancestor: previewBox);
-    final frameSize = frameBox.size;
-
-    // Calculate the scale factor
-    final scaleY = originalImage.height / previewSize.height;
-    final scaleX = originalImage.width / previewSize.width;
-
-    // Calculate the crop rectangle in image pixels
-    final cropLeft = framePosition.dx * scaleX;
-    final cropTop = framePosition.dy * scaleY;
-    final cropWidth = frameSize.width * scaleX;
-    final cropHeight = frameSize.height * scaleY;
-
-    final croppedImage = img.copyCrop(
-      originalImage,
-      x: cropLeft.toInt(),
-      y: cropTop.toInt(),
-      width: cropWidth.toInt(),
-      height: cropHeight.toInt(),
+    // 2. Use image_cropper for a reliable UI-based crop
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: pictureFile.path,
+      aspectRatio: const CropAspectRatio(ratioX: 85.6, ratioY: 53.98), // ID card ratio
+      uiSettings: [
+        AndroidUiSettings(
+            toolbarTitle: 'Crop ID Card',
+            toolbarColor: Colors.black,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: true),
+        IOSUiSettings(
+          title: 'Crop ID Card',
+          aspectRatioLockEnabled: true,
+        ),
+      ],
     );
 
-    final tempDir = await getTemporaryDirectory();
-    final croppedFile = File('${tempDir.path}/cropped_id${DateTime.now().millisecondsSinceEpoch}.jpg');
-    await croppedFile.writeAsBytes(img.encodeJpg(croppedImage));
+    // 3. Return the path of the valid, cropped image
+    if (croppedFile != null) {
+      widget.onResponse({'image': croppedFile.path});
+    }
 
-    cameracontroller?.dispose();
-    // 8. Return the path of the cropped image
-    widget.onResponse({'image': croppedFile.path});
+    // final pictureFile = await cameracontroller!.takePicture();
+    // final imageBytes = await pictureFile.readAsBytes();
+    // final originalImage = img.decodeImage(imageBytes)!;
+    //
+    // final previewBox = previewKey.currentContext!.findRenderObject() as RenderBox;
+    // final frameBox = frameKey.currentContext!.findRenderObject() as RenderBox;
+    //
+    // // Get the render object of the preview and frame
+    // final previewSize = previewBox.size;
+    // // Get the position of the frame within the preview
+    // final framePosition = frameBox.localToGlobal(Offset.zero, ancestor: previewBox);
+    // final frameSize = frameBox.size;
+    //
+    // // Calculate the scale factor
+    // final scaleY = originalImage.height / previewSize.height;
+    // final scaleX = originalImage.width / previewSize.width;
+    //
+    // // Calculate the crop rectangle in image pixels
+    // final cropLeft = framePosition.dx * scaleX;
+    // final cropTop = framePosition.dy * scaleY;
+    // final cropWidth = frameSize.width * scaleX;
+    // final cropHeight = frameSize.height * scaleY;
+    //
+    // final croppedImage = img.copyCrop(
+    //   originalImage,
+    //   x: cropLeft.toInt(),
+    //   y: cropTop.toInt(),
+    //   width: cropWidth.toInt(),
+    //   height: cropHeight.toInt(),
+    // );
+    //
+    // final tempDir = await getTemporaryDirectory();
+    // final croppedFile = File('${tempDir.path}/cropped_id${DateTime.now().millisecondsSinceEpoch}.jpg');
+    // await croppedFile.writeAsBytes(img.encodeJpg(croppedImage));
+    //
+    // cameracontroller?.dispose();
+    // // 8. Return the path of the cropped image
+    // widget.onResponse({'image': croppedFile.path});
   }
 
   @override
   Widget build(BuildContext context) {
-    if (cameracontroller == null ||
-        !cameracontroller!.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator());
-    }
     return Scaffold(
       backgroundColor: const Color(0xFF4F4F4F),
       body: Stack(
         children: [
+          if (cameracontroller == null ||
+          !cameracontroller!.value.isInitialized)
+            const Center(child: CircularProgressIndicator())
+          else
           Positioned.fill(
             child: Center(
               child: CameraPreview(cameracontroller!, key: previewKey),
@@ -143,7 +181,7 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
                 ),
               ),
               const Text(
-                'Fit entire ID inside the above\nframe to capture.',
+                'Fit entire ID inside the above frame to capture.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
@@ -158,7 +196,7 @@ class _NewcaptureidcardState extends State<Newcaptureidcard> {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: Colors.white.withOpacity(0.3),
                     border: Border.all(color: Colors.white, width: 3),
                   ),
                   child: const Center(

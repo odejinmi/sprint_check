@@ -19,7 +19,7 @@ dependencies:
   flutter_face_core_basic: ^7.2.235
   intl: ^0.20.2
   http: ^1.6.0
-  syncfusion_flutter_gauges: ^31.2.10
+  syncfusion_flutter_gauges: ^31.2.12
   dio: ^5.9.0
   crypto: ^3.0.7
   image_picker: ^1.2.1
@@ -28,6 +28,7 @@ dependencies:
   google_mlkit_face_detection: ^0.13.1
   image: ^4.5.4 # Added for image processing
   path_provider: ^2.1.5 # Added for temporary directory
+  image_cropper: ^11.0.0 # Added for image cropping
 
 dev_dependencies:
   flutter_test:
