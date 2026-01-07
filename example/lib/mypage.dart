@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 
-import 'package:camera/camera.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +24,6 @@ class _MypageState extends State<Mypage1> {
   );
   TextEditingController bvnController = TextEditingController();
 
-  List<CameraDescription>? cameras;
   @override
   void initState() {
     super.initState();
@@ -34,7 +32,6 @@ class _MypageState extends State<Mypage1> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    cameras = await availableCameras();
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.

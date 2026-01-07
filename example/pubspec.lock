@@ -29,18 +29,18 @@ packages:
     dependency: "direct main"
     description:
       name: camera
-      sha256: eefad89f262a873f38d21e5eec853461737ea074d7c9ede39f3ceb135d201cab
+      sha256: "87a27e0553e3432119c1c2f6e4b9a1bbf7d2c660552b910bfa59185a9facd632"
       url: "https://pub.dev"
     source: hosted
-    version: "0.11.3"
+    version: "0.11.2+1"
   camera_android_camerax:
     dependency: transitive
     description:
       name: camera_android_camerax
-      sha256: b68b638e5e0ede21155e670493ac568981a8f56c5f636d720935a916a1c5a0ef
+      sha256: "2c0746d55f513bed55f52e0b5d9bda18c1533bb16bb89ea93d8033f3815e6cd8"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.24"
+    version: "0.6.23+1"
   camera_avfoundation:
     dependency: transitive
     description:
@@ -207,10 +207,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_face_api
-      sha256: df03e81be3a6e1f8595d157592ff86b693e426a5851255cbe34b6a5663d4a291
+      sha256: e8f2ad0b7d5c4cce9cd0e5aed2ed59502a8aa9e1066c375925b8daacff17d77e
       url: "https://pub.dev"
     source: hosted
-    version: "7.2.540"
+    version: "7.2.626"
   flutter_face_core_basic:
     dependency: transitive
     description:
@@ -294,10 +294,10 @@ packages:
     dependency: transitive
     description:
       name: image
-      sha256: "4e973fcf4caae1a4be2fa0a13157aa38a8f9cb049db6529aa00b4d71abc4d928"
+      sha256: "492bd52f6c4fbb6ee41f781ff27765ce5f627910e1e0cbecfa3d9add5562604c"
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.4"
+    version: "4.7.2"
   image_cropper:
     dependency: transitive
     description:
@@ -411,26 +411,26 @@ packages:
     dependency: transitive
     description:
       name: leak_tracker
-      sha256: "8dcda04c3fc16c14f48a7bb586d4be1f0d1572731b6d81d51772ef47c02081e0"
+      sha256: "6bb818ecbdffe216e81182c2f0714a2e62b593f4a4f13098713ff1685dfb6ab0"
       url: "https://pub.dev"
     source: hosted
-    version: "11.0.1"
+    version: "10.0.9"
   leak_tracker_flutter_testing:
     dependency: transitive
     description:
       name: leak_tracker_flutter_testing
-      sha256: "1dbc140bb5a23c75ea9c4811222756104fbcd1a27173f0c34ca01e16bea473c1"
+      sha256: f8b613e7e6a13ec79cfdc0e97638fddb3ab848452eff057653abd3edba760573
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.10"
+    version: "3.0.9"
   leak_tracker_testing:
     dependency: transitive
     description:
       name: leak_tracker_testing
-      sha256: "8d5a2d49f4a66b49744b23b018848400d23e54caf9463f4eb20df3eb8acb2eb1"
+      sha256: "6ba465d5d76e67ddf503e1161d1f4a6bc42306f9d66ca1e8f079a47290fb06d3"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.2"
+    version: "3.0.1"
   lints:
     dependency: transitive
     description:
@@ -459,10 +459,10 @@ packages:
     dependency: transitive
     description:
       name: meta
-      sha256: "23f08335362185a5ea2ad3a4e597f1375e78bce8a040df5c600c8d3552ef2394"
+      sha256: e3641ec5d63ebf0d9b41bd43201a66e3fc79a65db5f61fc181f04cd27aab950c
       url: "https://pub.dev"
     source: hosted
-    version: "1.17.0"
+    version: "1.16.0"
   mime:
     dependency: transitive
     description:
@@ -635,6 +635,13 @@ packages:
       relative: true
     source: path
     version: "0.1.0"
+  sprintliveness:
+    dependency: transitive
+    description:
+      path: "../../SprintLiveness"
+      relative: true
+    source: path
+    version: "0.0.1"
   stack_trace:
     dependency: transitive
     description:
@@ -679,18 +686,18 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: fea2b5f6c976455d20b19bf77d29bf96a740d14579127b4fc1cdafde42b48177
+      sha256: "2d878bce96c4fd1092205a4f72b328f7f05d86b27c3bd55db7fd440e6017352a"
       url: "https://pub.dev"
     source: hosted
-    version: "31.2.12"
+    version: "31.1.19"
   syncfusion_flutter_gauges:
     dependency: transitive
     description:
       name: syncfusion_flutter_gauges
-      sha256: "9dde41f625dc441dcd6242610015b3dea89e621cb8763a3b232107157ec32cdd"
+      sha256: "243d0da6809d9ebbeda2d7764b1d0458fc8a5a41005228d78241a28556ee99d1"
       url: "https://pub.dev"
     source: hosted
-    version: "31.2.12"
+    version: "31.1.19"
   term_glyph:
     dependency: transitive
     description:
@@ -703,10 +710,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: ab2726c1a94d3176a45960b6234466ec367179b87dd74f1611adb1f3b5fb9d55
+      sha256: fb31f383e2ee25fbbfe06b40fe21e1e458d14080e3c67e7ba0acfde4df4e0bbd
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.7"
+    version: "0.7.4"
   typed_data:
     dependency: transitive
     description:
@@ -719,10 +726,10 @@ packages:
     dependency: transitive
     description:
       name: vector_math
-      sha256: d530bd74fea330e6e364cda7a85019c434070188383e1cd8d9777ee586914c5b
+      sha256: "80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.1.4"
   vm_service:
     dependency: transitive
     description:
@@ -764,5 +771,5 @@ packages:
     source: hosted
     version: "6.6.1"
 sdks:
-  dart: ">=3.9.0 <4.0.0"
-  flutter: ">=3.35.1"
+  dart: ">=3.8.1 <4.0.0"
+  flutter: ">=3.32.8"

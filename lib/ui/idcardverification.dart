@@ -70,7 +70,7 @@ class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverificatio
 
       });
     }):
-    Scorepage(score: score, checkoutmethod: widget.checkoutmethod,onResponse: (res)
+    Scorepage(score: score, checkoutmethod: widget.checkoutmethod, message: message,onResponse: (res)
     {
       var response = CheckoutResponse(
         message: message,

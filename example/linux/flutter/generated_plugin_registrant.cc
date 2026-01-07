@@ -8,6 +8,7 @@
 
 #include <file_selector_linux/file_selector_plugin.h>
 #include <sprint_check/sprint_check_plugin.h>
+#include <sprintliveness/sprintliveness_plugin.h>
 
 void fl_register_plugins(FlPluginRegistry* registry) {
   g_autoptr(FlPluginRegistrar) file_selector_linux_registrar =
@@ -16,4 +17,7 @@ void fl_register_plugins(FlPluginRegistry* registry) {
   g_autoptr(FlPluginRegistrar) sprint_check_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "SprintCheckPlugin");
   sprint_check_plugin_register_with_registrar(sprint_check_registrar);
+  g_autoptr(FlPluginRegistrar) sprintliveness_registrar =
+      fl_plugin_registry_get_registrar_for_plugin(registry, "SprintlivenessPlugin");
+  sprintliveness_plugin_register_with_registrar(sprintliveness_registrar);
 }

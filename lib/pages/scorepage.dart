@@ -8,8 +8,9 @@ import '../sprint_check_method_channel.dart';
 class Scorepage extends StatefulWidget {
   final double score;
   final CheckoutMethod checkoutmethod;
+  final String message;
   final Function (Map<String, dynamic>) onResponse;
-  const Scorepage({super.key, required this.score, required this.checkoutmethod, required this.onResponse});
+  const Scorepage({super.key, required this.score, required this.checkoutmethod, required this.onResponse, required this.message});
 
   @override
   _ScorepageState createState() => _ScorepageState();
@@ -150,7 +151,7 @@ class _ScorepageState extends State<Scorepage> {
             ),
           ),
           Text(
-            widget.score > 50? '$checmethod Verified': 'Invalid $checmethod Provided',
+            widget.score > 50? '$checmethod Verified': 'Invalid $checmethod Provided, \n ${widget.message} ',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: const Color(0xFF7D7D7D),

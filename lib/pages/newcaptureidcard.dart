@@ -1,11 +1,7 @@
-import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image/image.dart' as img;
 import 'package:image_cropper/image_cropper.dart';
-import 'package:path_provider/path_provider.dart';
 
 class Newcaptureidcard extends StatefulWidget {
   final Function(Map<String, dynamic>) onResponse;

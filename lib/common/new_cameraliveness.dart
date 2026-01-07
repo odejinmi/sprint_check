@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_face_api/flutter_face_api.dart';
+import 'package:sprintliveness/sprintliveness.dart';
+import 'package:sprintliveness/model/liveness_response.dart';
 
 class NewCameraliveness {
 
@@ -10,6 +13,7 @@ class NewCameraliveness {
     initialize();
   }
 
+  final _sprintlivenessPlugin = Sprintliveness();
   Future<FaceCaptureImage?> takepicture() async {
     var response = await faceSdk.startFaceCapture();
     return response.image;
@@ -39,14 +43,9 @@ class NewCameraliveness {
   MatchFacesImage? mfImage1;
   MatchFacesImage? mfImage2;
 
-  Future<LivenessResponse?> startLiveness() async {
+  Future<LivenessResult?> startLiveness(BuildContext context) async {
     dev.log("start liveness");
-    var result = await faceSdk.startLiveness(
-      config: LivenessConfig(skipStep: [LivenessSkipStep.ONBOARDING_STEP]),
-      notificationCompletion: (notification) {
-        // dev.log(notification.status);
-      },
-    );
+    var result = await _sprintlivenessPlugin.startLivenessCheck(context);
     return result;
   }
 

@@ -88,7 +88,6 @@ class _IdcardpageState extends State<Idcardpage> {
     }) : SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20,
         children: [
           Text(widget.idcard['name']!,
             style: TextStyle(
@@ -99,6 +98,7 @@ class _IdcardpageState extends State<Idcardpage> {
               height: 1.78,
             ),
           ),
+          SizedBox(height: 20),
           Container(
             width:double.infinity,
             height: _image != null ? null : 183,
@@ -112,10 +112,10 @@ class _IdcardpageState extends State<Idcardpage> {
                 borderRadius: BorderRadius.circular(8),
               ),
               color: Colors.white,
-              image: DecorationImage(
+              image: _image == null ? DecorationImage(
                 image: AssetImage('assets/Input.png', package: "sprint_check"),
                 fit: BoxFit.fill,
-              ),
+              ) : null,
             ),
             child: Stack(
               children: [
@@ -131,22 +131,24 @@ class _IdcardpageState extends State<Idcardpage> {
                       setState(() {
                       });
                     },
-                    child: Image.asset('assets/capture.png',
+                    child: Image.asset('assets/capture.png', 
                       package: "sprint_check", height: 40,
                     ),
                   ),
                 ),
                 if(_image != null)
-                Center(
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        _image = null;
-                        stage = 0;
-                      });
-                    },
-                    child: Image.asset('assets/delete.png',
-                      package: "sprint_check", height: 40,
+                Positioned.fill(
+                  child: Center(
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _image = null;
+                          stage = 0;
+                        });
+                      },
+                      child: Image.asset('assets/delete.png',
+                        package: "sprint_check", height: 40,
+                      ),
                     ),
                   ),
                 ),
@@ -158,12 +160,9 @@ class _IdcardpageState extends State<Idcardpage> {
           Column(
             children: [
               Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 7,
                 children: [
                   SizedBox(width: 20, height: 20, child: Icon(Icons.done, color: Colors.black)),
+                  SizedBox(width: 7),
                   Expanded(
                     child: Text(
                       'We need and collect your Full name, Photo, Address, Date of birth',
@@ -178,12 +177,11 @@ class _IdcardpageState extends State<Idcardpage> {
                   ),
                 ],
               ),
+              SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 7,
                 children: [
                   SizedBox(width: 20, height: 20, child: Icon(Icons.done, color: Colors.black)),
+                  SizedBox(width: 7),
                   Expanded(
                     child: Text(
                       'Stay in a bright lite environment',
@@ -198,12 +196,11 @@ class _IdcardpageState extends State<Idcardpage> {
                   ),
                 ],
               ),
+              SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 7,
                 children: [
                   SizedBox(width: 20, height: 20, child: Icon(Icons.done, color: Colors.black)),
+                  SizedBox(width: 7),
                   Expanded(
                     child: Text(
                       'This verification step helps us confirm it’s really you. Do not share your code or authentication details with anyone, even if they claim to be from our team.',
@@ -264,7 +261,7 @@ class _IdcardpageState extends State<Idcardpage> {
                     ),
                   ),
                 ),
-              ),
+              )
             ],
           ):
           stage == 1?
@@ -300,18 +297,17 @@ class _IdcardpageState extends State<Idcardpage> {
               ],
             ),
           ):
-          Container(
+          SizedBox(
             width: 338,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
               children: [
                 if(idcardinfo!.faceImagePath != null)
                 Image.file(File(idcardinfo!.faceImagePath!),
                   fit: BoxFit.fill,
                 ),
+                SizedBox(height: 10),
                 Text(
                   "Id Card Number: ${idcardinfo?.idNumber??""}",
                   style: TextStyle(
@@ -322,6 +318,7 @@ class _IdcardpageState extends State<Idcardpage> {
                     letterSpacing: -0.41,
                   ),
                 ),
+                SizedBox(height: 10),
                 Text(
                   "Name: ${idcardinfo?.firstName ?? ""} ${idcardinfo?.middleName ?? ""} ${idcardinfo?.lastName ?? ""}",
                   style: TextStyle(
@@ -332,6 +329,7 @@ class _IdcardpageState extends State<Idcardpage> {
                     letterSpacing: -0.41,
                   ),
                 ),
+                SizedBox(height: 10),
                 Text(
                   "Date of Birth: ${idcardinfo?.dateOfBirth??""}",
                   style: TextStyle(
@@ -355,6 +353,7 @@ class _IdcardpageState extends State<Idcardpage> {
                     ),
                   ),
                 ),
+                SizedBox(height: 20),
                 InkWell(
                   onTap: () async {
                     File file = File(idcardinfo!.faceImagePath!);
@@ -394,6 +393,7 @@ class _IdcardpageState extends State<Idcardpage> {
               ],
             ),
           ),
+          SizedBox(height: 20,),
           Center(
             child: Text(
               'Powered by SprintCheck',
