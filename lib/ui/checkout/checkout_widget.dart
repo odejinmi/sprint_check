@@ -104,15 +104,4 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
     return CheckoutResponse.defaults();
   }
 
-  CheckoutResponse _getResponse() {
-    CheckoutResponse? response = _response;
-    if (response == null) {
-      response = CheckoutResponse.defaults();
-      response.method = method;
-    }
-    // if (response.card != null) {
-    //   response.card!.nullifyNumber();
-    // }
-    return response;
-  }
 }

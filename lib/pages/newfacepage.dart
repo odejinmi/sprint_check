@@ -1,4 +1,5 @@
 import 'dart:async';
+// import 'dart:convert';
 
 import 'package:flutter/material.dart';
 // import 'package:flutter_face_api/flutter_face_api.dart';
@@ -279,6 +280,13 @@ class _NewfacepageState extends State<Newfacepage> {
               // score = 94;
               // enrollmentdata = "ODEJINMI TOLULOPE ABRAHAM";
               // setState(() {});
+              // LivenessResponse? pickedFile =
+              // await faceapi.startLiveness();
+              // if (pickedFile != null && pickedFile.image != null) {
+              //   var captureimage = base64Encode(pickedFile.image!);
+              //   // controller.loading(context);
+              //   compareimage(captureimage, widget.bvnimage);
+              // }
               LivenessResult? pickedFile =
               await faceapi.startLiveness(context);
               if (pickedFile != null && pickedFile.image != null) {
