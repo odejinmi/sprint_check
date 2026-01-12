@@ -40,4 +40,7 @@
 ## 0.1.3
 * Sprint liveness integrated back and error fixed
 
+## 0.1.4
+* Bug fixed
+
 
