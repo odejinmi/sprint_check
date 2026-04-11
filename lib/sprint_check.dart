@@ -9,8 +9,8 @@ class SprintCheck {
     return SprintCheckPlatform.instance.getPlatformVersion();
   }
 
-  initialize({required String api_key, required String encryption_key}) {
-    SprintCheckPlatform.instance.initialize(
+  Future<Map<String, dynamic>> initialize({required String api_key, required String encryption_key}) {
+    return SprintCheckPlatform.instance.initialize(
       publicKey: api_key,
       secretKey: encryption_key,
     );

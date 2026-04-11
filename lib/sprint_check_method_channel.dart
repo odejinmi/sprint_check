@@ -33,33 +33,28 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
   /// Please check [checkout] for more information
   ///
   @override
-  initialize({required String publicKey, required String secretKey}) async {
+  Future<Map<String, dynamic>> initialize({required String publicKey, required String secretKey}) async {
     assert(() {
       if (publicKey.isEmpty) {
         throw SprintCheckException('publicKey cannot be null or empty');
-        // } else if (!publicKey.startsWith("pk_")) {
-        //   throw SprintCheckException(Utils.getKeyErrorMsg('public'));
       } else if (secretKey.isEmpty) {
         throw SprintCheckException('secretKey cannot be null or empty');
-        // } else if (!secretKey.startsWith("sk_")) {
-        //   throw SprintCheckException(Utils.getKeyErrorMsg('secret'));
       } else {
         return true;
       }
     }());
 
-    if (controller.sdkInitialized) return;
+    if (controller.sdkInitialized) return {"status": false, "message":"SDK already initialized"};
 
-    publicKey = publicKey;
-
-    // Using cascade notation to build the platform specific info
     try {
-      // platformInfo = (await PlatformInfo.getinfo())!;
       controller.publicKey = publicKey;
       controller.secretKey = secretKey;
       controller.sdkInitialized = true;
-    } on PlatformException {
-      rethrow;
+      return {"status": true, "message":"SDK initialized successfully"};
+    } on PlatformException catch (e) {
+      return {"status": false, "message":e.message ?? "Failed to initialize SDK"};
+    } catch (e) {
+      return {"status":false, "message":e.toString()};
     }
   }
 
@@ -76,17 +71,9 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     //validate that sdk has been initialized
     _validateSdkInitialized();
     //check for null value, and length and starts with pk_
-    if (controller
-        .publicKey
-        .isEmpty //||
-    // !controller.publicKey.startsWith("pk_")
-    ) {
+    if (controller.publicKey.isEmpty) {
       throw AuthenticationException(Utils.getKeyErrorMsg('public'));
-    } else if (controller
-        .secretKey
-        .isEmpty //||
-    //  !controller.secretKey.startsWith("sk_")
-    ) {
+    } else if (controller.secretKey.isEmpty) {
       throw AuthenticationException(Utils.getKeyErrorMsg('secret'));
     }
   }
@@ -99,10 +86,6 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     String? bvn,
     String? nin,
   }) async {
-    // assert(() {
-    //   _validateChargeAndKey(charge);
-    //   return true;
-    // }());
     _performChecks();
     controller.checkoutmethod = checkoutmethod;
     controller.identifier = identifier;

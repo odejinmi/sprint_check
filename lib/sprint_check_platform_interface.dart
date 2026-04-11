@@ -29,8 +29,8 @@ abstract class SprintCheckPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
-  initialize({required String publicKey, required String secretKey}) {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+  Future<Map<String, dynamic>> initialize({required String publicKey, required String secretKey}) {
+    throw UnimplementedError('initialize() has not been implemented.');
   }
 
   Future<CheckoutResponse> checkout(
@@ -40,6 +40,6 @@ abstract class SprintCheckPlatform extends PlatformInterface {
     String? bvn,
     String? nin,
   }) async {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+    throw UnimplementedError('checkout() has not been implemented.');
   }
 }
