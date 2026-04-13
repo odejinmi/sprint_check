@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
@@ -85,7 +86,7 @@ class Diorequest {
       final options = Options(headers: header);
       response = await dio.post(url, options: options, data: data);
       if (response.statusCode == 200) {
-        debugPrint(jsonEncode(response.data));
+        dev.log(jsonEncode(response.data));
         return response.data;
       } else if (response.statusCode == 401) {
         return {

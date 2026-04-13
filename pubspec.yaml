@@ -29,9 +29,9 @@ dependencies:
   image: ^4.8.0 # Added for image processing
   path_provider: ^2.1.5 # Added for temporary directory
   image_cropper: ^11.0.0 # Added for image cropping
-  sprintliveness: ^0.0.3
+  sprintliveness:
+      path: ../SprintLiveness
   permission_handler: ^12.0.1
-#    path: ../SprintLiveness
 
 
 dev_dependencies:
