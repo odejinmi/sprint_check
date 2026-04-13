@@ -19,17 +19,18 @@ dependencies:
   flutter_face_core_basic: ^7.2.235
   intl: ^0.20.2
   http: ^1.6.0
-  syncfusion_flutter_gauges: ^31.1.19
-  dio: ^5.9.0
+  syncfusion_flutter_gauges: ^33.1.47
+  dio: ^5.9.2
   crypto: ^3.0.7
   image_picker: ^1.2.1
-  google_mlkit_text_recognition: ^0.15.0
-  camera: ^0.11.2
-  google_mlkit_face_detection: ^0.13.1
-  image: ^4.7.2 # Added for image processing
+  google_mlkit_text_recognition: ^0.15.1
+  camera: ^0.11.4
+  google_mlkit_face_detection: ^0.13.2
+  image: ^4.8.0 # Added for image processing
   path_provider: ^2.1.5 # Added for temporary directory
   image_cropper: ^11.0.0 # Added for image cropping
-  sprintliveness: ^0.0.2
+  sprintliveness: ^0.0.3
+  permission_handler: ^12.0.1
 #    path: ../SprintLiveness
 
 

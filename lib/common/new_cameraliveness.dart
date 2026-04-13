@@ -4,9 +4,10 @@ import 'dart:developer' as dev;
 // import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_face_api/flutter_face_api.dart';
+import 'package:flutter_face_api/flutter_face_api.dart' hide LivenessException, LivenessErrorCode;
 import 'package:sprintliveness/sprintliveness.dart';
 import 'package:sprintliveness/model/liveness_response.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class NewCameraliveness {
 
@@ -47,8 +48,9 @@ class NewCameraliveness {
 
   Future<LivenessResult?> startLiveness(BuildContext context) async {
     dev.log("start liveness");
-    var result = await _sprintlivenessPlugin.startLivenessCheck(context);
-    return result;
+    var livenessResult = await _sprintlivenessPlugin.startLivenessCheck(context);
+    dev.log("liveness result: $livenessResult");
+    return livenessResult;
   }
   // Future<LivenessResponse?> startLiveness() async {
   //   dev.log("start liveness");

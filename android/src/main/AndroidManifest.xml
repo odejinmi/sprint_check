@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="com.a5starcompany.sprint_check">
+    <uses-permission android:name="android.permission.CAMERA" />
     <application>
     <activity
         android:name="com.yalantis.ucrop.UCropActivity"
