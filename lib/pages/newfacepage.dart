@@ -85,7 +85,7 @@ class _NewfacepageState extends State<Newfacepage> {
     var result = await faceapi.comparefaceKyc(captureimage, bvnimage);
     // dev.log("image compare result $result");
     score = result;
-    postdetails();
+    postdetails(captureimage);
   }
 
   @override
@@ -339,13 +339,13 @@ class _NewfacepageState extends State<Newfacepage> {
     );
   }
 
-  Future<void> postdetails() async {
+  Future<void> postdetails(String captureimage) async {
     var result = await Diorequest().put(checmethod.toLowerCase(), {
       'number': widget.charge.bvn,
       'reference': widget.reference,
       'identifier': widget.charge.identifier,
       'confidence': score.toInt(),
-      'image': widget.bvnimage,
+      'image': captureimage,
     }, widget.publicKey, widget.secretKey,);
     // var result = {"success":1,"message":"Recorded Successfully","data":"ODEJINMI TOLULOPE ABRAHAM"}
     stage = 2;
