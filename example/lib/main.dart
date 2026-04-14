@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 
-import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sprint_check/sprint_check.dart';
@@ -235,74 +234,4 @@ class _MypageState extends State<Mypage> {
     );
   }
 
-  // AES-GCM with 256-bit key
-  final algorithm = AesGcm.with256bits();
-  Future<void> startEncryption() async {
-    // AES-256 requires a 32-byte key
-    final keyBytes = utf8.encode('BaVkxaDFoNzI2U0FHa2o1OTJ2aytEeVY');
-    final secretKey = SecretKey(keyBytes);
-
-    // Generate a 12-byte random IV (nonce)
-    final nonce = algorithm.newNonce(); // 12-byte random nonce
-
-    var body = {"email": "odejinmiabraham@gmail.com", "password": "adeyemi"};
-    var jsonbody1 = jsonEncode(body);
-
-    // Calculate string length (number of characters)
-    final length = jsonbody1.length;
-
-    // Build PHP-style serialized string
-    final phpSerialized = 's:$length:"$jsonbody1";';
-
-    dev.log(phpSerialized);
-    var unrfy1 = utf8.encode(phpSerialized);
-
-    // Encrypt
-    final secretBox = await algorithm.encrypt(
-      unrfy1,
-      secretKey: secretKey,
-      nonce: nonce,
-    );
-
-    // Build JSON structure similar to Laravel
-    final jsonResult = {
-      "iv": base64Encode(secretBox.nonce), // 12-byte IV
-      "value": base64Encode(secretBox.cipherText), // ciphertext
-      "mac": "", // Laravel leaves empty for GCM
-      "tag": base64Encode(secretBox.mac.bytes), // 16-byte tag
-    };
-    var jsonbody = jsonEncode(jsonResult);
-    dev.log(jsonbody);
-    var unrfy = utf8.encode(jsonbody);
-    dev.log(base64Encode(unrfy));
-
-    // --- Decrypt to verify ---
-    // final decrypted = await algorithm.decrypt(secretBox, secretKey: secretKey);
-    // dev.log('Decrypted: ${utf8.decode(decrypted)}');
-  }
-
-  void decryptData() async {
-    // AES-256 requires a 32-byte key
-    final keyBytes = utf8.encode('BaVkxaDFoNzI2U0FHa2o1OTJ2aytEeVY');
-    final secretKey = SecretKey(keyBytes);
-
-    var data =
-        "eyJpdiI6InVwZzNCUUxVMTJJd2l2emUiLCJ2YWx1ZSI6ImRGbXlUTTNyWXgwbVBuL1IwTFZUOTFkV2ZSUkRLWnNlVFJOaDNYdVBTdk9kYzY5L1hWWFp0d1djS09pTFJ3cXpwa01PeU5LOVhSQkZmTVFROG1vSnplTT0iLCJtYWMiOiIiLCJ0YWciOiI0WisvUlBySWRIMUU2R011S3ZnWWNRPT0ifQ==";
-    var unrfy = base64Decode(data);
-    dev.log(unrfy.toString());
-    var body = utf8.decode(unrfy);
-    dev.log(body);
-    var bodyJson = jsonDecode(body);
-    dev.log(bodyJson);
-    final decrypted = await algorithm.decrypt(
-      SecretBox(
-        base64Decode(bodyJson["value"]),
-        nonce: base64Decode(bodyJson["iv"]),
-        mac: Mac(base64Decode(bodyJson["tag"])),
-      ),
-      secretKey: secretKey,
-    );
-    dev.log(utf8.decode(decrypted));
-    // dev.log('Decrypted: ${utf8.decode(decrypted)}');
-  }
 }
