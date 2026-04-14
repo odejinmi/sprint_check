@@ -1,6 +1,13 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:image/image.dart' as img;
+import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Result of a single face detection
 class FaceDetectionResult {
@@ -49,15 +56,22 @@ class FaceComparisonResult {
   }
 }
 
-/// Main Face Detection Service using Google ML Kit
+/// Main Face Detection Service using Google ML Kit and FaceNet TFLite
 class FaceDetectorService {
   late final FaceDetector _faceDetector;
+  Interpreter? _faceNetInterpreter;
   bool _isInitialized = false;
+  bool _modelLoading = false;
+  
+  // FaceNet model expects 160x160 input
+  static const int _inputSize = 160;
+  static const int _embeddingSize = 128;
 
-  /// Initialize the face detector with all features enabled
+  /// Initialize the face detector and FaceNet model
   Future<void> initialize() async {
     if (_isInitialized) return;
 
+    // Initialize ML Kit face detector
     final options = FaceDetectorOptions(
       enableClassification: true,
       enableLandmarks: true,
@@ -68,7 +82,58 @@ class FaceDetectorService {
     );
 
     _faceDetector = FaceDetector(options: options);
+    
+    // Load FaceNet TFLite model
+    await _loadFaceNetModel();
+    
     _isInitialized = true;
+  }
+
+  /// Load the FaceNet TFLite model from assets
+  Future<void> _loadFaceNetModel() async {
+    if (_faceNetInterpreter != null || _modelLoading) return;
+    
+    _modelLoading = true;
+    try {
+      // Copy model from assets to temporary file (required for TFLite)
+      final modelPath = await _getModelFilePath();
+      
+      final interpreterOptions = InterpreterOptions();
+      
+      _faceNetInterpreter = Interpreter.fromFile(
+        File(modelPath),
+        options: interpreterOptions,
+      );
+      
+      debugPrint('FaceNet model loaded successfully');
+    } catch (e) {
+      debugPrint('Failed to load FaceNet model: $e');
+      // Model loading failed, will fall back to geometric embeddings
+    } finally {
+      _modelLoading = false;
+    }
+  }
+
+  /// Get the model file path, copying from assets if necessary
+  Future<String> _getModelFilePath() async {
+    // Try to load from assets
+    try {
+      final data = await rootBundle.load('assets/facenet.tflite');
+      final bytes = data.buffer.asUint8List();
+      
+      // Write to temporary file
+      final tempDir = await getTemporaryDirectory();
+      final modelFile = File('${tempDir.path}/facenet.tflite');
+      
+      if (!await modelFile.exists()) {
+        await modelFile.writeAsBytes(bytes);
+      }
+      
+      return modelFile.path;
+    } catch (e) {
+      debugPrint('Error loading model from assets: $e');
+      rethrow;
+    }
   }
 
   /// Detect faces from an InputImage
@@ -89,8 +154,8 @@ class FaceDetectorService {
       // Estimate gender from face features (heuristic)
       final estimatedGender = _estimateGender(face);
 
-      // Generate face embedding for comparison
-      final embedding = _generateFaceEmbedding(face);
+      // Generate face embedding using FaceNet or fall back to geometric
+      final embedding = await _generateFaceEmbedding(face, inputImage);
 
       results.add(FaceDetectionResult(
         face: face,
@@ -105,6 +170,356 @@ class FaceDetectorService {
     }
 
     return results;
+  }
+
+  /// Generate face embedding using FaceNet TFLite model
+  Future<Float64List?> _generateFaceEmbedding(Face face, InputImage inputImage) async {
+    // If FaceNet model is loaded, use it for proper embeddings
+    if (_faceNetInterpreter != null) {
+      try {
+        final embedding = await _generateFaceNetEmbedding(face, inputImage);
+        if (embedding != null) return embedding;
+      } catch (e) {
+        debugPrint('FaceNet embedding failed, falling back to geometric: $e');
+      }
+    }
+    
+    // Fall back to geometric embedding
+    return _generateGeometricEmbedding(face);
+  }
+
+  /// Generate embedding using FaceNet TFLite model
+  Future<Float64List?> _generateFaceNetEmbedding(Face face, InputImage inputImage) async {
+    try {
+      // Get the input image bytes
+      final imageData = await _getImageData(inputImage);
+      if (imageData == null) return null;
+      
+      // Crop and preprocess face
+      final faceImage = _cropAndPreprocessFace(face, imageData);
+      if (faceImage == null) return null;
+      
+      // Prepare input tensor [1, 160, 160, 3]
+      final input = _prepareInputTensor(faceImage);
+      
+      // Prepare output tensor [1, 128]
+      final output = List.generate(1, (_) => List.filled(_embeddingSize, 0.0))
+          .reshape([1, _embeddingSize]);
+      
+      // Run inference
+      _faceNetInterpreter!.run(input, output);
+      
+      // Convert to Float64List
+      final embedding = Float64List(_embeddingSize);
+      for (int i = 0; i < _embeddingSize; i++) {
+        embedding[i] = output[0][i];
+      }
+      
+      // Normalize the embedding
+      _normalizeEmbedding(embedding);
+      
+      return embedding;
+    } catch (e) {
+      debugPrint('Error generating FaceNet embedding: $e');
+      return null;
+    }
+  }
+
+  /// Get image data from InputImage
+  Future<img.Image?> _getImageData(InputImage inputImage) async {
+    try {
+      if (inputImage.filePath != null) {
+        final file = File(inputImage.filePath!);
+        final bytes = await file.readAsBytes();
+        return img.decodeImage(bytes);
+      }
+      // For other input types (bytes, etc.), we would need additional handling
+      return null;
+    } catch (e) {
+      debugPrint('Error getting image data: $e');
+      return null;
+    }
+  }
+
+  /// Crop and preprocess face image for FaceNet
+  img.Image? _cropAndPreprocessFace(Face face, img.Image fullImage) {
+    try {
+      final box = face.boundingBox;
+      
+      // Add margin around face (20% on each side)
+      final marginX = box.width * 0.2;
+      final marginY = box.height * 0.2;
+      
+      final left = (box.left - marginX).clamp(0.0, fullImage.width.toDouble());
+      final top = (box.top - marginY).clamp(0.0, fullImage.height.toDouble());
+      final right = (box.right + marginX).clamp(0.0, fullImage.width.toDouble());
+      final bottom = (box.bottom + marginY).clamp(0.0, fullImage.height.toDouble());
+      
+      final width = right - left;
+      final height = bottom - top;
+      
+      // Crop the face region
+      final croppedFace = img.copyCrop(
+        fullImage,
+        x: left.toInt(),
+        y: top.toInt(),
+        width: width.toInt(),
+        height: height.toInt(),
+      );
+      
+      // Resize to 160x160 (FaceNet input size)
+      final resizedFace = img.copyResize(
+        croppedFace,
+        width: _inputSize,
+        height: _inputSize,
+        interpolation: img.Interpolation.linear,
+      );
+      
+      return resizedFace;
+    } catch (e) {
+      debugPrint('Error cropping face: $e');
+      return null;
+    }
+  }
+
+  /// Prepare input tensor for FaceNet model
+  List<List<List<List<double>>>> _prepareInputTensor(img.Image faceImage) {
+    // Create input tensor [1, 160, 160, 3]
+    final input = List.generate(
+      1,
+      (_) => List.generate(
+        _inputSize,
+        (y) => List.generate(
+          _inputSize,
+          (x) {
+            final pixel = faceImage.getPixel(x, y);
+            // FaceNet expects normalized values [-1, 1] or [0, 1]
+            // Using [0, 1] normalization
+            return [
+              pixel.r / 255.0,
+              pixel.g / 255.0,
+              pixel.b / 255.0,
+            ];
+          },
+        ),
+      ),
+    );
+    
+    return input;
+  }
+
+  /// Normalize embedding vector (L2 normalization)
+  void _normalizeEmbedding(Float64List embedding) {
+    double norm = 0.0;
+    for (int i = 0; i < embedding.length; i++) {
+      norm += embedding[i] * embedding[i];
+    }
+    norm = sqrt(norm);
+    
+    if (norm > 0) {
+      for (int i = 0; i < embedding.length; i++) {
+        embedding[i] /= norm;
+      }
+    }
+  }
+
+  /// Generate a face embedding vector using geometric features (fallback)
+  Float64List _generateGeometricEmbedding(Face face) {
+    final embedding = Float64List(128);
+    final box = face.boundingBox;
+
+    // Normalize bounding box features (4 values)
+    embedding[0] = box.width / 1000.0;
+    embedding[1] = box.height / 1000.0;
+    embedding[2] = box.height / box.width;
+    embedding[3] = box.left / 1000.0;
+    embedding[4] = box.top / 1000.0;
+
+    // Head angles (3 values)
+    embedding[5] = (face.headEulerAngleX ?? 0.0) / 45.0;
+    embedding[6] = (face.headEulerAngleY ?? 0.0) / 45.0;
+    embedding[7] = (face.headEulerAngleZ ?? 0.0) / 45.0;
+
+    // Classification features (3 values)
+    embedding[8] = face.smilingProbability ?? 0.0;
+    embedding[9] = face.leftEyeOpenProbability ?? 0.0;
+    embedding[10] = face.rightEyeOpenProbability ?? 0.0;
+
+    // Landmark-based features (normalized positions)
+    int idx = 11;
+    final landmarkTypes = [
+      FaceLandmarkType.leftEye,
+      FaceLandmarkType.rightEye,
+      FaceLandmarkType.noseBase,
+      FaceLandmarkType.leftMouth,
+      FaceLandmarkType.rightMouth,
+      FaceLandmarkType.bottomMouth,
+      FaceLandmarkType.leftEar,
+      FaceLandmarkType.rightEar,
+      FaceLandmarkType.leftCheek,
+      FaceLandmarkType.rightCheek,
+    ];
+
+    for (final type in landmarkTypes) {
+      final landmark = face.landmarks[type];
+      if (landmark != null && idx + 1 < 128) {
+        // Normalize relative to bounding box
+        embedding[idx] = (landmark.position.x - box.left) / box.width;
+        embedding[idx + 1] = (landmark.position.y - box.top) / box.height;
+        idx += 2;
+      } else if (idx + 1 < 128) {
+        embedding[idx] = 0.0;
+        embedding[idx + 1] = 0.0;
+        idx += 2;
+      }
+    }
+
+    // Inter-landmark distances (normalized)
+    final leftEye = face.landmarks[FaceLandmarkType.leftEye];
+    final rightEye = face.landmarks[FaceLandmarkType.rightEye];
+    final nose = face.landmarks[FaceLandmarkType.noseBase];
+    final leftMouth = face.landmarks[FaceLandmarkType.leftMouth];
+    final rightMouth = face.landmarks[FaceLandmarkType.rightMouth];
+    final bottomMouth = face.landmarks[FaceLandmarkType.bottomMouth];
+    final leftCheek = face.landmarks[FaceLandmarkType.leftCheek];
+    final rightCheek = face.landmarks[FaceLandmarkType.rightCheek];
+
+    // Eye distance
+    if (leftEye != null && rightEye != null && idx < 128) {
+      final eyeDist = _pointDistance(leftEye.position, rightEye.position);
+      embedding[idx++] = eyeDist / box.width;
+    }
+    
+    // Eye to nose distances
+    if (leftEye != null && nose != null && idx < 128) {
+      embedding[idx++] = _pointDistance(leftEye.position, nose.position) / box.height;
+    }
+    if (rightEye != null && nose != null && idx < 128) {
+      embedding[idx++] = _pointDistance(rightEye.position, nose.position) / box.height;
+    }
+    
+    // Mouth width
+    if (leftMouth != null && rightMouth != null && idx < 128) {
+      embedding[idx++] = _pointDistance(leftMouth.position, rightMouth.position) / box.width;
+    }
+    
+    // Nose to mouth distance
+    if (nose != null && bottomMouth != null && idx < 128) {
+      embedding[idx++] = _pointDistance(nose.position, bottomMouth.position) / box.height;
+    }
+    
+    // Eye to cheek distances
+    if (leftEye != null && leftCheek != null && idx < 128) {
+      embedding[idx++] = _pointDistance(leftEye.position, leftCheek.position) / box.width;
+    }
+    if (rightEye != null && rightCheek != null && idx < 128) {
+      embedding[idx++] = _pointDistance(rightEye.position, rightCheek.position) / box.width;
+    }
+
+    // Fill remaining with contour-based features
+    final contourTypes = [
+      FaceContourType.face,
+      FaceContourType.noseBridge,
+    ];
+
+    for (final type in contourTypes) {
+      final contour = face.contours[type];
+      if (contour != null && contour.points.isNotEmpty) {
+        final points = contour.points;
+        for (final pt in points) {
+          if (idx + 1 < 128) {
+            embedding[idx] = (pt.x - box.left) / box.width;
+            embedding[idx + 1] = (pt.y - box.top) / box.height;
+            idx += 2;
+          }
+        }
+      }
+    }
+
+    return embedding;
+  }
+
+  double _pointDistance(dynamic a, dynamic b) {
+    final dx = (a.x.toDouble() - b.x.toDouble());
+    final dy = (a.y.toDouble() - b.y.toDouble());
+    return sqrt(dx * dx + dy * dy);
+  }
+
+  /// Compare two face embeddings using cosine similarity
+  /// Returns a similarity percentage based on the distance
+  static FaceComparisonResult compareFaces(
+    Float64List embedding1,
+    Float64List embedding2,
+  ) {
+    // Calculate cosine similarity
+    double dotProduct = 0.0;
+    double norm1 = 0.0;
+    double norm2 = 0.0;
+    
+    final len = min(embedding1.length, embedding2.length);
+    for (int i = 0; i < len; i++) {
+      dotProduct += embedding1[i] * embedding2[i];
+      norm1 += embedding1[i] * embedding1[i];
+      norm2 += embedding2[i] * embedding2[i];
+    }
+    
+    norm1 = sqrt(norm1);
+    norm2 = sqrt(norm2);
+    
+    double cosineSimilarity = 0.0;
+    if (norm1 > 0 && norm2 > 0) {
+      cosineSimilarity = dotProduct / (norm1 * norm2);
+    }
+    
+    // Convert cosine similarity to distance
+    // Cosine similarity ranges from -1 to 1
+    // Distance = 1 - cosineSimilarity (ranges from 0 to 2)
+    final distance = 1.0 - cosineSimilarity;
+    
+    // Convert to similarity percentage
+    // For normalized FaceNet embeddings:
+    // - Same person: cosine similarity typically > 0.7 (distance < 0.3)
+    // - Different person: cosine similarity typically < 0.3 (distance > 0.7)
+    // We'll use a threshold-based mapping
+    
+    double similarityPercentage;
+    if (distance < 0.3) {
+      // High similarity (same person)
+      similarityPercentage = 100.0 - (distance / 0.3) * 20.0; // 80-100%
+    } else if (distance < 0.6) {
+      // Medium similarity
+      similarityPercentage = 80.0 - ((distance - 0.3) / 0.3) * 30.0; // 50-80%
+    } else if (distance < 1.0) {
+      // Low similarity
+      similarityPercentage = 50.0 - ((distance - 0.6) / 0.4) * 30.0; // 20-50%
+    } else {
+      // Very low similarity
+      similarityPercentage = max(0.0, 20.0 - ((distance - 1.0) * 20.0));
+    }
+
+    // Determine match level with adjusted thresholds for FaceNet
+    String matchLevel;
+    bool isMatch;
+    if (similarityPercentage >= 70) {
+      matchLevel = 'Strong Match';
+      isMatch = true;
+    } else if (similarityPercentage >= 50) {
+      matchLevel = 'Possible Match';
+      isMatch = true;
+    } else if (similarityPercentage >= 30) {
+      matchLevel = 'Weak Match';
+      isMatch = false;
+    } else {
+      matchLevel = 'No Match';
+      isMatch = false;
+    }
+
+    return FaceComparisonResult(
+      distance: distance,
+      similarityPercentage: similarityPercentage,
+      isMatch: isMatch,
+      matchLevel: matchLevel,
+    );
   }
 
   /// Extract expression probabilities from ML Kit face
@@ -226,167 +641,12 @@ class FaceDetectorService {
     }
   }
 
-  /// Generate a face embedding vector for comparison
-  /// Uses facial landmarks and geometry to create a descriptor
-  Float64List _generateFaceEmbedding(Face face) {
-    final embedding = Float64List(128);
-    final box = face.boundingBox;
-
-    // Normalize bounding box features
-    embedding[0] = box.width / 1000.0;
-    embedding[1] = box.height / 1000.0;
-    embedding[2] = (box.height / box.width);
-
-    // Head angles
-    embedding[3] = (face.headEulerAngleX ?? 0.0) / 45.0;
-    embedding[4] = (face.headEulerAngleY ?? 0.0) / 45.0;
-    embedding[5] = (face.headEulerAngleZ ?? 0.0) / 45.0;
-
-    // Classification features
-    embedding[6] = face.smilingProbability ?? 0.0;
-    embedding[7] = face.leftEyeOpenProbability ?? 0.0;
-    embedding[8] = face.rightEyeOpenProbability ?? 0.0;
-
-    // Landmark-based features
-    int idx = 9;
-    final landmarkTypes = [
-      FaceLandmarkType.leftEye,
-      FaceLandmarkType.rightEye,
-      FaceLandmarkType.noseBase,
-      FaceLandmarkType.leftMouth,
-      FaceLandmarkType.rightMouth,
-      FaceLandmarkType.bottomMouth,
-      FaceLandmarkType.leftEar,
-      FaceLandmarkType.rightEar,
-      FaceLandmarkType.leftCheek,
-      FaceLandmarkType.rightCheek,
-    ];
-
-    for (final type in landmarkTypes) {
-      final landmark = face.landmarks[type];
-      if (landmark != null && idx + 1 < 128) {
-        // Normalize relative to bounding box
-        embedding[idx] = (landmark.position.x - box.left) / box.width;
-        embedding[idx + 1] = (landmark.position.y - box.top) / box.height;
-        idx += 2;
-      } else if (idx + 1 < 128) {
-        embedding[idx] = 0.0;
-        embedding[idx + 1] = 0.0;
-        idx += 2;
-      }
-    }
-
-    // Contour-based features for more detail
-    final contourTypes = [
-      FaceContourType.face,
-      FaceContourType.leftEye,
-      FaceContourType.rightEye,
-      FaceContourType.noseBridge,
-      FaceContourType.noseBottom,
-      FaceContourType.upperLipTop,
-      FaceContourType.lowerLipBottom,
-    ];
-
-    for (final type in contourTypes) {
-      final contour = face.contours[type];
-      if (contour != null && contour.points.isNotEmpty) {
-        // Use first, middle, and last points of each contour
-        final points = contour.points;
-        final keyPoints = [
-          points.first,
-          points[points.length ~/ 2],
-          points.last,
-        ];
-        for (final pt in keyPoints) {
-          if (idx + 1 < 128) {
-            embedding[idx] = (pt.x - box.left) / box.width;
-            embedding[idx + 1] = (pt.y - box.top) / box.height;
-            idx += 2;
-          }
-        }
-      }
-    }
-
-    // Inter-landmark distances (normalized)
-    final leftEye = face.landmarks[FaceLandmarkType.leftEye];
-    final rightEye = face.landmarks[FaceLandmarkType.rightEye];
-    final nose = face.landmarks[FaceLandmarkType.noseBase];
-    final leftMouth = face.landmarks[FaceLandmarkType.leftMouth];
-    final rightMouth = face.landmarks[FaceLandmarkType.rightMouth];
-
-    if (leftEye != null && rightEye != null && idx < 128) {
-      final eyeDist = _pointDistance(leftEye.position, rightEye.position);
-      embedding[idx++] = eyeDist / box.width;
-    }
-    if (leftEye != null && nose != null && idx < 128) {
-      embedding[idx++] = _pointDistance(leftEye.position, nose.position) / box.width;
-    }
-    if (rightEye != null && nose != null && idx < 128) {
-      embedding[idx++] = _pointDistance(rightEye.position, nose.position) / box.width;
-    }
-    if (leftMouth != null && rightMouth != null && idx < 128) {
-      embedding[idx++] = _pointDistance(leftMouth.position, rightMouth.position) / box.width;
-    }
-    if (nose != null && leftMouth != null && idx < 128) {
-      embedding[idx++] = _pointDistance(nose.position, leftMouth.position) / box.height;
-    }
-
-    return embedding;
-  }
-
-  double _pointDistance(dynamic a, dynamic b) {
-    final dx = (a.x.toDouble() - b.x.toDouble());
-    final dy = (a.y.toDouble() - b.y.toDouble());
-    return sqrt(dx * dx + dy * dy);
-  }
-
-  /// Compare two face embeddings
-  static FaceComparisonResult compareFaces(
-    Float64List embedding1,
-    Float64List embedding2,
-  ) {
-    // Calculate Euclidean distance
-    double sum = 0.0;
-    final len = min(embedding1.length, embedding2.length);
-    for (int i = 0; i < len; i++) {
-      final diff = embedding1[i] - embedding2[i];
-      sum += diff * diff;
-    }
-    final distance = sqrt(sum);
-
-    // Convert to similarity percentage
-    // Normalize: distance 0 = 100% match, distance > 2.0 = 0% match
-    final similarity = max(0.0, min(100.0, (1.0 - distance / 2.0) * 100.0));
-
-    // Determine match level
-    String matchLevel;
-    bool isMatch;
-    if (similarity >= 75) {
-      matchLevel = 'Strong Match';
-      isMatch = true;
-    } else if (similarity >= 55) {
-      matchLevel = 'Possible Match';
-      isMatch = true;
-    } else if (similarity >= 35) {
-      matchLevel = 'Weak Match';
-      isMatch = false;
-    } else {
-      matchLevel = 'No Match';
-      isMatch = false;
-    }
-
-    return FaceComparisonResult(
-      distance: distance,
-      similarityPercentage: similarity,
-      isMatch: isMatch,
-      matchLevel: matchLevel,
-    );
-  }
-
-  /// Dispose the detector
+  /// Dispose the detector and interpreter
   void dispose() {
     if (_isInitialized) {
       _faceDetector.close();
+      _faceNetInterpreter?.close();
+      _faceNetInterpreter = null;
       _isInitialized = false;
     }
   }
