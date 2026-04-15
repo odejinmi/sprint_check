@@ -314,9 +314,9 @@ class FaceDetectorService {
     for (int y = 0; y < _inputSize; y++) {
       for (int x = 0; x < _inputSize; x++) {
         final pixel = faceImage.getPixel(x, y);
-        pixels.add(pixel.r);
-        pixels.add(pixel.g);
-        pixels.add(pixel.b);
+        pixels.add(pixel.r.toDouble());
+        pixels.add(pixel.g.toDouble());
+        pixels.add(pixel.b.toDouble());
       }
     }
     
