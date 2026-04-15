@@ -15,6 +15,8 @@ dependencies:
   web: ^1.1.1
   plugin_platform_interface: ^2.1.8
 
+  flutter_face_api: ^7.2.626
+  flutter_face_core_basic: ^7.2.235
   intl: ^0.20.2
   http: ^1.6.0
   syncfusion_flutter_gauges: ^33.1.49

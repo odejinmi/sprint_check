@@ -1,7 +1,23 @@
 PODS:
   - camera_avfoundation (0.0.1):
     - Flutter
+  - FaceCoreBasic (7.2.1622)
+  - FaceSDK (7.2.3696):
+    - RegulaCommon (= 9.2.1962)
   - Flutter (1.0.0)
+  - flutter_face_api (7.2.716):
+    - FaceSDK (= 7.2.3696)
+    - Flutter
+  - flutter_face_core_basic (7.2.235):
+    - FaceCoreBasic (= 7.2.1622)
+    - Flutter
+  - flutter_inappwebview_ios (0.0.1):
+    - Flutter
+    - flutter_inappwebview_ios/Core (= 0.0.1)
+    - OrderedSet (~> 6.0.3)
+  - flutter_inappwebview_ios/Core (0.0.1):
+    - Flutter
+    - OrderedSet (~> 6.0.3)
   - google_mlkit_commons (0.11.0):
     - Flutter
     - MLKitVision
@@ -75,21 +91,48 @@ PODS:
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
+  - OrderedSet (6.0.3)
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
   - permission_handler_apple (9.3.0):
     - Flutter
   - PromisesObjC (2.4.0)
+  - RegulaCommon (9.2.1962)
   - sprint_check (0.0.1):
     - Flutter
   - sprintliveness (0.0.1):
     - Flutter
+  - TensorFlowLiteC (2.12.0):
+    - TensorFlowLiteC/Core (= 2.12.0)
+  - TensorFlowLiteC/Core (2.12.0)
+  - TensorFlowLiteC/CoreML (2.12.0):
+    - TensorFlowLiteC/Core
+  - TensorFlowLiteC/Metal (2.12.0):
+    - TensorFlowLiteC/Core
+  - TensorFlowLiteSwift (2.12.0):
+    - TensorFlowLiteSwift/Core (= 2.12.0)
+  - TensorFlowLiteSwift/Core (2.12.0):
+    - TensorFlowLiteC (= 2.12.0)
+  - TensorFlowLiteSwift/CoreML (2.12.0):
+    - TensorFlowLiteC/CoreML (= 2.12.0)
+    - TensorFlowLiteSwift/Core (= 2.12.0)
+  - TensorFlowLiteSwift/Metal (2.12.0):
+    - TensorFlowLiteC/Metal (= 2.12.0)
+    - TensorFlowLiteSwift/Core (= 2.12.0)
+  - tflite_flutter (0.0.1):
+    - Flutter
+    - TensorFlowLiteSwift (= 2.12.0)
+    - TensorFlowLiteSwift/CoreML (= 2.12.0)
+    - TensorFlowLiteSwift/Metal (= 2.12.0)
   - TOCropViewController (2.8.0)
 
 DEPENDENCIES:
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - Flutter (from `Flutter`)
+  - flutter_face_api (from `.symlinks/plugins/flutter_face_api/ios`)
+  - flutter_face_core_basic (from `.symlinks/plugins/flutter_face_core_basic/ios`)
+  - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
   - google_mlkit_face_detection (from `.symlinks/plugins/google_mlkit_face_detection/ios`)
   - google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`)
@@ -100,9 +143,12 @@ DEPENDENCIES:
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - sprint_check (from `.symlinks/plugins/sprint_check/ios`)
   - sprintliveness (from `.symlinks/plugins/sprintliveness/ios`)
+  - tflite_flutter (from `.symlinks/plugins/tflite_flutter/ios`)
 
 SPEC REPOS:
   trunk:
+    - FaceCoreBasic
+    - FaceSDK
     - GoogleDataTransport
     - GoogleMLKit
     - GoogleToolboxForMac
@@ -115,7 +161,11 @@ SPEC REPOS:
     - MLKitTextRecognitionCommon
     - MLKitVision
     - nanopb
+    - OrderedSet
     - PromisesObjC
+    - RegulaCommon
+    - TensorFlowLiteC
+    - TensorFlowLiteSwift
     - TOCropViewController
 
 EXTERNAL SOURCES:
@@ -123,6 +173,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
   Flutter:
     :path: Flutter
+  flutter_face_api:
+    :path: ".symlinks/plugins/flutter_face_api/ios"
+  flutter_face_core_basic:
+    :path: ".symlinks/plugins/flutter_face_core_basic/ios"
+  flutter_inappwebview_ios:
+    :path: ".symlinks/plugins/flutter_inappwebview_ios/ios"
   google_mlkit_commons:
     :path: ".symlinks/plugins/google_mlkit_commons/ios"
   google_mlkit_face_detection:
@@ -143,10 +199,17 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sprint_check/ios"
   sprintliveness:
     :path: ".symlinks/plugins/sprintliveness/ios"
+  tflite_flutter:
+    :path: ".symlinks/plugins/tflite_flutter/ios"
 
 SPEC CHECKSUMS:
-  camera_avfoundation: adb0207d868b2d873e895371d88448399ab78d87
+  camera_avfoundation: 769d252259fa21e39ada7399c9dc9c0921af8165
+  FaceCoreBasic: 8dd4be50401c8ca6021ca9fb8cc005aefe3f020d
+  FaceSDK: 2077e3d2d6d91ad70a0e6b97d58979f65a3a8adb
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_face_api: bf1473ad1c19ae9d0d388abcd3376d8c70ce97e7
+  flutter_face_core_basic: c00f74c157c282ae6b7f014e99251d44a0265bad
+  flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
   google_mlkit_commons: 2544377e5503bf78ee7412ccfce0394c2dcb8a6b
   google_mlkit_face_detection: ceddb8d65f594b9ff8379efc16ab2c4efa801349
   google_mlkit_text_recognition: 309a3a493765ea17c7368cadb4a710391e73902c
@@ -165,11 +228,16 @@ SPEC CHECKSUMS:
   MLKitTextRecognitionCommon: 234ceb1cfdfb5fceb4fd664943046609a2961cc2
   MLKitVision: 39a5a812db83c4a0794445088e567f3631c11961
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
+  OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
+  RegulaCommon: cbd5190ddd58bddf29dd40a3bd606a1d20cdf091
   sprint_check: 9abe3b237814ff9923508de7ee67f82a19e666c9
   sprintliveness: 87df49a52398a46d8ba2aeb035ab662aafa456a1
+  TensorFlowLiteC: 20785a69299185a379ba9852b6625f00afd7984a
+  TensorFlowLiteSwift: 3a4928286e9e35bdd3e17970f48e53c80d25e793
+  tflite_flutter: 9433d086a3060431bbc9f3c7c20d017db0e72d08
   TOCropViewController: 797deaf39c90e6e9ddd848d88817f6b9a8a09888
 
 PODFILE CHECKSUM: 176d922d025490b007d1371157607c1c4fdfec01

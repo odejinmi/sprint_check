@@ -136,14 +136,14 @@ class _MypageState extends State<Mypage1> {
               SizedBox(height: 20),
               InkWell(
                 onTap: () async {
-                  // Navigator.push(context, MaterialPageRoute(builder: (context) => CompareScreen()));
-                  var response = await faceapi.comparefaceKyc(image1, image2);
-                  // var response = await _sprintCheckPlugin.checkout(
-                  //   context,
-                  //   CheckoutMethod.bvn,
-                  //   identifierController.text,
-                  //   bvn: bvnController.text,
-                  // );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => CompareScreen()));
+                  // var response = await faceapi.comparefaceKyc(image1, image2);
+                  var response = await _sprintCheckPlugin.checkout(
+                    context,
+                    CheckoutMethod.bvn,
+                    identifierController.text,
+                    bvn: bvnController.text,
+                  );
                   showresult("response for the sdk: $response");
                   dev.log("response for the sdk: $response");
                 },

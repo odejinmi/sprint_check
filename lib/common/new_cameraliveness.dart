@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:flutter_face_api/flutter_face_api.dart' hide LivenessException, LivenessErrorCode;
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:sprintliveness/sprintliveness.dart';
@@ -60,7 +61,43 @@ class NewCameraliveness {
     return file;
   }
 
+
+  var faceSdk = FaceSDK.instance;
+
+  MatchFacesImage? mfImage1;
+  MatchFacesImage? mfImage2;
+
   Future<double> comparefaceKyc(String image1, String image2) async {
+    var encoded1 = base64Decode(image1);
+    var bytes1 = Uint8List.fromList(encoded1);
+    var encoded2 = base64Decode(image2);
+    var bytes2 = Uint8List.fromList(encoded2);
+    setImage1(bytes1, ImageType.EXTERNAL, 1);
+    setImage1(bytes2, ImageType.EXTERNAL, 2);
+
+    var request = MatchFacesRequest([mfImage1!, mfImage2!]);
+    var response = await faceSdk.matchFaces(request);
+    var split = await faceSdk.splitComparedFaces(response.results, 0.75);
+    var match = split.matchedFaces;
+    if (match.isNotEmpty) {
+      return (match[0].similarity * 100);
+    } else {
+      return 0;
+    }
+  }
+
+
+  void setImage1(Uint8List bytes, ImageType type, int number) {
+    var mfImage = MatchFacesImage(bytes, type);
+    if (number == 1) {
+      mfImage1 = mfImage;
+    }
+    if (number == 2) {
+      mfImage2 = mfImage;
+    }
+  }
+
+  Future<double> comparefaceKyc1(String image1, String image2) async {
     try {
       // Decode base64 strings to bytes
       Uint8List bytes1;
