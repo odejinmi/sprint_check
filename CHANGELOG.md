@@ -46,4 +46,9 @@
 ## 0.1.5
 * Version update
 
+## 0.1.6
+* Documentation improvements
+* Updated README with comprehensive examples
+* Added troubleshooting section
+
 
