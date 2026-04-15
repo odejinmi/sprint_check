@@ -183,7 +183,7 @@ class FaceDetectorService {
         debugPrint('FaceNet embedding failed, falling back to geometric: $e');
       }
     }
-    
+    print('Falling back to geometric embedding');
     // Fall back to geometric embedding
     return _generateGeometricEmbedding(face);
   }
@@ -641,7 +641,50 @@ class FaceDetectorService {
     }
   }
 
-  /// Dispose the detector and interpreter
+  /// Compare two face embeddings
+  static FaceComparisonResult compareFaces1(
+    Float64List embedding1,
+    Float64List embedding2,
+  ) {
+    // Calculate Euclidean distance
+    double sum = 0.0;
+    final len = min(embedding1.length, embedding2.length);
+    for (int i = 0; i < len; i++) {
+      final diff = embedding1[i] - embedding2[i];
+      sum += diff * diff;
+    }
+    final distance = sqrt(sum);
+
+    // Convert to similarity percentage
+    // Normalize: distance 0 = 100% match, distance > 2.0 = 0% match
+    final similarity = max(0.0, min(100.0, (1.0 - distance / 2.0) * 100.0));
+
+    // Determine match level
+    String matchLevel;
+    bool isMatch;
+    if (similarity >= 75) {
+      matchLevel = 'Strong Match';
+      isMatch = true;
+    } else if (similarity >= 55) {
+      matchLevel = 'Possible Match';
+      isMatch = true;
+    } else if (similarity >= 35) {
+      matchLevel = 'Weak Match';
+      isMatch = false;
+    } else {
+      matchLevel = 'No Match';
+      isMatch = false;
+    }
+
+    return FaceComparisonResult(
+      distance: distance,
+      similarityPercentage: similarity,
+      isMatch: isMatch,
+      matchLevel: matchLevel,
+    );
+  }
+
+  /// Dispose the detector
   void dispose() {
     if (_isInitialized) {
       _faceDetector.close();
