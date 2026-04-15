@@ -125,9 +125,8 @@ class FaceDetectorService {
       final tempDir = await getTemporaryDirectory();
       final modelFile = File('${tempDir.path}/facenet.tflite');
       
-      if (!await modelFile.exists()) {
-        await modelFile.writeAsBytes(bytes);
-      }
+      // Always write to ensure we have the latest version
+      await modelFile.writeAsBytes(bytes);
       
       return modelFile.path;
     } catch (e) {
@@ -178,13 +177,19 @@ class FaceDetectorService {
     if (_faceNetInterpreter != null) {
       try {
         final embedding = await _generateFaceNetEmbedding(face, inputImage);
-        if (embedding != null) return embedding;
+        if (embedding != null) {
+          debugPrint('FaceNet embedding generated successfully');
+          return embedding;
+        }
       } catch (e) {
-        debugPrint('FaceNet embedding failed, falling back to geometric: $e');
+        debugPrint('FaceNet embedding failed: $e');
       }
+    } else {
+      debugPrint('FaceNet interpreter not loaded');
     }
-    print('Falling back to geometric embedding');
+    
     // Fall back to geometric embedding
+    debugPrint('Falling back to geometric embedding');
     return _generateGeometricEmbedding(face);
   }
 
@@ -193,14 +198,20 @@ class FaceDetectorService {
     try {
       // Get the input image bytes
       final imageData = await _getImageData(inputImage);
-      if (imageData == null) return null;
+      if (imageData == null) {
+        debugPrint('Failed to get image data');
+        return null;
+      }
       
       // Crop and preprocess face
       final faceImage = _cropAndPreprocessFace(face, imageData);
-      if (faceImage == null) return null;
+      if (faceImage == null) {
+        debugPrint('Failed to crop face');
+        return null;
+      }
       
-      // Prepare input tensor [1, 160, 160, 3]
-      final input = _prepareInputTensor(faceImage);
+      // Prepare input tensor with prewhitening (FaceNet standard preprocessing)
+      final input = _prepareInputTensorWithPrewhitening(faceImage);
       
       // Prepare output tensor [1, 128]
       final output = List.generate(1, (_) => List.filled(_embeddingSize, 0.0))
@@ -215,12 +226,24 @@ class FaceDetectorService {
         embedding[i] = output[0][i];
       }
       
-      // Normalize the embedding
+      // Log some embedding stats for debugging
+      double minVal = embedding[0];
+      double maxVal = embedding[0];
+      double sum = 0;
+      for (int i = 0; i < _embeddingSize; i++) {
+        if (embedding[i] < minVal) minVal = embedding[i];
+        if (embedding[i] > maxVal) maxVal = embedding[i];
+        sum += embedding[i];
+      }
+      debugPrint('Embedding stats - min: $minVal, max: $maxVal, mean: ${sum / _embeddingSize}');
+      
+      // L2 normalize the embedding (important for cosine similarity)
       _normalizeEmbedding(embedding);
       
       return embedding;
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Error generating FaceNet embedding: $e');
+      debugPrint('Stack trace: $stackTrace');
       return null;
     }
   }
@@ -234,6 +257,7 @@ class FaceDetectorService {
         return img.decodeImage(bytes);
       }
       // For other input types (bytes, etc.), we would need additional handling
+      debugPrint('InputImage type not supported: ${inputImage.filePath}');
       return null;
     } catch (e) {
       debugPrint('Error getting image data: $e');
@@ -282,9 +306,36 @@ class FaceDetectorService {
     }
   }
 
-  /// Prepare input tensor for FaceNet model
-  List<List<List<List<double>>>> _prepareInputTensor(img.Image faceImage) {
-    // Create input tensor [1, 160, 160, 3]
+  /// Prepare input tensor with FaceNet prewhitening (per-image standardization)
+  /// This is the correct preprocessing from the original FaceNet paper
+  List<List<List<List<double>>>> _prepareInputTensorWithPrewhitening(img.Image faceImage) {
+    // First, extract raw pixel values
+    final pixels = <double>[];
+    for (int y = 0; y < _inputSize; y++) {
+      for (int x = 0; x < _inputSize; x++) {
+        final pixel = faceImage.getPixel(x, y);
+        pixels.add(pixel.r.toDouble());
+        pixels.add(pixel.g.toDouble());
+        pixels.add(pixel.b.toDouble());
+      }
+    }
+    
+    // Apply prewhitening (per-image standardization) - same as original FaceNet
+    // mean = np.mean(x)
+    // std = np.std(x)
+    // std_adj = np.maximum(std, 1.0/np.sqrt(x.size))
+    // y = np.multiply(np.subtract(x, mean), 1/std_adj)
+    
+    final mean = pixels.reduce((a, b) => a + b) / pixels.length;
+    
+    double variance = 0;
+    for (final p in pixels) {
+      variance += (p - mean) * (p - mean);
+    }
+    final std = sqrt(variance / pixels.length);
+    final stdAdj = max(std, 1.0 / sqrt(pixels.length.toDouble()));
+    
+    // Create input tensor [1, 160, 160, 3] with prewhitened values
     final input = List.generate(
       1,
       (_) => List.generate(
@@ -292,13 +343,11 @@ class FaceDetectorService {
         (y) => List.generate(
           _inputSize,
           (x) {
-            final pixel = faceImage.getPixel(x, y);
-            // FaceNet expects normalized values [-1, 1] or [0, 1]
-            // Using [0, 1] normalization
+            final idx = (y * _inputSize + x) * 3;
             return [
-              pixel.r / 255.0,
-              pixel.g / 255.0,
-              pixel.b / 255.0,
+              (pixels[idx] - mean) / stdAdj,
+              (pixels[idx + 1] - mean) / stdAdj,
+              (pixels[idx + 2] - mean) / stdAdj,
             ];
           },
         ),
@@ -445,77 +494,76 @@ class FaceDetectorService {
     return sqrt(dx * dx + dy * dy);
   }
 
-  /// Compare two face embeddings using cosine similarity
-  /// Returns a similarity percentage based on the distance
+  /// Compare two face embeddings using Euclidean distance (FaceNet standard)
+  /// For normalized embeddings, Euclidean distance and cosine similarity are related:
+  /// Euclidean distance = sqrt(2 * (1 - cosine_similarity))
   static FaceComparisonResult compareFaces(
     Float64List embedding1,
     Float64List embedding2,
   ) {
-    // Calculate cosine similarity
-    double dotProduct = 0.0;
-    double norm1 = 0.0;
-    double norm2 = 0.0;
-    
+    // Calculate Euclidean distance (standard for FaceNet)
+    double sumSquared = 0.0;
     final len = min(embedding1.length, embedding2.length);
+    
     for (int i = 0; i < len; i++) {
-      dotProduct += embedding1[i] * embedding2[i];
-      norm1 += embedding1[i] * embedding1[i];
-      norm2 += embedding2[i] * embedding2[i];
+      final diff = embedding1[i] - embedding2[i];
+      sumSquared += diff * diff;
     }
+    final euclideanDistance = sqrt(sumSquared);
     
-    norm1 = sqrt(norm1);
-    norm2 = sqrt(norm2);
-    
-    double cosineSimilarity = 0.0;
-    if (norm1 > 0 && norm2 > 0) {
-      cosineSimilarity = dotProduct / (norm1 * norm2);
-    }
-    
-    // Convert cosine similarity to distance
-    // Cosine similarity ranges from -1 to 1
-    // Distance = 1 - cosineSimilarity (ranges from 0 to 2)
-    final distance = 1.0 - cosineSimilarity;
+    // For L2-normalized embeddings, convert to cosine similarity
+    // cosine_similarity = 1 - (euclidean_distance^2 / 2)
+    final cosineSimilarity = 1.0 - (sumSquared / 2.0);
     
     // Convert to similarity percentage
-    // For normalized FaceNet embeddings:
-    // - Same person: cosine similarity typically > 0.7 (distance < 0.3)
-    // - Different person: cosine similarity typically < 0.3 (distance > 0.7)
-    // We'll use a threshold-based mapping
+    // FaceNet thresholds (from original paper and common practice):
+    // - Euclidean distance < 0.6: same person (typically ~1.1 for 99% accuracy)
+    // - For normalized embeddings, distance < 1.1 is typically same person
+    // We use a more conservative threshold
     
     double similarityPercentage;
-    if (distance < 0.3) {
-      // High similarity (same person)
-      similarityPercentage = 100.0 - (distance / 0.3) * 20.0; // 80-100%
-    } else if (distance < 0.6) {
-      // Medium similarity
-      similarityPercentage = 80.0 - ((distance - 0.3) / 0.3) * 30.0; // 50-80%
-    } else if (distance < 1.0) {
-      // Low similarity
-      similarityPercentage = 50.0 - ((distance - 0.6) / 0.4) * 30.0; // 20-50%
+    
+    // Using Euclidean distance for thresholding (more reliable for FaceNet)
+    // Typical thresholds: 0.6-1.1 for same person
+    if (euclideanDistance < 0.6) {
+      // Very high similarity (same person, very confident)
+      similarityPercentage = 100.0 - (euclideanDistance / 0.6) * 10.0; // 90-100%
+    } else if (euclideanDistance < 0.8) {
+      // High similarity (likely same person)
+      similarityPercentage = 90.0 - ((euclideanDistance - 0.6) / 0.2) * 15.0; // 75-90%
+    } else if (euclideanDistance < 1.0) {
+      // Good similarity (probably same person)
+      similarityPercentage = 75.0 - ((euclideanDistance - 0.8) / 0.2) * 20.0; // 55-75%
+    } else if (euclideanDistance < 1.1) {
+      // Moderate similarity (could be same person)
+      similarityPercentage = 55.0 - ((euclideanDistance - 1.0) / 0.1) * 15.0; // 40-55%
     } else {
-      // Very low similarity
-      similarityPercentage = max(0.0, 20.0 - ((distance - 1.0) * 20.0));
+      // Low similarity (likely different person)
+      // Distance > 1.1 typically means different person
+      final excess = euclideanDistance - 1.1;
+      similarityPercentage = max(0.0, 40.0 - (excess * 40.0));
     }
 
-    // Determine match level with adjusted thresholds for FaceNet
+    // Determine match level
     String matchLevel;
     bool isMatch;
+    
     if (similarityPercentage >= 70) {
       matchLevel = 'Strong Match';
       isMatch = true;
-    } else if (similarityPercentage >= 50) {
-      matchLevel = 'Possible Match';
+    } else if (similarityPercentage >= 55) {
+      matchLevel = 'Likely Match';
       isMatch = true;
-    } else if (similarityPercentage >= 30) {
-      matchLevel = 'Weak Match';
-      isMatch = false;
+    } else if (similarityPercentage >= 40) {
+      matchLevel = 'Possible Match';
+      isMatch = false; // Conservative: require higher threshold
     } else {
       matchLevel = 'No Match';
       isMatch = false;
     }
 
     return FaceComparisonResult(
-      distance: distance,
+      distance: euclideanDistance,
       similarityPercentage: similarityPercentage,
       isMatch: isMatch,
       matchLevel: matchLevel,
@@ -639,49 +687,6 @@ class FaceDetectorService {
     } else {
       return random.nextDouble() > 0.4 ? 'Female' : 'Male';
     }
-  }
-
-  /// Compare two face embeddings
-  static FaceComparisonResult compareFaces1(
-    Float64List embedding1,
-    Float64List embedding2,
-  ) {
-    // Calculate Euclidean distance
-    double sum = 0.0;
-    final len = min(embedding1.length, embedding2.length);
-    for (int i = 0; i < len; i++) {
-      final diff = embedding1[i] - embedding2[i];
-      sum += diff * diff;
-    }
-    final distance = sqrt(sum);
-
-    // Convert to similarity percentage
-    // Normalize: distance 0 = 100% match, distance > 2.0 = 0% match
-    final similarity = max(0.0, min(100.0, (1.0 - distance / 2.0) * 100.0));
-
-    // Determine match level
-    String matchLevel;
-    bool isMatch;
-    if (similarity >= 75) {
-      matchLevel = 'Strong Match';
-      isMatch = true;
-    } else if (similarity >= 55) {
-      matchLevel = 'Possible Match';
-      isMatch = true;
-    } else if (similarity >= 35) {
-      matchLevel = 'Weak Match';
-      isMatch = false;
-    } else {
-      matchLevel = 'No Match';
-      isMatch = false;
-    }
-
-    return FaceComparisonResult(
-      distance: distance,
-      similarityPercentage: similarity,
-      isMatch: isMatch,
-      matchLevel: matchLevel,
-    );
   }
 
   /// Dispose the detector
