@@ -142,7 +142,8 @@ class Initializepage extends StatelessWidget {
                   name: '',
                   confidenceLevel: null,
                   bvn: charge.bvn,
-                  nin: charge.nin);
+                  nin: charge.nin,
+                  base64Image: null);
               onResponse(response);
             },
             child: Container(

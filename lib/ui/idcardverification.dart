@@ -36,6 +36,7 @@ class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverificatio
   double score = 0;
   String enrollmentdata = "";
   String message = "";
+  String? capturedImage;
 
   @override
   Widget buildAnimatedChild() {
@@ -65,6 +66,7 @@ class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverificatio
     Newfacepage(charge: _charge, checkoutmethod: widget.checkoutmethod, bvnimage: bvnimage, reference: reference, publicKey: widget.publicKey, secretKey: widget.secretKey, onResponse: (response)
     {
       score = response["score"];
+      capturedImage = response["base64Image"];
       stage = 4;
       setState(() {
 
@@ -82,6 +84,7 @@ class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverificatio
         confidenceLevel: score,
         bvn: widget.charge.bvn,
         nin: widget.charge.nin,
+        base64Image: capturedImage,
       );
       onResponse(response);
     });

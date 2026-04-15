@@ -136,7 +136,7 @@ class _MypageState extends State<Mypage1> {
               SizedBox(height: 20),
               InkWell(
                 onTap: () async {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => CompareScreen()));
+                  // Navigator.push(context, MaterialPageRoute(builder: (context) => CompareScreen()));
                   // var response = await faceapi.comparefaceKyc(image1, image2);
                   var response = await _sprintCheckPlugin.checkout(
                     context,

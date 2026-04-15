@@ -43,4 +43,7 @@
 ## 0.1.4
 * Bug fixed
 
+## 0.1.5
+* Version update
+
 

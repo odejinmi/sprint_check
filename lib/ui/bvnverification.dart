@@ -31,6 +31,7 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
   double score = 0;
   String enrollmentdata = "";
   String message = "";
+  String? capturedImage;
 
   int stage = 0;
 
@@ -53,6 +54,7 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
         {
           score = response["score"];
           enrollmentdata = response["enrollmentdata"];
+          capturedImage = response["base64Image"];
           stage = 2;
           setState(() {
 
@@ -70,6 +72,7 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
               confidenceLevel: score,
               bvn: widget.charge.bvn,
               nin: widget.charge.nin,
+              base64Image: capturedImage,
             );
             onResponse(response);
         })

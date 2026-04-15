@@ -19,6 +19,9 @@ class CheckoutResponse {
   String? bvn;
   String? nin;
 
+  /// The base64 encoded image of the image capture
+  String? base64Image;
+
   /// The status of the transaction. A successful response returns true and false
   /// otherwise
   bool status;
@@ -48,10 +51,11 @@ class CheckoutResponse {
     required this.confidenceLevel,
     required this.bvn,
     required this.nin,
+    this.base64Image,
   });
 
   @override
   String toString() {
-    return 'CheckoutResponse{message: $message,reference: $reference, status: $status, method: $method, name: $name, verify: $verify, bvn: $bvn,  nin: $nin, verify: $confidenceLevel, }';
+    return 'CheckoutResponse{message: $message, reference: $reference, status: $status, method: $method, name: $name, verify: $verify, bvn: $bvn, nin: $nin, confidenceLevel: $confidenceLevel, base64Image: ${base64Image != null ? "present" : "absent"}}';
   }
 }

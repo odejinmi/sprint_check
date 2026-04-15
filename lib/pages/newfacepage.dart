@@ -34,6 +34,8 @@ class _NewfacepageState extends State<Newfacepage> {
   Timer? timer;
   double width = 155.0;
   String enrollmentdata = "";
+  String? capturedImageBase64;
+
   void timercount(){
     if (timer != null) {
       timer!.cancel();
@@ -78,6 +80,7 @@ class _NewfacepageState extends State<Newfacepage> {
   }
   Future<void> compareimage(String captureimage, String bvnimage) async {
     stage = 1;
+    capturedImageBase64 = captureimage;
     timercount();
     setState(() {
 
@@ -297,7 +300,8 @@ class _NewfacepageState extends State<Newfacepage> {
             }else if (stage == 2) {
               widget.onResponse({
                 "score": score,
-                "enrollmentdata": enrollmentdata
+                "enrollmentdata": enrollmentdata,
+                "base64Image": capturedImageBase64
               });
             }
           },
@@ -355,7 +359,8 @@ class _NewfacepageState extends State<Newfacepage> {
     }
     widget.onResponse({
       "score": score,
-      "enrollmentdata": enrollmentdata
+      "enrollmentdata": enrollmentdata,
+      "base64Image": capturedImageBase64
     });
   }
 

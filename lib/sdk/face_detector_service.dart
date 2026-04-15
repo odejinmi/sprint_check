@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -513,7 +512,6 @@ class FaceDetectorService {
     
     // For L2-normalized embeddings, convert to cosine similarity
     // cosine_similarity = 1 - (euclidean_distance^2 / 2)
-    final cosineSimilarity = 1.0 - (sumSquared / 2.0);
     
     // Convert to similarity percentage
     // FaceNet thresholds (from original paper and common practice):
