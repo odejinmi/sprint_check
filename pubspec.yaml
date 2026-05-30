@@ -30,8 +30,7 @@ dependencies:
   path_provider: ^2.1.5 # Added for temporary directory
   image_cropper: ^12.2.1 # Added for image cropping
   tflite_flutter: ^0.12.1
-  sprintliveness: #^0.0.9
-   path: ../sprintliveness/
+  sprintliveness: ^0.1.0
   permission_handler: ^12.0.2
 
 

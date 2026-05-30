@@ -694,9 +694,10 @@ packages:
   sprintliveness:
     dependency: transitive
     description:
-      path: "../../sprintliveness"
-      relative: true
-    source: path
+      name: sprintliveness
+      sha256: "39a2a7a8ead3c806081a84c6fb1ce3622a0e5b4c586d15f5b19c269ce192f499"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.1.0"
   stack_trace:
     dependency: transitive
