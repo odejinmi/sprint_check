@@ -15,23 +15,24 @@ dependencies:
   web: ^1.1.1
   plugin_platform_interface: ^2.1.8
 
-  flutter_face_api: ^7.2.626
-  flutter_face_core_basic: ^7.2.235
+  flutter_face_api: ^8.2.1087
+  flutter_face_core_basic: ^8.2.461
   intl: ^0.20.2
   http: ^1.6.0
-  syncfusion_flutter_gauges: ^33.1.49
+  syncfusion_flutter_gauges: ^33.2.8
   dio: ^5.9.2
   crypto: ^3.0.7
-  image_picker: ^1.2.1
+  image_picker: ^1.2.2
   google_mlkit_text_recognition: ^0.15.1
   camera: ^0.12.0+1
   google_mlkit_face_detection: ^0.13.2
-  image: ^4.8.0 # Added for image processing
+  image: ^4.9.1 # Added for image processing
   path_provider: ^2.1.5 # Added for temporary directory
-  image_cropper: ^11.0.0 # Added for image cropping
+  image_cropper: ^12.2.1 # Added for image cropping
   tflite_flutter: ^0.12.1
-  sprintliveness: ^0.0.8
-  permission_handler: ^12.0.1
+  sprintliveness: #^0.0.9
+   path: ../sprintliveness/
+  permission_handler: ^12.0.2
 
 
 dev_dependencies:
