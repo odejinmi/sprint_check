@@ -7,7 +7,7 @@ let package = Package(
         .macOS("10.15")
     ],
     products: [
-        .library(name: "sprint_check", targets: ["sprint_check"])
+        .library(name: "sprint-check", targets: ["sprint_check"])
     ],
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework")

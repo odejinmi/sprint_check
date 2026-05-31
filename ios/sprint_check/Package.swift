@@ -4,10 +4,10 @@ import PackageDescription
 let package = Package(
     name: "sprint_check",
     platforms: [
-        .iOS("13.0")
+        .iOS("15.5")
     ],
     products: [
-        .library(name: "sprint_check", targets: ["sprint_check"])
+        .library(name: "sprint-check", targets: ["sprint_check"])
     ],
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework")

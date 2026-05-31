@@ -51,4 +51,7 @@
 * Updated README with comprehensive examples
 * Added troubleshooting section
 
+## 0.1.7
+* sprintliveness added
+* Dependency updated
 
