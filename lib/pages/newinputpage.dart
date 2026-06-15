@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 import '../common/digits_only_formatter.dart';
 import '../common/diorequest.dart';
@@ -157,10 +157,12 @@ class _NewinputpageState extends State<Newinputpage> {
     return RegExp(urlPattern, caseSensitive: false).hasMatch(str);
   }
   Future<String> urlToBase64(String url) async {
-    final response = await http.get(Uri.parse(url));
+    final response = await Diorequest().dio.get<List<int>>(
+      url,
+      options: Options(responseType: ResponseType.bytes),
+    );
     if (response.statusCode == 200) {
-      // dev.log(response.bodyBytes);
-      Uint8List bytes = response.bodyBytes;
+      Uint8List bytes = Uint8List.fromList(response.data!);
       return base64Encode(bytes);
     } else {
       throw Exception('Failed to load image');

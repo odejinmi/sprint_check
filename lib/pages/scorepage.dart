@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
+import '../ui/score_gauge.dart';
 
 import '../sprint_check_method_channel.dart';
 
@@ -53,53 +53,7 @@ class _ScorepageState extends State<Scorepage> {
               height: 1.78,
             ),
           ),
-          SfRadialGauge(
-            axes: <RadialAxis>[
-              RadialAxis(
-                minimum: 0,
-                maximum: 100,
-                showTicks: false,
-                showLabels: true,
-                labelsPosition: ElementsPosition.outside,
-                axisLineStyle: AxisLineStyle(
-                  thickness: 0.15,
-                  cornerStyle: CornerStyle.bothCurve,
-                  color: Colors.grey.shade300,
-                  thicknessUnit: GaugeSizeUnit.factor,
-                ),
-                pointers: <GaugePointer>[
-                  NeedlePointer(
-                    value: widget.score,
-                    needleColor: Colors.black,
-                    knobStyle: KnobStyle(color: Colors.black),
-                  ),
-                ],
-                ranges: <GaugeRange>[
-                  GaugeRange(
-                    startValue: 0,
-                    endValue: 50,
-                    color: Colors.red,
-                    startWidth: 10,
-                    endWidth: 10,
-                  ),
-                  GaugeRange(
-                    startValue: 50,
-                    endValue: 75,
-                    color: Colors.orange,
-                    startWidth: 10,
-                    endWidth: 10,
-                  ),
-                  GaugeRange(
-                    startValue: 75,
-                    endValue: 100,
-                    color: Colors.green,
-                    startWidth: 10,
-                    endWidth: 10,
-                  ),
-                ],
-              ),
-            ],
-          ),
+          ScoreGauge(score: widget.score),
           Text(
             '${widget.score.toInt()}',
             textAlign: TextAlign.center,
