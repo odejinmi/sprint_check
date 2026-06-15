@@ -15,10 +15,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
-    }
-
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.a5starcompany.sprint_check_example"
@@ -28,6 +24,11 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        ndk {
+            abiFilters.add("armeabi-v7a")
+            abiFilters.add("arm64-v8a")
+        }
     }
 
     buildTypes {
@@ -35,6 +36,9 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
@@ -44,13 +48,6 @@ flutter {
 }
 
 dependencies {
-
     // Add these dependencies
     implementation("com.google.mlkit:text-recognition:16.0.0")
-
-    // Add language-specific models as needed
-    implementation("com.google.mlkit:text-recognition-chinese:16.0.0")
-    implementation("com.google.mlkit:text-recognition-devanagari:16.0.0")
-    implementation("com.google.mlkit:text-recognition-japanese:16.0.0")
-    implementation("com.google.mlkit:text-recognition-korean:16.0.0")
 }

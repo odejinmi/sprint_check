@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:sprint_check/sprint_check_method_channel.dart';
 
@@ -150,10 +150,12 @@ class VerificationController extends GetxController {
 
   // Converts image URL to base64 string
   Future<String> urlToBase64(String url) async {
-    final response = await http.get(Uri.parse(url));
+    final response = await diorequest().dio.get(
+      url,
+      options: Options(responseType: ResponseType.bytes),
+    );
     if (response.statusCode == 200) {
-      // dev.log(response.bodyBytes);
-      Uint8List bytes = response.bodyBytes;
+      Uint8List bytes = Uint8List.fromList(response.data);
       return base64Encode(bytes);
     } else {
       throw Exception('Failed to load image');
