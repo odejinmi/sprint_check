@@ -45,7 +45,7 @@ class ExtractNational {
           }
         }
       } catch (e) {
-        dev.log("Error parsing MRZ name line: $e");
+        // dev.log("Error parsing MRZ name line: $e");
       }
     }
 
@@ -54,7 +54,7 @@ class ExtractNational {
       try {
         idNumber = mrzLine2.substring(0, 9).replaceAll('<', '');
       } catch (e) {
-        dev.log("Error parsing MRZ ID line: $e");
+        // dev.log("Error parsing MRZ ID line: $e");
       }
     }
 
@@ -121,7 +121,7 @@ class ExtractNational {
          //     nin = nextLineMatch.group(1)!;
          //   }
          }
-         dev.log("nin: $nin");
+         // dev.log("nin: $nin");
       // }
     }
 

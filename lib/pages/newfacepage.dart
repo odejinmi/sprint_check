@@ -21,7 +21,7 @@ class Newfacepage extends StatefulWidget {
   const Newfacepage({super.key,required this.onResponse, required this.bvnimage, required this.reference, required this.charge, required this.checkoutmethod, required this.publicKey, required this.secretKey});
 
   @override
-  _NewfacepageState createState() => _NewfacepageState();
+  State<Newfacepage> createState() => _NewfacepageState();
 }
 
 class _NewfacepageState extends State<Newfacepage> {
@@ -310,7 +310,7 @@ class _NewfacepageState extends State<Newfacepage> {
             height: 47,
             alignment: Alignment.center,
             decoration: ShapeDecoration(
-              color: const Color(0xFF181619),
+              color: Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),

@@ -55,3 +55,8 @@
 * sprintliveness added
 * Dependency updated
 
+## 0.1.8
+* Fixed iOS clickability issue on cancel bottom sheet
+* Cleaned up debug logs and print statements
+* Documentation improvements in README
+

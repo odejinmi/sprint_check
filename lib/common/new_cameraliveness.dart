@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,7 +51,9 @@ class NewCameraliveness {
 
   Future<LivenessResult?> startLiveness(BuildContext context) async {
     var livenessResult = await _sprintlivenessPlugin.startLivenessCheck(context);
-    dev.log(livenessResult.image!);
+    if (livenessResult.image != null) {
+      // dev.log("Liveness image captured");
+    }
     return livenessResult;
   }
 

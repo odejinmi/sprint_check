@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -15,7 +14,7 @@ class Idcardpage extends StatefulWidget {
   const Idcardpage({super.key, required this.onResponse, required this.idcard});
 
   @override
-  _IdcardpageState createState() => _IdcardpageState();
+  State<Idcardpage> createState() => _IdcardpageState();
 }
 
 class _IdcardpageState extends State<Idcardpage> {
@@ -229,7 +228,7 @@ class _IdcardpageState extends State<Idcardpage> {
                     // idnameController.text = "${info.firstName} ${info.lastName}";
                     // idnumberController.text = "${info.idNumber}";
                     // dobController.text = "${info.dateOfBirth}";
-                    dev.log('Card details: ${idcardinfo.toString()}');
+                    // dev.log('Card details: ${idcardinfo.toString()}');
                     // result =
                     // 'First Name: ${info.firstName}\nLast Name: ${info.lastName}\nDOB: ${info.dateOfBirth}\nID Number: ${info.idNumber}';
                     setState(() {

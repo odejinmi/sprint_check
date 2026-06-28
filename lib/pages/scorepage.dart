@@ -13,7 +13,7 @@ class Scorepage extends StatefulWidget {
   const Scorepage({super.key, required this.score, required this.checkoutmethod, required this.onResponse, required this.message});
 
   @override
-  _ScorepageState createState() => _ScorepageState();
+  State<Scorepage> createState() => _ScorepageState();
 }
 
 class _ScorepageState extends State<Scorepage> {

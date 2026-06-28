@@ -389,7 +389,7 @@ class _NewinputpageState extends State<Newinputpage> {
                 }
               },
               child: Opacity(
-                opacity: stage == 1|| bvnController.text.length < 11 ? 0.05 : 1,
+                opacity: stage == 1 ? 0.05 : 1,
                 child: Container(
                   width: double.infinity,
                   height: 47,

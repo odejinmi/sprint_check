@@ -19,13 +19,11 @@ class Idcardverification extends StatefulWidget {
   const Idcardverification({super.key, required this.charge, required this.checkoutmethod, required this.onResponse, required this.publicKey, required this.secretKey});
 
   @override
-  _IdcardverificationState createState() => _IdcardverificationState(charge, onResponse);
+  State<Idcardverification> createState() => _IdcardverificationState();
 }
 
 class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverification> {
-  _IdcardverificationState(this._charge, OnResponse<CheckoutResponse> onResponse)
-      : super(onResponse, CheckoutMethod.bvn);
-  final Charge _charge;
+  _IdcardverificationState() : super(CheckoutMethod.bvn);
 
   int stage = 0;
   Map<String, dynamic> country = {};
@@ -63,7 +61,7 @@ class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverificatio
       });
 
     }) : stage == 3?
-    Newfacepage(charge: _charge, checkoutmethod: widget.checkoutmethod, bvnimage: bvnimage, reference: reference, publicKey: widget.publicKey, secretKey: widget.secretKey, onResponse: (response)
+    Newfacepage(charge: widget.charge, checkoutmethod: widget.checkoutmethod, bvnimage: bvnimage, reference: reference, publicKey: widget.publicKey, secretKey: widget.secretKey, onResponse: (response)
     {
       score = response["score"];
       capturedImage = response["base64Image"];
@@ -86,7 +84,7 @@ class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverificatio
         nin: widget.charge.nin,
         base64Image: capturedImage,
       );
-      onResponse(response);
+      widget.onResponse(response);
     });
   }
 }

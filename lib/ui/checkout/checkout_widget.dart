@@ -1,5 +1,3 @@
-import 'dart:developer' as dev;
-
 import 'package:flutter/material.dart' hide ErrorWidget;
 import 'package:sprint_check/pages/initializepage.dart';
 import 'package:sprint_check/ui/base_widget.dart';
@@ -21,37 +19,25 @@ class CheckoutWidget extends StatefulWidget {
   const CheckoutWidget({super.key, required this.charge, required this.publicKey, required this.secretKey, required this.method});
 
   @override
-  _CheckoutWidgetState createState() => _CheckoutWidgetState(charge,method);
+  State<CheckoutWidget> createState() => _CheckoutWidgetState();
 }
 
 class _CheckoutWidgetState extends BaseState<CheckoutWidget>
     with TickerProviderStateMixin {
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Container();
-  // }
-  final Charge _charge;
+  
   bool showlogo = false;
 
-  CheckoutMethod method = CheckoutMethod.selectable;
   late AnimationController _animationController;
 
   CheckoutResponse? _response;
-  _CheckoutWidgetState(this._charge, this.method);
 
   @override
   void initState() {
     super.initState();
-
-    // if (_charge.currency != "NGN") {
-    //   _iscard = true;
-    // }
-    // _init();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    // _charge.card ??= PaymentCard.empty();
   }
 
   @override
@@ -62,7 +48,6 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
 
   @override
   Widget buildChild(BuildContext context) {
-    // TODO: implement buildChild
     return CustomAlertDialog(
       expanded: true,
       showlogo: showlogo,
@@ -74,17 +59,16 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
         child: Container(
             child:
             _response?.method == CheckoutMethod.bvn || _response?.method == CheckoutMethod.nin || _response?.method == CheckoutMethod.facial ?
-            Bvnverification(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
+            Bvnverification(onResponse: _onPaymentResponse, charge: widget.charge, checkoutmethod: widget.method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
                 _response?.method == CheckoutMethod.idcard ?
-            Idcardverification(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
-            Initializepage(onResponse: _onPaymentResponse, charge: _charge, checkoutmethod: method,)),
+            Idcardverification(onResponse: _onPaymentResponse, charge: widget.charge, checkoutmethod: widget.method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
+            Initializepage(onResponse: _onPaymentResponse, charge: widget.charge, checkoutmethod: widget.method,)),
       ),
     );
   }
 
 
   void _onPaymentResponse(CheckoutResponse response) {
-    dev.log("response: $response");
     _response = response;
     if (!mounted) return;
       showlogo = true;
@@ -100,7 +84,7 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
   }
 
   @override
-  getPopReturnValue() {
+  CheckoutResponse? getPopReturnValue() {
     return CheckoutResponse.defaults();
   }
 

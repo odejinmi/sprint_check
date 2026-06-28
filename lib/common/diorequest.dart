@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:developer' as dev;
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 
 class Diorequest {
   final dio = Dio();
@@ -35,11 +33,11 @@ class Diorequest {
       } else {
         url = '$baseurl$endpoint';
       }
-      debugPrint(url);
-      debugPrint("headers: $header");
+      // debugPrint(url);
+      // debugPrint("headers: $header");
       Response response = await dio.get(url, options: options);
       if (response.statusCode == 200) {
-        debugPrint(jsonEncode(response.data));
+        // debugPrint(jsonEncode(response.data));
         return response.data;
       } else if (response.statusCode == 401) {
         return {
@@ -48,10 +46,10 @@ class Diorequest {
           "status": "false",
         };
       }
-    } on DioException catch (e) {
-      debugPrint("response error");
-      debugPrint(e.toString());
-      debugPrint(e.message);
+    } on DioException catch (_) {
+      // debugPrint("response error");
+      // debugPrint(e.toString());
+      // debugPrint(e.message);
       return {
         "success": false,
         "message": "Connection error try again later",
@@ -86,7 +84,7 @@ class Diorequest {
       final options = Options(headers: header);
       response = await dio.post(url, options: options, data: data);
       if (response.statusCode == 200) {
-        dev.log(jsonEncode(response.data));
+        // dev.log(jsonEncode(response.data));
         return response.data;
       } else if (response.statusCode == 401) {
         return {
@@ -104,8 +102,8 @@ class Diorequest {
         };
       }
 
-      debugPrint("error");
-      debugPrint(e.message);
+      // debugPrint("error");
+      // debugPrint(e.message);
       return {
         "success": false,
         "message": "Connection error try again later",
@@ -124,9 +122,9 @@ class Diorequest {
       "signature": generateHmacSha512(data.toString(),secretKey),
     };
 
-    debugPrint(url);
-    debugPrint("headers: \n $header");
-    debugPrint("unencrypted payload \n ${data.toString()}");
+    // debugPrint(url);
+    // debugPrint("headers: \n $header");
+    // debugPrint("unencrypted payload \n ${data.toString()}");
 
     // final decrypted = encrypter.decrypt(encrypted, iv: iv);
     // debugPrint('Decrypted: $decrypted');
@@ -135,7 +133,7 @@ class Diorequest {
       final options = Options(headers: header);
       response = await dio.put(url, options: options, data: data);
       if (response.statusCode == 200) {
-        debugPrint(jsonEncode(response.data));
+        // debugPrint(jsonEncode(response.data));
         return response.data;
       } else if (response.statusCode == 401) {
         return {
@@ -153,8 +151,8 @@ class Diorequest {
         };
       }
 
-      debugPrint("error");
-      debugPrint(e.message);
+      // debugPrint("error");
+      // debugPrint(e.message);
       return {
         "success": false,
         "message": "Connection error try again later",

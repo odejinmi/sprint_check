@@ -108,7 +108,7 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     Charge charge = Charge(identifier);
     charge.bvn = bvn;
     charge.nin = nin;
-    dev.log("identifier: $identifier, bvn: $bvn, nin: $nin");
+    // dev.log("identifier: $identifier, bvn: $bvn, nin: $nin");
     CheckoutResponse? response = await showDialog(
       barrierDismissible: false,
       context: context,
@@ -120,4 +120,4 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
 
 enum CheckoutMethod { bvn, nin, facial, idcard, selectable }
 
-typedef OnResponse<CheckoutResponse> = void Function(CheckoutResponse response);
+typedef OnResponse<T> = void Function(T response);

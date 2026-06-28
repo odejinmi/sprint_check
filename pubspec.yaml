@@ -1,6 +1,6 @@
 name: sprint_check
-description: "Flutter plugin for BVN and NIN Verification with Picture. Fully supports Android && Ios platform."
-version: 0.1.7
+description: "Flutter plugin for BVN and NIN Verification with Picture. Fully supports Android, iOS, Web, Linux, macOS, and Windows platforms."
+version: 0.1.8
 homepage: https://sprintcheck.megasprintlimited.com.ng/
 
 environment:
@@ -17,7 +17,7 @@ dependencies:
 
   flutter_face_api: ^8.2.1103
   flutter_face_core_basic: ^8.2.461
-  intl: ^0.20.2
+  intl: ^0.20.3
   dio: ^5.9.2
   crypto: ^3.0.7
   google_mlkit_text_recognition: ^0.15.1
@@ -25,9 +25,8 @@ dependencies:
   google_mlkit_face_detection: ^0.13.2
   image: ^4.9.1 # Added for image processing
   path_provider: ^2.1.5 # Added for temporary directory
-  image_cropper: ^12.2.1 # Added for image cropping
-  sprintliveness: #^0.1.0
-   path: ../sprintliveness
+  image_cropper: ^8.0.0 # Upgrade from 5.x to fix Android compilation while keeping iOS compatibility
+  sprintliveness: ^0.1.1
   permission_handler: ^12.0.3
 
 

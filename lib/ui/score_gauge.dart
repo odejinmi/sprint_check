@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class ScoreGauge extends StatelessWidget {
   final double score;
 
-  const ScoreGauge({Key? key, required this.score}) : super(key: key);
+  const ScoreGauge({super.key, required this.score});
 
   @override
   Widget build(BuildContext context) {

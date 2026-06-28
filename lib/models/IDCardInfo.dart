@@ -140,7 +140,7 @@ class IDCardParser {
         }
         await faceDetector.close();
       } catch (e) {
-        dev.log('Error cropping face from ID card: $e');
+        // dev.log('Error cropping face from ID card: $e');
       }
     }
 

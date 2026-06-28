@@ -22,7 +22,7 @@ Add `sprint_check` to your `pubspec.yaml` dependencies:
 
 ```yaml
 dependencies:
-  sprint_check: ^0.1.5
+  sprint_check: ^0.1.8
 ```
 
 Then run:
@@ -49,8 +49,8 @@ class _ExampleVerificationPageState extends State<ExampleVerificationPage> {
   void initState() {
     super.initState();
     plugin.initialize(
-      api_key: apiKey,
-      encryption_key: encryptionKey,
+      apiKey: apiKey,
+      encryptionKey: encryptionKey,
     );
   }
 }

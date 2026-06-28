@@ -3,6 +3,8 @@ import 'package:sprint_check/models/checkout_response.dart';
 import 'package:sprint_check/sprint_check_method_channel.dart';
 
 import 'sprint_check_platform_interface.dart';
+export 'models/checkout_response.dart';
+export 'sprint_check_method_channel.dart';
 
 /// The main class for interacting with the SprintCheck SDK.
 class SprintCheck {

@@ -37,10 +37,9 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
         builder: (context) {
           return SafeArea(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-              width: 390,
-              height: 312,
-              decoration: ShapeDecoration(
+              padding: const EdgeInsets.fromLTRB(40, 20, 40, 10),
+              width: double.infinity,
+              decoration: const ShapeDecoration(
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
@@ -58,12 +57,13 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
                 ],
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 spacing: 20,
                 children: [
-                  Text(
+                  const Text(
                     'Are you sure you want to cancel',
                     style: TextStyle(
-                      color: const Color(0xFF1B1B1B),
+                      color: Color(0xFF1B1B1B),
                       fontSize: 16,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
@@ -71,7 +71,7 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
                       letterSpacing: -0.41,
                     ),
                   ),
-                  Text(
+                  const Text(
                     'Cancelling will end verification and erase your details. Ignore this message if it was a mistake.',
                     style: TextStyle(
                       color: Colors.black,
@@ -82,7 +82,6 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
                       letterSpacing: -0.41,
                     ),
                   ),
-                  SizedBox(height: 20,),
                   InkWell(
                     onTap: () {
                       Navigator.pop(context, false);
@@ -93,7 +92,7 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
                         color: Colors.black,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         spacing: 10,
@@ -115,15 +114,20 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
                     onTap: () {
                       Navigator.pop(context, true);
                     },
-                    child: Text(
-                      'Cancel',
-                      style: TextStyle(
-                        color: const Color(0xFFFF5257),
-                        fontSize: 16,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w500,
-                        height: 1.38,
-                        letterSpacing: -0.41,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Color(0xFFFF5257),
+                          fontSize: 16,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                          height: 1.38,
+                          letterSpacing: -0.41,
+                        ),
                       ),
                     ),
                   ),
@@ -142,6 +146,7 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
 
   void onCancelPress() async {
     bool close = await _onWillPop();
+    if (!mounted) return;
     if (close) {
       Navigator.of(context).pop(getPopReturnValue());
     }
