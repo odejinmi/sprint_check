@@ -1,5 +1,3 @@
-import 'dart:developer' as dev;
-
 import 'IDCardInfo.dart';
 
 class ExtractNational {
@@ -9,7 +7,6 @@ class ExtractNational {
     String? lastName;
     String? middleName;
     String? dob;
-    String? nin;
     String? extractedDetails;
 
     // --- Primary Extraction from Machine-Readable Zone (MRZ) ---

@@ -11,8 +11,15 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final bool shouldPop = await _onWillPop();
+        if (shouldPop && mounted) {
+          Navigator.of(context).pop(getPopReturnValue());
+        }
+      },
       child: buildChild(context),
     );
   }
@@ -28,11 +35,10 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
     if (alwaysPop ||
         (returnValue != null &&
             (returnValue.status == true))) {
-      Navigator.of(context).pop(returnValue);
-      return false;
+      return true;
     }
 
-    bool exit = await showModalBottomSheet(
+    bool exit = await showModalBottomSheet<bool>(
         context: context,
         builder: (context) {
           return SafeArea(
@@ -138,10 +144,7 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
         }) ??
         false;
 
-    if (exit) {
-      Navigator.of(context).pop(returnValue);
-    }
-    return false;
+    return exit;
   }
 
   void onCancelPress() async {
