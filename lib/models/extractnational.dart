@@ -111,7 +111,7 @@ class ExtractNational {
       // if (upper.contains('NIN')) {
          final match1 = RegExp(r'(\d{11})').firstMatch(upper.replaceAll(' ', ''));
          if (match1 != null) {
-           nin = match1.group(1)!;
+           // nin = match1.group(1)!;
          // } else if (i + 1 < lines.length) {
          //   final nextLineMatch = RegExp(r'(\d{11})').firstMatch(lines[i + 1].replaceAll(' ', ''));
          //   if (nextLineMatch != null) {

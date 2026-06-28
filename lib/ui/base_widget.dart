@@ -16,7 +16,7 @@ abstract class BaseState<T extends StatefulWidget> extends State<T> {
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
         final bool shouldPop = await _onWillPop();
-        if (shouldPop && mounted) {
+        if (shouldPop && context.mounted) {
           Navigator.of(context).pop(getPopReturnValue());
         }
       },
