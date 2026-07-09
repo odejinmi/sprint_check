@@ -15,18 +15,19 @@ dependencies:
   web: ^1.1.1
   plugin_platform_interface: ^2.1.8
 
-  flutter_face_api: ^8.2.1103
+  flutter_face_api: ^8.2.1149
   flutter_face_core_basic: ^8.2.461
   intl: ^0.20.3
-  dio: ^5.9.2
+  dio: ^5.10.0
   crypto: ^3.0.7
-  google_mlkit_text_recognition: ^0.15.1
+  google_mlkit_text_recognition: ^0.16.0
   camera: ^0.12.0+1
-  google_mlkit_face_detection: ^0.13.2
+  google_mlkit_face_detection: ^0.14.0
   image: ^4.9.1 # Added for image processing
   path_provider: ^2.1.5 # Added for temporary directory
   image_cropper: ^8.0.0 # Upgrade from 5.x to fix Android compilation while keeping iOS compatibility
-  sprintliveness: ^0.1.1
+  sprintliveness: #^0.1.1
+   path: ../sprintliveness
   permission_handler: ^12.0.3
 
 
@@ -60,7 +61,7 @@ flutter:
       linux:
         pluginClass: SprintCheckPlugin
       macos:
-        pluginClass: SprintCheckPluginCApi
+        pluginClass: SprintCheckPlugin
       windows:
         pluginClass: SprintCheckPluginCApi
       web:

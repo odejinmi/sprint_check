@@ -13,6 +13,6 @@ import sprintliveness
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   InAppWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "InAppWebViewFlutterPlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
-  SprintCheckPluginCApi.register(with: registry.registrar(forPlugin: "SprintCheckPluginCApi"))
+  SprintCheckPlugin.register(with: registry.registrar(forPlugin: "SprintCheckPlugin"))
   SprintlivenessPlugin.register(with: registry.registrar(forPlugin: "SprintlivenessPlugin"))
 }

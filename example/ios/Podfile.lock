@@ -1,10 +1,12 @@
 PODS:
+  - camera_avfoundation (0.0.1):
+    - Flutter
   - FaceCoreBasic (8.2.2127)
-  - FaceSDK (8.2.4366):
-    - RegulaCommon (= 9.5.2372)
+  - FaceSDK (8.2.4530):
+    - RegulaCommon (= 9.6.2497)
   - Flutter (1.0.0)
-  - flutter_face_api (8.2.1103):
-    - FaceSDK (= 8.2.4366)
+  - flutter_face_api (8.2.1149):
+    - FaceSDK (= 8.2.4530)
     - Flutter
   - flutter_face_core_basic (8.2.461):
     - FaceCoreBasic (= 8.2.2127)
@@ -16,14 +18,14 @@ PODS:
   - flutter_inappwebview_ios/Core (0.0.1):
     - Flutter
     - OrderedSet (~> 6.0.3)
-  - google_mlkit_commons (0.11.0):
+  - google_mlkit_commons (0.12.0):
     - Flutter
-    - MLKitVision
-  - google_mlkit_face_detection (0.13.2):
+    - MLKitVision (~> 10.0.0)
+  - google_mlkit_face_detection (0.14.0):
     - Flutter
     - google_mlkit_commons
     - GoogleMLKit/FaceDetection (~> 9.0.0)
-  - google_mlkit_text_recognition (0.15.1):
+  - google_mlkit_text_recognition (0.16.0):
     - Flutter
     - google_mlkit_commons
     - GoogleMLKit/TextRecognition (~> 9.0.0)
@@ -43,16 +45,21 @@ PODS:
     - GoogleToolboxForMac/Defines (= 4.2.1)
   - "GoogleToolboxForMac/NSData+zlib (4.2.1)":
     - GoogleToolboxForMac/Defines (= 4.2.1)
-  - GoogleUtilities/Environment (8.1.1):
+  - GoogleUtilities/Environment (8.1.2):
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Logger (8.1.1):
+  - GoogleUtilities/Logger (8.1.2):
     - GoogleUtilities/Environment
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Privacy (8.1.1)
-  - GoogleUtilities/UserDefaults (8.1.1):
+  - GoogleUtilities/Privacy (8.1.2)
+  - GoogleUtilities/UserDefaults (8.1.2):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
   - GTMSessionFetcher/Core (3.5.0)
+  - image_cropper (0.0.4):
+    - Flutter
+    - TOCropViewController (~> 2.7.4)
+  - integration_test (0.0.1):
+    - Flutter
   - MLImage (1.0.0-beta8)
   - MLKitCommon (14.0.0):
     - GoogleDataTransport (~> 10.0)
@@ -83,12 +90,21 @@ PODS:
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
   - OrderedSet (6.0.3)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - permission_handler_apple (9.3.0):
     - Flutter
   - PromisesObjC (2.4.1)
-  - RegulaCommon (9.5.2372)
+  - RegulaCommon (9.6.2497)
+  - sprint_check (0.0.1):
+    - Flutter
+  - sprintliveness (0.0.1):
+    - Flutter
+  - TOCropViewController (2.7.4)
 
 DEPENDENCIES:
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - Flutter (from `Flutter`)
   - flutter_face_api (from `.symlinks/plugins/flutter_face_api/ios`)
   - flutter_face_core_basic (from `.symlinks/plugins/flutter_face_core_basic/ios`)
@@ -96,12 +112,16 @@ DEPENDENCIES:
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
   - google_mlkit_face_detection (from `.symlinks/plugins/google_mlkit_face_detection/ios`)
   - google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`)
+  - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - sprint_check (from `.symlinks/plugins/sprint_check/ios`)
+  - sprintliveness (from `.symlinks/plugins/sprintliveness/ios`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/CocoaPods/Specs.git:
     - FaceCoreBasic
-    - FaceSDK
     - GoogleDataTransport
     - GoogleMLKit
     - GoogleToolboxForMac
@@ -116,9 +136,14 @@ SPEC REPOS:
     - nanopb
     - OrderedSet
     - PromisesObjC
+    - TOCropViewController
+  https://github.com/regulaforensics/podspecs.git:
+    - FaceSDK
     - RegulaCommon
 
 EXTERNAL SOURCES:
+  camera_avfoundation:
+    :path: ".symlinks/plugins/camera_avfoundation/ios"
   Flutter:
     :path: Flutter
   flutter_face_api:
@@ -133,24 +158,37 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/google_mlkit_face_detection/ios"
   google_mlkit_text_recognition:
     :path: ".symlinks/plugins/google_mlkit_text_recognition/ios"
+  image_cropper:
+    :path: ".symlinks/plugins/image_cropper/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  sprint_check:
+    :path: ".symlinks/plugins/sprint_check/ios"
+  sprintliveness:
+    :path: ".symlinks/plugins/sprintliveness/ios"
 
 SPEC CHECKSUMS:
+  camera_avfoundation: 769d252259fa21e39ada7399c9dc9c0921af8165
   FaceCoreBasic: 44683db3a585b075595f5c77e22c331d2826a054
-  FaceSDK: c9aa57613ede9098595e5d8dfb057aecde87dc0f
+  FaceSDK: 7e43d219c50db9d0470b27f6187277d804f5a878
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_face_api: 6c4683a5b2c7cb1f0cba8de79958036aa94415ed
+  flutter_face_api: 23a5d6e5b31e1d53493c2587ccddcc77f31e1fc0
   flutter_face_core_basic: 6c481818d0ded26b657e10ebe8af19122253b9f9
   flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
-  google_mlkit_commons: 2544377e5503bf78ee7412ccfce0394c2dcb8a6b
-  google_mlkit_face_detection: ceddb8d65f594b9ff8379efc16ab2c4efa801349
-  google_mlkit_text_recognition: 309a3a493765ea17c7368cadb4a710391e73902c
+  google_mlkit_commons: 75b2579ccf522fe01d42e689babda04c4510ba2f
+  google_mlkit_face_detection: 9dc1acbfcec8a5f7920ec85beb90a0a79e52fd5d
+  google_mlkit_text_recognition: 4d510169638309ef7ed2aff1971b620e8d785d6e
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleMLKit: b1eee21a41c57704fe72483b15c85cb2c0cd7444
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
-  GoogleUtilities: 4f2618a4a1e762a1ee134a1e2323bba9843e06da
+  GoogleUtilities: 766ace00c6b10d8148408f329d10c4f051931850
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
+  image_cropper: 37d40f62177c101ff4c164906d259ea2c3aa70cf
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
   MLImage: 0de5c6c2bf9e93b80ef752e2797f0836f03b58c0
   MLKitCommon: 47d47b50a031d00db62f1b0efe5a1d8b09a3b2e6
   MLKitFaceDetection: 32549f1e70e6e7731261bf9cea2b74095e2531cb
@@ -159,10 +197,14 @@ SPEC CHECKSUMS:
   MLKitVision: 39a5a812db83c4a0794445088e567f3631c11961
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
-  RegulaCommon: bc15eb45e411fad70b17e1e37406a43ddfbc73c7
+  RegulaCommon: 1cef401756b42d4cca514dfc6cb77dc241cd8550
+  sprint_check: 69496b4125266fe6b1c1984d3150e92be9b9d2ec
+  sprintliveness: bbe08d311100a1c384182d3b1c28224b4297e9b4
+  TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
 
-PODFILE CHECKSUM: 176d922d025490b007d1371157607c1c4fdfec01
+PODFILE CHECKSUM: 7e246516286ed78fbba9ba9e4a4220ecf4f599aa
 
 COCOAPODS: 1.16.2
