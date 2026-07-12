@@ -5,6 +5,7 @@ class Charge {
   String identifier;
   String? bvn;
   String? nin;
+  String? reference;
   // BankAccount? _account;
 
   /// Amount to pay in base currency. Must be a valid positive number

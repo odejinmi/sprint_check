@@ -18,7 +18,9 @@ class MockSprintCheckPlatform
   CheckoutMethod checkoutmethod,
   String identifier, {
   String? bvn,
-  String? nin,}
+  String? nin,
+  String? reference
+      }
   ) {
     // TODO: implement checkout
     throw UnimplementedError();

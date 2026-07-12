@@ -78,6 +78,7 @@ class _NewinputpageState extends State<Newinputpage> {
 
     });
   }
+
   String get title {
     switch (widget.checkoutmethod) {
       case CheckoutMethod.bvn:
@@ -90,6 +91,7 @@ class _NewinputpageState extends State<Newinputpage> {
         return "Selectable";
     }
   }
+
   String get checmethod {
     switch (widget.checkoutmethod) {
       case CheckoutMethod.bvn:
@@ -118,6 +120,7 @@ class _NewinputpageState extends State<Newinputpage> {
     var result = await Diorequest().post(checmethod.toLowerCase(), {
       'number': bvnController.text,
       'identifier': widget.charge.identifier,
+      'reference': widget.charge.reference ?? '',
     }, widget.publicKey, widget.secretKey);
     stage = 2;
     timer?.cancel();

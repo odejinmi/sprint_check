@@ -39,6 +39,7 @@ abstract class SprintCheckPlatform extends PlatformInterface {
     String identifier, {
     String? bvn,
     String? nin,
+    String? reference
   }) async {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }

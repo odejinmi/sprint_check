@@ -38,6 +38,7 @@ class SprintCheck {
     String identifier, {
     String? bvn,
     String? nin,
+    String? reference
   }) async {
     return SprintCheckPlatform.instance.checkout(
       context,
@@ -45,6 +46,7 @@ class SprintCheck {
       identifier,
       bvn: bvn,
       nin: nin,
+      reference: reference,
     );
   }
 }

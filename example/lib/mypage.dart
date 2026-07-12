@@ -1,15 +1,9 @@
-import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sprint_check/common/new_cameraliveness.dart';
-import 'package:sprintliveness/model/liveness_response.dart';
 import 'package:sprint_check/sprint_check.dart';
-import 'package:sprint_check/sprint_check_method_channel.dart';
-
-import 'String.dart';
-import 'compare_screen.dart';
 
 
 class Mypage1 extends StatefulWidget {

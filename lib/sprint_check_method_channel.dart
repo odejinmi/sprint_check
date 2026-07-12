@@ -97,6 +97,7 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     String identifier, {
     String? bvn,
     String? nin,
+    String? reference
   }) async {
     // assert(() {
     //   _validateChargeAndKey(charge);
@@ -106,6 +107,7 @@ class MethodChannelSprintCheck extends SprintCheckPlatform {
     Charge charge = Charge(identifier);
     charge.bvn = bvn;
     charge.nin = nin;
+    charge.reference = reference;
     // dev.log("identifier: $identifier, bvn: $bvn, nin: $nin");
     CheckoutResponse? response = await showDialog(
       barrierDismissible: false,

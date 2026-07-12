@@ -58,4 +58,17 @@ class CheckoutResponse {
   String toString() {
     return 'CheckoutResponse{message: $message, reference: $reference, status: $status, method: $method, name: $name, verify: $verify, bvn: $bvn, nin: $nin, confidenceLevel: $confidenceLevel, base64Image: ${base64Image != null ? "present" : "absent"}}';
   }
+  
+  Map<String, dynamic> toJson() => {
+        "message": message,
+        "reference": reference,
+        "status": status,
+        "method": method.name,
+        "name": name,
+        "verify": verify,
+        "bvn": bvn,
+        "nin": nin,
+        "confidenceLevel": confidenceLevel,
+        "base64Image": base64Image,
+      };
 }
