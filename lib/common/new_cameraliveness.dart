@@ -20,20 +20,37 @@ class NewCameraliveness {
   MatchFacesImage? mfImage2;
 
   Future<double> comparefaceKyc(String image1, String image2) async {
-    var encoded1 = base64Decode(image1);
-    var bytes1 = Uint8List.fromList(encoded1);
-    var encoded2 = base64Decode(image2);
-    var bytes2 = Uint8List.fromList(encoded2);
-    setImage1(bytes1, ImageType.EXTERNAL, 1);
-    setImage1(bytes2, ImageType.EXTERNAL, 2);
+    if (image1.isEmpty || image2.isEmpty) {
+      return 0;
+    }
+    try {
+      var encoded1 = base64Decode(image1);
+      var bytes1 = Uint8List.fromList(encoded1);
+      var encoded2 = base64Decode(image2);
+      var bytes2 = Uint8List.fromList(encoded2);
 
-    var request = MatchFacesRequest([mfImage1!, mfImage2!]);
-    var response = await faceSdk.matchFaces(request);
-    var split = await faceSdk.splitComparedFaces(response.results, 0.75);
-    var match = split.matchedFaces;
-    if (match.isNotEmpty) {
-      return (match[0].similarity * 100);
-    } else {
+      if (bytes1.isEmpty || bytes2.isEmpty) {
+        return 0;
+      }
+
+      setImage1(bytes1, ImageType.EXTERNAL, 1);
+      setImage1(bytes2, ImageType.EXTERNAL, 2);
+
+      var request = MatchFacesRequest([mfImage1!, mfImage2!]);
+      var response = await faceSdk.matchFaces(request);
+      
+      if (response.results.isEmpty) {
+        return 0;
+      }
+
+      var split = await faceSdk.splitComparedFaces(response.results, 0.75);
+      var match = split.matchedFaces;
+      if (match.isNotEmpty) {
+        return (match[0].similarity * 100);
+      } else {
+        return 0;
+      }
+    } catch (e) {
       return 0;
     }
   }

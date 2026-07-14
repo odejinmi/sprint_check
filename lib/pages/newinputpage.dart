@@ -136,11 +136,11 @@ class _NewinputpageState extends State<Newinputpage> {
       message = result["message"];
       success = true;
       var image = result['data']['image'];
-      if (isUrl(image)) {
-         bvnimage = await urlToBase64(image);
+      if (image != null && image is String && isUrl(image)) {
+        bvnimage = await urlToBase64(image);
       } else {
-        // Assume it's already base64
-         bvnimage = image;
+        // Assume it's already base64 or empty
+        bvnimage = (image as String?) ?? "";
       }
        reference = result['data']["reference"];
     } else {
