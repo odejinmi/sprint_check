@@ -60,6 +60,7 @@ class _NewfacepageState extends State<Newfacepage> {
             (timer) => _decrementCount(),
       );
     }
+    if (!mounted) return;
     setState(() {
 
     });
@@ -74,9 +75,16 @@ class _NewfacepageState extends State<Newfacepage> {
             (timer) => _incrementCount(),
       );
     }
+    if (!mounted) return;
     setState(() {
 
     });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
   Future<void> compareimage(String captureimage, String bvnimage) async {
     stage = 1;
@@ -86,6 +94,9 @@ class _NewfacepageState extends State<Newfacepage> {
 
     });
     var result = await faceapi.comparefaceKyc(captureimage, bvnimage);
+    print("result1234567");
+    print(result);
+    print("result");
     // dev.log("image compare result $result");
     score = result;
     postdetails(captureimage);

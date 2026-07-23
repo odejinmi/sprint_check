@@ -24,6 +24,10 @@ class _ScorepageState extends State<Scorepage> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       if (start <= 0) {
         _timer!.cancel();
         widget.onResponse(
@@ -36,6 +40,12 @@ class _ScorepageState extends State<Scorepage> {
 
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
   @override
   Widget build(BuildContext context) {
