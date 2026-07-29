@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
+import 'package:sprintliveness/model/liveness_response.dart';
 
 import '../common/digits_only_formatter.dart';
 import '../common/diorequest.dart';
+import '../common/new_cameraliveness.dart';
 import '../models/charge.dart';
 import '../sprint_check_method_channel.dart';
 
@@ -24,6 +27,8 @@ class Newinputpage extends StatefulWidget {
 
 class _NewinputpageState extends State<Newinputpage> {
 
+
+  var faceapi = NewCameraliveness();
 
   TextEditingController bvnController = TextEditingController();
   Timer? timer;
@@ -44,6 +49,8 @@ class _NewinputpageState extends State<Newinputpage> {
       });
     }
   }
+
+  String enrollmentdata = "";
 
   void _incrementCount() {
     if (width < 160.0) {
@@ -96,6 +103,46 @@ class _NewinputpageState extends State<Newinputpage> {
       default:
         return "Selectable";
     }
+  }
+
+  Future<void> compareimage(String captureimage, String bvnimage) async {
+    stage = 1;
+    timercount();
+    setState(() {
+
+    });
+    var result = await faceapi.comparefaceKyc(captureimage, bvnimage);
+    dev.log("image compare result $result");
+    postdetails(captureimage, result);
+  }
+
+
+
+  Future<void> postdetails(String captureimage, double score) async {
+    var result = await Diorequest().put(checmethod.toLowerCase(), {
+      'number': widget.charge.bvn,
+      'reference': reference,
+      'identifier': widget.charge.identifier,
+      'confidence': score.toInt(),
+      'image': captureimage,
+    }, widget.publicKey, widget.secretKey,);
+    // var result = {"success":1,"message":"Recorded Successfully","data":"ODEJINMI TOLULOPE ABRAHAM"}
+    stage = 2;
+    timer?.cancel();
+    if (result["success"] == 1) {
+      enrollmentdata = result["data"];
+    }
+    print("hello people");
+    widget.onResponse({
+      "bvnimage": bvnimage,
+      "reference": reference,
+      "number": bvnController.text,
+      "procced": procced,
+      "message": message,
+      "score": score,
+      "enrollmentdata": enrollmentdata,
+      "base64Image": captureimage
+    });
   }
 
   String get checmethod {
@@ -158,6 +205,29 @@ class _NewinputpageState extends State<Newinputpage> {
       // stage = 2;
       // displaymessage = "Invalid $checmethod provided";
       // verificationstatus = 0;
+    }
+    // widget.onResponse({
+    //   "bvnimage": bvnimage,
+    //   "reference": reference,
+    //   "number": bvnController.text,
+    //   "procced": procced,
+    //   "message": message,
+    // });
+
+    LivenessResult? pickedFile =
+    await faceapi.startLiveness(context);
+    if (pickedFile != null && pickedFile.image != null) {
+      var captureimage = pickedFile.image!;
+      // controller.loading(context);
+      compareimage(captureimage, bvnimage);
+    } else {
+      String message = 'Liveness check cancelled or failed.';
+      if (pickedFile?.exception != null) {
+        message = pickedFile!.exception!.message;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
     }
     if (mounted) {
       setState(() {
@@ -388,6 +458,7 @@ class _NewinputpageState extends State<Newinputpage> {
                 ),
               ),
             ),
+            if(stage != 2)
             InkWell(
               onTap: () {
                 if (stage == 0) {

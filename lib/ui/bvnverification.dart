@@ -42,6 +42,10 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
           reference = response["reference"];
           stage = response["procced"];
           message = response["message"];
+          score = response["score"];
+          enrollmentdata = response["enrollmentdata"];
+          capturedImage = response["base64Image"];
+          stage = 2;
           setState(() {
 
           });

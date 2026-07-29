@@ -148,23 +148,64 @@ CheckoutResponse{
 ## Platform Requirements
 
 ### Android
-Add these permissions to your `android/app/src/main/AndroidManifest.xml`:
+1. **Minimum SDK Version**: Ensure your `minSdkVersion` is at least **21** in `android/app/build.gradle`.
 
+2. **Permissions**: Add these to your `android/app/src/main/AndroidManifest.xml`:
 ```xml
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 <uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.CAMERA" />
+
+<!-- Required for image processing and cropping -->
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+<!-- For Android 13+ (API 33) -->
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+```
+
+3. **UCropActivity**: Add the cropping activity to your `<application>` tag (required by `image_cropper`):
+```xml
+<activity
+    android:name="com.yalantis.ucrop.UCropActivity"
+    android:screenOrientation="portrait"
+    android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+```
+
+4. **ML Kit Models**: (Optional but recommended) To automatically download ML Kit models, add this to your `<application>` tag:
+```xml
+<meta-data
+    android:name="com.google.mlkit.vision.DEPENDENCIES"
+    android:value="face,ocr" />
 ```
 
 ### iOS
-Add these permissions to your `ios/Runner/Info.plist`:
+1. **Minimum iOS Version**: The plugin requires iOS **15.5** or higher.
 
+2. **Permissions**: Add these to your `ios/Runner/Info.plist`:
 ```xml
 <key>NSCameraUsageDescription</key>
-<string>This app needs camera access for ID verification</string>
+<string>This app needs camera access for face liveness and ID verification.</string>
 <key>NSPhotoLibraryUsageDescription</key>
-<string>This app needs photo library access for ID verification</string>
+<string>This app needs photo library access for processing verification documents.</string>
+```
+
+3. **Permission Handler Setup**: Update your `ios/Podfile` to include the `PERMISSION_CAMERA` macro. Add this to the `post_install` block:
+```ruby
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    
+    # Required for permission_handler
+    if target.name == 'permission_handler_apple'
+      target.build_configurations.each do |config|
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+          '$(inherited)',
+          'PERMISSION_CAMERA=1',
+          'PERMISSION_PHOTOS=1',
+        ]
+      end
+    end
+  end
+end
 ```
 
 ## Getting Started

@@ -67,11 +67,19 @@ class NewCameraliveness {
   }
 
   Future<LivenessResult?> startLiveness(BuildContext context) async {
-    var livenessResult = await _sprintlivenessPlugin.startLivenessCheck(context);
-    if (livenessResult.image != null) {
-      // dev.log("Liveness image captured");
+    try {
+      print("Starting liveness check via sprintliveness plugin...");
+      var livenessResult = await _sprintlivenessPlugin.startLivenessCheck(context);
+      if (livenessResult.image != null) {
+        print("Liveness image captured successfully");
+      } else {
+        print("Liveness check returned no image. Exception: ${livenessResult.exception?.message}");
+      }
+      return livenessResult;
+    } catch (e) {
+      print("Error in startLiveness: $e");
+      return null;
     }
-    return livenessResult;
   }
 
   Future<ByteData?> loadAssetIfExists(String path) async {

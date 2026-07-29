@@ -179,7 +179,7 @@ class _NewfacepageState extends State<Newfacepage> {
                         SizedBox(width: 20, height: 20, child: Icon(Icons.done, color: Colors.black, )),
                         Expanded(
                           child: Text(
-                            'Stay in a bright lite environment',
+                            'Stay in a bright light environment',
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 13,
@@ -307,6 +307,14 @@ class _NewfacepageState extends State<Newfacepage> {
                 var captureimage = pickedFile.image!;
                 // controller.loading(context);
                 compareimage(captureimage, widget.bvnimage);
+              } else {
+                String message = 'Liveness check cancelled or failed.';
+                if (pickedFile?.exception != null) {
+                  message = pickedFile!.exception!.message;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(message)),
+                );
               }
             }else if (stage == 2) {
               widget.onResponse({
@@ -316,24 +324,27 @@ class _NewfacepageState extends State<Newfacepage> {
               });
             }
           },
-          child: Container(
-            width: double.infinity,
-            height: 47,
-            alignment: Alignment.center,
-            decoration: ShapeDecoration(
-              color: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
+          child: Opacity(
+            opacity: stage == 1 ? 0.05 : 1,
+            child: Container(
+              width: double.infinity,
+              height: 47,
+              alignment: Alignment.center,
+              decoration: ShapeDecoration(
+                color: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
               ),
-            ),
-            child: Text(
-              stage ==0? 'Start face verification': 'Continue',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: FontWeight.w600,
-                height: 1.5,
+              child: Text(
+                stage ==0? 'Start face verification': 'Continue',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontWeight: FontWeight.w600,
+                  height: 1.5,
+                ),
               ),
             ),
           ),

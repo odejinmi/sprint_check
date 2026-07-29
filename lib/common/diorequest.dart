@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
@@ -71,14 +72,14 @@ class Diorequest {
       "signature": generateHmacSha512(jsonEncode(data),secretKey),
     };
 
-    // debugPrint(url);
-    // debugPrint(jsonEncode(data));
-    // debugPrint(generateHmacSha512(jsonEncode(data),secretKey));
-    // debugPrint("headers: \n $header");
-    // debugPrint("unencrypted payload \n ${data.toString()}");
+    // dev.log(url);
+    // dev.log(jsonEncode(data));
+    // dev.log(generateHmacSha512(jsonEncode(data),secretKey));
+    // dev.log("headers: \n $header");
+    // dev.log("unencrypted payload \n ${data.toString()}");
 
     // final decrypted = encrypter.decrypt(encrypted, iv: iv);
-    // debugPrint('Decrypted: $decrypted');
+    // dev.log('Decrypted: $decrypted');
     try {
       Response response;
       final options = Options(headers: header);
