@@ -15,10 +15,10 @@ dependencies:
   web: ^1.1.1
   plugin_platform_interface: ^2.1.8
 
-  flutter_face_api: ^8.2.1149
-  flutter_face_core_basic: ^8.2.461
+  flutter_face_api: ^8.3.1291
+  flutter_face_core_basic: ^8.3.635
   intl: ^0.20.3
-  dio: ^5.10.0
+  dio: ^5.11.0
   crypto: ^3.0.7
   google_mlkit_text_recognition: ^0.16.0
   camera: ^0.12.0+2
@@ -26,9 +26,9 @@ dependencies:
   image: ^4.9.1 # Added for image processing
   path_provider: ^2.1.6
   image_cropper: ^12.2.1
-  sprintliveness: #^0.1.1
-   path: ../sprintliveness
-  permission_handler: ^12.0.3
+  sprintliveness: ^0.1.2
+#   path: ../sprintliveness
+  permission_handler: ^13.0.0
 
 
 dev_dependencies:

@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sprint_check/common/new_cameraliveness.dart';
@@ -18,9 +19,12 @@ class _MypageState extends State<Mypage1> {
   final _sprintCheckPlugin = SprintCheck();
 
   TextEditingController identifierController = TextEditingController(
-    text: "odejinmiabraham@gmail.com",
+    // text: "odejinmiabraham@gmail.com",
+    text: "EJC45D8GHTD9",
   );
-  TextEditingController bvnController = TextEditingController();
+  TextEditingController bvnController = TextEditingController(
+    text: kDebugMode? "22314756491": null
+  );
 
   @override
   void initState() {
@@ -38,8 +42,8 @@ class _MypageState extends State<Mypage1> {
           await _sprintCheckPlugin.getPlatformVersion() ??
               'Unknown platform version';
       _sprintCheckPlugin.initialize(
-        apiKey: "scb1edcd88-64f7485186d9781ca624a903",
-        encryptionKey: "enc67fe4978b16fc1744718200",
+        apiKey: "scbzvH8StBC3M6r0jVfMpScvem6kaxvYOqbuHD2XWS4Df",
+        encryptionKey: 'encDDtFVWfHGoELdaRtcMflcpP7jWy1e',
       );
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
@@ -164,6 +168,7 @@ class _MypageState extends State<Mypage1> {
                     context,
                     CheckoutMethod.facial,
                     identifierController.text,
+                    reference: "ghjgsdjsdj"
                   );
                   showresult("response for the sdk: $response");
                   dev.log("response for the sdk: $response");
