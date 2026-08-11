@@ -1,6 +1,16 @@
-# TODO List - Fix Face Verification Hang
+# Task: Final Analysis Clean-up
 
-- [x] Add error handling and user feedback in `newfacepage.dart`
-- [x] Add logging in `new_cameraliveness.dart`
-- [x] Improve error reporting in `liveness_screen.dart`
-- [x] Verify fix with logging and manual test flow simulation
+- [ ] Fix syntax and logic issues
+    - [ ] `extractNIN.dart`: Fix interpolation
+    - [ ] `extractunknown.dart`: Fix interpolation
+    - [ ] `newcaptureidcard.dart`: Update `withOpacity` to `withValues`
+    - [ ] `newfacepage.dart`: Remove unused import
+    - [ ] `newinputpage.dart`: Fix BuildContext async gap
+- [ ] Rename files and update imports
+    - [ ] `example/lib/String.dart` -> `example/lib/string_extensions.dart`
+    - [ ] `lib/models/IDCardInfo.dart` -> `lib/models/id_card_info.dart`
+    - [ ] `lib/models/extractDriverLicense.dart` -> `lib/models/extract_driver_license.dart`
+    - [ ] `lib/models/extractNIN.dart` -> `lib/models/extract_nin.dart`
+    - [ ] `lib/models/extractVoter.dart` -> `lib/models/extract_voter.dart`
+    - [ ] `lib/models/nin/digitalNINslip.dart` -> `lib/models/nin/digital_nin_slip.dart`
+- [ ] Verify with `dart analyze`

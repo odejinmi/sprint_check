@@ -1,4 +1,4 @@
-import 'package:sprint_check/models/IDCardInfo.dart';
+import 'package:sprint_check/models/id_card_info.dart';
 
 class Extractunknown {
   static IDCardInfo extractunknown(List<String> lines) {
@@ -13,7 +13,7 @@ class Extractunknown {
       if (extractedDetails == null) {
         extractedDetails = line;
       } else {
-        extractedDetails += " ***videx*** " + line;
+        extractedDetails += " ***videx*** $line";
       }
     }
 

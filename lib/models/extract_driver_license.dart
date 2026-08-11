@@ -1,4 +1,4 @@
- import 'IDCardInfo.dart';
+ import 'id_card_info.dart';
 
 class ExtractDriverLicense {
 

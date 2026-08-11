@@ -4,10 +4,10 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
-import 'extractDriverLicense.dart';
-import 'extractnational.dart';
-import 'extractVoter.dart';
-import 'extractNIN.dart';
+import 'extract_driver_license.dart';
+import 'extract_national.dart';
+import 'extract_voter.dart';
+import 'extract_nin.dart';
 
 
 /// Holds the extracted information from a recognized ID card.

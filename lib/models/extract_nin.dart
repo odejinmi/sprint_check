@@ -1,5 +1,5 @@
-import 'IDCardInfo.dart';
-import 'nin/digitalNINslip.dart';
+import 'id_card_info.dart';
+import 'nin/digital_nin_slip.dart';
 import 'nin/extractunknown.dart';
 
 class ExtractNIN {
@@ -41,7 +41,7 @@ class ExtractNIN {
       if (extractedDetails == null) {
         extractedDetails = line;
       } else {
-        extractedDetails += " ***videx*** " + line;
+        extractedDetails += " ***videx*** $line";
       }
     }
 

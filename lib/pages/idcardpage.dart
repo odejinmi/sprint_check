@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
-import '../models/IDCardInfo.dart';
+import '../models/id_card_info.dart';
 import 'newcaptureidcard.dart';
 
 class Idcardpage extends StatefulWidget {

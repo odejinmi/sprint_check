@@ -1,5 +1,5 @@
 
-import '../IDCardInfo.dart';
+import '../id_card_info.dart';
 
 class Digitalninslip {
   static IDCardInfo extractDigitalNINslip(List<String> lines) {

@@ -1,4 +1,4 @@
-import 'IDCardInfo.dart';
+import 'id_card_info.dart';
 
 class ExtractVoter {
   static Future<IDCardInfo> extractVoter(List<String> lines) async {
