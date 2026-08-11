@@ -20,7 +20,7 @@ class _MypageState extends State<Mypage1> {
 
   TextEditingController identifierController = TextEditingController(
     // text: "odejinmiabraham@gmail.com",
-    text: "EJC45D8GHTD9",
+    text: kDebugMode? "342755" : "",
   );
   TextEditingController bvnController = TextEditingController(
     text: kDebugMode? "22314756491": null
@@ -168,7 +168,7 @@ class _MypageState extends State<Mypage1> {
                     context,
                     CheckoutMethod.facial,
                     identifierController.text,
-                    reference: "ghjgsdjsdj"
+                    reference: "ghjgsdjsdj2"
                   );
                   showresult("response for the sdk: $response");
                   dev.log("response for the sdk: $response");

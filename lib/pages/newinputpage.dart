@@ -171,11 +171,12 @@ class _NewinputpageState extends State<Newinputpage> {
       setState(() {
 
       });
-    var result = await Diorequest().post(checmethod.toLowerCase(), {
-      'number': bvnController.text,
-      'identifier': widget.charge.identifier,
-      'reference': widget.charge.reference ?? '',
-    }, widget.publicKey, widget.secretKey);
+      var body = {
+        'number': bvnController.text,
+        'identifier': widget.charge.identifier,
+        'reference': widget.charge.reference ?? '',
+      };
+    var result = await Diorequest().post(checmethod.toLowerCase(), body, widget.publicKey, widget.secretKey);
     timer?.cancel();
     if (!mounted) return;
     setState(() {
@@ -194,6 +195,25 @@ class _NewinputpageState extends State<Newinputpage> {
         bvnimage = (image as String?) ?? "";
       }
        reference = result['data']["reference"];
+      if (!mounted) return;
+      LivenessResult? pickedFile =
+      await faceapi.startLiveness(context);
+      if (!mounted) return;
+      if (pickedFile != null && pickedFile.image != null) {
+        var captureimage = pickedFile.image!;
+        // controller.loading(context);
+        compareimage(captureimage, bvnimage);
+      } else {
+        String message = 'Liveness check cancelled or failed.';
+        if (pickedFile?.exception != null) {
+          message = pickedFile!.exception!.message;
+        }
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        }
+      }
     } else {
       message = result["message"];
       procced = 2;
@@ -201,6 +221,16 @@ class _NewinputpageState extends State<Newinputpage> {
       // stage = 2;
       // displaymessage = "Invalid $checmethod provided";
       // verificationstatus = 0;
+      widget.onResponse({
+        "bvnimage": bvnimage,
+        "reference": reference,
+        "number": bvnController.text,
+        "procced": procced,
+        "message": message,
+        "score": 0.0,
+        "enrollmentdata": enrollmentdata,
+        "base64Image": null
+      });
     }
     // widget.onResponse({
     //   "bvnimage": bvnimage,
@@ -210,25 +240,6 @@ class _NewinputpageState extends State<Newinputpage> {
     //   "message": message,
     // });
 
-    if (!mounted) return;
-    LivenessResult? pickedFile =
-    await faceapi.startLiveness(context);
-    if (!mounted) return;
-    if (pickedFile != null && pickedFile.image != null) {
-      var captureimage = pickedFile.image!;
-      // controller.loading(context);
-      compareimage(captureimage, bvnimage);
-    } else {
-      String message = 'Liveness check cancelled or failed.';
-      if (pickedFile?.exception != null) {
-        message = pickedFile!.exception!.message;
-      }
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
-      }
-    }
     if (mounted) {
       setState(() {
 

@@ -60,3 +60,12 @@
 * Cleaned up debug logs and print statements
 * Documentation improvements in README
 
+## 0.1.9
+* Updated UI components and improved user verification flow
+* Standardized file naming to follow Dart style guide (lower_case_with_underscores)
+* Fixed static analysis warnings and improved code quality
+* Resolved "async gap" issues with BuildContext for better stability
+* Updated deprecated `withOpacity` to `withValues`
+* Added flashlight support during liveness check
+* Improved error handling and feedback for camera permissions and failures
+

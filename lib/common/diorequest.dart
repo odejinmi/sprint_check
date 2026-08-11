@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
@@ -64,7 +65,6 @@ class Diorequest {
 
   Future<dynamic> post(String endpoint, Object data,String publicKey,String secretKey) async {
     String url = '$baseurl$endpoint';
-    // dev.log(url);
     var header = {
       'Content-Type': Headers.jsonContentType,
       'Authorization': publicKey,
