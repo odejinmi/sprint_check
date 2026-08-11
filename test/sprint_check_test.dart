@@ -1,9 +1,7 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:sprint_check/models/checkout_response.dart';
 import 'package:sprint_check/sprint_check.dart';
-import 'package:sprint_check/sprint_check_method_channel.dart';
 import 'package:sprint_check/sprint_check_platform_interface.dart';
 
 class MockSprintCheckPlatform

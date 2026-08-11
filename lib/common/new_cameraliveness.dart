@@ -1,10 +1,10 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_face_api/flutter_face_api.dart' hide LivenessException, LivenessErrorCode;
 import 'package:sprintliveness/sprintliveness.dart';
-import 'package:sprintliveness/model/liveness_response.dart';
 
 class NewCameraliveness {
 
@@ -68,16 +68,16 @@ class NewCameraliveness {
 
   Future<LivenessResult?> startLiveness(BuildContext context) async {
     try {
-      print("Starting liveness check via sprintliveness plugin...");
+      dev.log("Starting liveness check via sprintliveness plugin...");
       var livenessResult = await _sprintlivenessPlugin.startLivenessCheck(context);
       if (livenessResult.image != null) {
-        print("Liveness image captured successfully");
+        dev.log("Liveness image captured successfully");
       } else {
-        print("Liveness check returned no image. Exception: ${livenessResult.exception?.message}");
+        dev.log("Liveness check returned no image. Exception: ${livenessResult.exception?.message}");
       }
       return livenessResult;
     } catch (e) {
-      print("Error in startLiveness: $e");
+      dev.log("Error in startLiveness: $e");
       return null;
     }
   }

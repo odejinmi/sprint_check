@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 // import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -94,9 +95,6 @@ class _NewfacepageState extends State<Newfacepage> {
 
     });
     var result = await faceapi.comparefaceKyc(captureimage, bvnimage);
-    print("result1234567");
-    print(result);
-    print("result");
     // dev.log("image compare result $result");
     score = result;
     postdetails(captureimage);
@@ -303,6 +301,7 @@ class _NewfacepageState extends State<Newfacepage> {
               // }
               LivenessResult? pickedFile =
               await faceapi.startLiveness(context);
+              if (!mounted) return;
               if (pickedFile != null && pickedFile.image != null) {
                 var captureimage = pickedFile.image!;
                 // controller.loading(context);
@@ -312,9 +311,11 @@ class _NewfacepageState extends State<Newfacepage> {
                 if (pickedFile?.exception != null) {
                   message = pickedFile!.exception!.message;
                 }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(message)),
-                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(message)),
+                  );
+                }
               }
             }else if (stage == 2) {
               widget.onResponse({
