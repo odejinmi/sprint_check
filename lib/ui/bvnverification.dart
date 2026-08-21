@@ -65,12 +65,11 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
         }):
         Scorepage(score: score, checkoutmethod: widget.checkoutmethod, message: message,onResponse: (res)
         {
-            var response = CheckoutResponse(
-              message: score <= 50 && message == "Verified Successfully" ? "Verification failed due to low confidence score" : message,
+            var response = CheckoutResponse.aggregate(
+              message: message,
               reference: reference,
               status: res["close"],
               method: widget.checkoutmethod,
-              verify: score > 50,
               name: enrollmentdata,
               confidenceLevel: score,
               bvn: widget.charge.bvn,
@@ -84,12 +83,11 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
 
   void _emitTentativeResponse() {
     if (widget.onTentativeResponse != null) {
-      widget.onTentativeResponse!(CheckoutResponse(
-        message: score <= 50 && message == "Verified Successfully" ? "Verification failed due to low confidence score" : message,
+      widget.onTentativeResponse!(CheckoutResponse.aggregate(
+        message: message,
         reference: reference,
         status: false,
         method: widget.checkoutmethod,
-        verify: score > 50,
         name: enrollmentdata,
         confidenceLevel: score,
         bvn: widget.charge.bvn,

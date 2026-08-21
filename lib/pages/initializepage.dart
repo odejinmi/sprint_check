@@ -132,13 +132,11 @@ class Initializepage extends StatelessWidget {
           const SizedBox(height: 20),
           InkWell(
             onTap: () {
-
-              var response = CheckoutResponse(
+              var response = CheckoutResponse.aggregate(
                   message: "i agreed ",
                   reference: "",
                   status: false,
                   method: checkoutmethod,
-                  verify: false,
                   name: '',
                   confidenceLevel: null,
                   bvn: charge.bvn,

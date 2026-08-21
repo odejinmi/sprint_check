@@ -54,6 +54,33 @@ class CheckoutResponse {
     this.base64Image,
   });
 
+  static CheckoutResponse aggregate({
+    required String message,
+    required String? reference,
+    required bool status,
+    required CheckoutMethod method,
+    required String? name,
+    required double? confidenceLevel,
+    required String? bvn,
+    required String? nin,
+    String? base64Image,
+  }) {
+    return CheckoutResponse(
+      message: (confidenceLevel ?? 0) <= 50 && message == "Verified Successfully"
+          ? "Verification failed due to low confidence score"
+          : message,
+      reference: reference,
+      status: status,
+      method: method,
+      name: name,
+      verify: (confidenceLevel ?? 0) > 50,
+      confidenceLevel: confidenceLevel,
+      bvn: bvn,
+      nin: nin,
+      base64Image: base64Image,
+    );
+  }
+
   @override
   String toString() {
     return 'CheckoutResponse{"message": "$message", "reference": "$reference", "status": $status, "method": "$method", "name": "$name", "verify": $verify, "bvn": "$bvn", "nin": "$nin", "confidenceLevel": $confidenceLevel, "base64Image": ${base64Image != null ? "present" : "absent"}}';

@@ -1,4 +1,3 @@
-- [ ] Update `CheckoutWidget` to handle tentative responses
-- [ ] Update `Bvnverification` to emit tentative responses and fix message logic
-- [ ] Update `Idcardverification` to emit tentative responses and fix message logic
-- [ ] Verify fix by running the example app
+- [ ] Add `aggregate` static method to `CheckoutResponse`
+- [ ] Refactor `Bvnverification` to use `CheckoutResponse.aggregate`
+- [ ] Refactor `Idcardverification` to use `CheckoutResponse.aggregate`
