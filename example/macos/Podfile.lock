@@ -3,11 +3,24 @@ PODS:
     - FlutterMacOS
     - OrderedSet (~> 6.0.3)
   - FlutterMacOS (1.0.0)
+  - geolocator_apple (1.2.0):
+    - Flutter
+    - FlutterMacOS
   - OrderedSet (6.0.3)
+  - package_info_plus (0.0.1):
+    - FlutterMacOS
+  - sprint_check (0.0.1):
+    - FlutterMacOS
+  - sprintliveness (0.0.1):
+    - FlutterMacOS
 
 DEPENDENCIES:
   - flutter_inappwebview_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_inappwebview_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - geolocator_apple (from `Flutter/ephemeral/.symlinks/plugins/geolocator_apple/darwin`)
+  - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
+  - sprint_check (from `Flutter/ephemeral/.symlinks/plugins/sprint_check/macos`)
+  - sprintliveness (from `Flutter/ephemeral/.symlinks/plugins/sprintliveness/macos`)
 
 SPEC REPOS:
   trunk:
@@ -18,12 +31,24 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_inappwebview_macos/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
+  geolocator_apple:
+    :path: Flutter/ephemeral/.symlinks/plugins/geolocator_apple/darwin
+  package_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
+  sprint_check:
+    :path: Flutter/ephemeral/.symlinks/plugins/sprint_check/macos
+  sprintliveness:
+    :path: Flutter/ephemeral/.symlinks/plugins/sprintliveness/macos
 
 SPEC CHECKSUMS:
   flutter_inappwebview_macos: bdf207b8f4ebd58e86ae06cd96b147de99a67c9b
-  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+  FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
+  geolocator_apple: 66b711889fd333205763b83c9dcf0a57a28c7afd
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
+  package_info_plus: 12f1c5c2cfe8727ca46cbd0b26677728972d9a5b
+  sprint_check: 1e2dd55d4e510bcc39f45e14ec3bc9fec86676a2
+  sprintliveness: ed4eed669c83bd8371123b7ad4c80dbacd71e6c3
 
-PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
+PODFILE CHECKSUM: 1e95c36afbfd1cb6423ceca4de7a8e1b256fb6ac
 
 COCOAPODS: 1.16.2

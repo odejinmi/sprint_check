@@ -30,6 +30,7 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
   late AnimationController _animationController;
 
   CheckoutResponse? _response;
+  CheckoutResponse? _tentativeResponse;
 
   @override
   void initState() {
@@ -59,9 +60,9 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
         child: Container(
             child:
             _response?.method == CheckoutMethod.bvn || _response?.method == CheckoutMethod.nin || _response?.method == CheckoutMethod.facial ?
-            Bvnverification(onResponse: _onPaymentResponse, charge: widget.charge, checkoutmethod: widget.method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
+            Bvnverification(onResponse: _onPaymentResponse, onTentativeResponse: (res) => _tentativeResponse = res, charge: widget.charge, checkoutmethod: widget.method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
                 _response?.method == CheckoutMethod.idcard ?
-            Idcardverification(onResponse: _onPaymentResponse, charge: widget.charge, checkoutmethod: widget.method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
+            Idcardverification(onResponse: _onPaymentResponse, onTentativeResponse: (res) => _tentativeResponse = res, charge: widget.charge, checkoutmethod: widget.method, publicKey: widget.publicKey, secretKey: widget.secretKey,):
             Initializepage(onResponse: _onPaymentResponse, charge: widget.charge, checkoutmethod: widget.method,)),
       ),
     );
@@ -70,6 +71,7 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
 
   void _onPaymentResponse(CheckoutResponse response) {
     _response = response;
+    _tentativeResponse = response;
     if (!mounted) return;
       showlogo = true;
     if(response.status){
@@ -85,7 +87,7 @@ class _CheckoutWidgetState extends BaseState<CheckoutWidget>
 
   @override
   CheckoutResponse? getPopReturnValue() {
-    return CheckoutResponse.defaults();
+    return _tentativeResponse ?? CheckoutResponse.defaults();
   }
 
 }

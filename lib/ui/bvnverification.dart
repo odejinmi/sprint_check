@@ -14,7 +14,8 @@ class Bvnverification extends StatefulWidget {
   final Charge charge;
   final CheckoutMethod checkoutmethod;
   final Function(CheckoutResponse) onResponse;
-  const Bvnverification({super.key, required this.charge, required this.checkoutmethod, required this.onResponse, required this.publicKey, required this.secretKey});
+  final Function(CheckoutResponse)? onTentativeResponse;
+  const Bvnverification({super.key, required this.charge, required this.checkoutmethod, required this.onResponse, required this.publicKey, required this.secretKey, this.onTentativeResponse});
 
   @override
   State<Bvnverification> createState() => _BvnverificationState();
@@ -46,6 +47,7 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
           enrollmentdata = response["enrollmentdata"];
           capturedImage = response["base64Image"];
           stage = 2;
+          _emitTentativeResponse();
           setState(() {
 
           });
@@ -56,6 +58,7 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
           enrollmentdata = response["enrollmentdata"];
           capturedImage = response["base64Image"];
           stage = 2;
+          _emitTentativeResponse();
           setState(() {
 
           });
@@ -63,7 +66,7 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
         Scorepage(score: score, checkoutmethod: widget.checkoutmethod, message: message,onResponse: (res)
         {
             var response = CheckoutResponse(
-              message: message,
+              message: score <= 50 && message == "Verified Successfully" ? "Verification failed due to low confidence score" : message,
               reference: reference,
               status: res["close"],
               method: widget.checkoutmethod,
@@ -79,4 +82,20 @@ class _BvnverificationState extends BaseCheckoutMethodState<Bvnverification> {
     ;
   }
 
+  void _emitTentativeResponse() {
+    if (widget.onTentativeResponse != null) {
+      widget.onTentativeResponse!(CheckoutResponse(
+        message: score <= 50 && message == "Verified Successfully" ? "Verification failed due to low confidence score" : message,
+        reference: reference,
+        status: false,
+        method: widget.checkoutmethod,
+        verify: score > 50,
+        name: enrollmentdata,
+        confidenceLevel: score,
+        bvn: widget.charge.bvn,
+        nin: widget.charge.nin,
+        base64Image: capturedImage,
+      ));
+    }
+  }
 }

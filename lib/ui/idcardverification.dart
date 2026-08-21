@@ -14,9 +14,10 @@ class Idcardverification extends StatefulWidget {
   final Charge charge;
   final CheckoutMethod checkoutmethod;
   final Function(CheckoutResponse) onResponse;
+  final Function(CheckoutResponse)? onTentativeResponse;
   final String publicKey;
   final String secretKey;
-  const Idcardverification({super.key, required this.charge, required this.checkoutmethod, required this.onResponse, required this.publicKey, required this.secretKey});
+  const Idcardverification({super.key, required this.charge, required this.checkoutmethod, required this.onResponse, required this.publicKey, required this.secretKey, this.onTentativeResponse});
 
   @override
   State<Idcardverification> createState() => _IdcardverificationState();
@@ -66,6 +67,7 @@ class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverificatio
       score = response["score"];
       capturedImage = response["base64Image"];
       stage = 4;
+      _emitTentativeResponse();
       setState(() {
 
       });
@@ -73,7 +75,7 @@ class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverificatio
     Scorepage(score: score, checkoutmethod: widget.checkoutmethod, message: message,onResponse: (res)
     {
       var response = CheckoutResponse(
-        message: message,
+        message: score <= 50 && message == "Verified Successfully" ? "Verification failed due to low confidence score" : message,
         reference: reference,
         status: res["close"],
         method: widget.checkoutmethod,
@@ -86,5 +88,22 @@ class _IdcardverificationState extends BaseCheckoutMethodState<Idcardverificatio
       );
       widget.onResponse(response);
     });
+  }
+
+  void _emitTentativeResponse() {
+    if (widget.onTentativeResponse != null) {
+      widget.onTentativeResponse!(CheckoutResponse(
+        message: score <= 50 && message == "Verified Successfully" ? "Verification failed due to low confidence score" : message,
+        reference: reference,
+        status: false,
+        method: widget.checkoutmethod,
+        verify: score > 50,
+        name: enrollmentdata,
+        confidenceLevel: score,
+        bvn: widget.charge.bvn,
+        nin: widget.charge.nin,
+        base64Image: capturedImage,
+      ));
+    }
   }
 }
