@@ -67,5 +67,10 @@
 * Resolved "async gap" issues with BuildContext for better stability
 * Updated deprecated `withOpacity` to `withValues`
 * Added flashlight support during liveness check
-* Improved error handling and feedback for camera permissions and failures
+* Improved error handling and feedback for camera permissions and failures 
+
+## 0.2.0
+* Centralized scoring logic and response message aggregation for consistency
+* Enhanced "Cancel" behavior to return verified results if already calculated
+* Transitioned to hosted dependencies for official pub.dev publishing
 

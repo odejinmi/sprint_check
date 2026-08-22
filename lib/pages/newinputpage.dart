@@ -179,7 +179,7 @@ class _NewinputpageState extends State<Newinputpage> {
     var result = await Diorequest().post(checmethod.toLowerCase(), body, widget.publicKey, widget.secretKey);
     timer?.cancel();
     if (!mounted) return;
-    print(result);
+    dev.log(result.toString());
     setState(() {
 
     });
