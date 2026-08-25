@@ -1,3 +1,4 @@
-- [ ] Add `aggregate` static method to `CheckoutResponse`
-- [ ] Refactor `Bvnverification` to use `CheckoutResponse.aggregate`
-- [ ] Refactor `Idcardverification` to use `CheckoutResponse.aggregate`
+- `[x]` Bump version in `pubspec.yaml` to `0.2.1`
+- `[x]` Add version `0.2.1` to `CHANGELOG.md`
+- `[x]` Update version in `README.md` to `0.2.1`
+- `[x]` Verify with `dart analyze` and `flutter pub publish --dry-run`

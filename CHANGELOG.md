@@ -74,3 +74,6 @@
 * Enhanced "Cancel" behavior to return verified results if already calculated
 * Transitioned to hosted dependencies for official pub.dev publishing
 
+## 0.2.1
+* Minor internal improvements and code cleanup
+

@@ -7,7 +7,7 @@ let package = Package(
         .iOS("15.5")
     ],
     products: [
-        .library(name: "sprint_check", targets: ["sprint_check"])
+        .library(name: "sprint-check", targets: ["sprint_check"])
     ],
     dependencies: [
     ],

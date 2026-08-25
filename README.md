@@ -22,7 +22,7 @@ Add `sprint_check` to your `pubspec.yaml` dependencies:
 
 ```yaml
 dependencies:
-  sprint_check: ^0.1.9
+  sprint_check: ^0.2.1
 ```
 
 Then run:
