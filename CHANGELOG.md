@@ -77,3 +77,7 @@
 ## 0.2.1
 * Minor internal improvements and code cleanup
 
+## 0.2.2
+* Bumped iOS deployment target to 16.0 to resolve Regula FaceSDK CocoaPods conflict
+* Updated native iOS dependencies and fixed version mismatches
+
