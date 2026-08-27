@@ -1,4 +1,5 @@
-- `[x]` Bump version in `pubspec.yaml` to `0.2.1`
-- `[x]` Add version `0.2.1` to `CHANGELOG.md`
-- `[x]` Update version in `README.md` to `0.2.1`
-- `[x]` Verify with `dart analyze` and `flutter pub publish --dry-run`
+- [x] Update `ios/sprint_check.podspec` platform version to 16.0
+- [x] Update `example/ios/Podfile` platform and deployment target to 16.0
+- [x] Update `example/ios/Runner.xcodeproj/project.pbxproj` deployment targets to 16.0
+- [x] Run `pod install` (used `pod update` to refresh lock file) in `example/ios`
+- [x] Verify build with `flutter build ios --no-codesign`
