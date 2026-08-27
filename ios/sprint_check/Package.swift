@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "sprint_check",
     platforms: [
-        .iOS("15.5")
+        .iOS("15.0")
     ],
     products: [
         .library(name: "sprint-check", targets: ["sprint_check"])
